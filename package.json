@@ -1,0 +1,11 @@
+{
+  "name": "BoomBox-server",
+  "description":"A music player / media server which can be controlled via a web frontend.",
+  "version": "0.0.1",
+  "private": true,
+  "dependencies": {
+    "express": "4.13.4",
+    "mu2express":"0.0.1",
+    "speaker":"0.2.6"
+  }
+}

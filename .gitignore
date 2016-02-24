@@ -1,0 +1,2 @@
+#ignore modules pulled in via npm and package.json:
+node_modules/
