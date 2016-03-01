@@ -5,18 +5,25 @@ module.exports = function(grunt) {
     uglify: {
       build: {
         src: 'app/js/app.js',
-        dest: '/app/css/app.min.js',
+        dest: 'app/css/app.min.js',
       },
     },
     concat: {
+      options: {
+        sourceMap: true
+      },
       dist: {
         src: ['app/js/reset.js','app/js/grid.js','app/js/main.js'],
         dest: 'app/js/app.js',
       },
     },
+    jshint: {
+      beforeconcat: ['app/js/reset.js','app/js/grid.js','app/js/main.js']
+    },
     csslint: {
       options: {
         csslintrc: '.csslintrules',
+        sourceMap: true
       },
       src: ['app/css/reset.css','app/css/grid.css','app/css/main.css'],
     },
