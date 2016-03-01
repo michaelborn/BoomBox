@@ -1,2 +1,5 @@
 #ignore modules pulled in via npm and package.json:
 node_modules/
+
+#ignore log file!
+npm_debug.log
