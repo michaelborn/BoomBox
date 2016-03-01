@@ -1,0 +1,114 @@
+/*======================================================
+** 			|     grid.css       |  		  **
+======================================================== */
+.clearfix:before,
+.clearfix:after,
+.grid:before,
+.grid:after {
+    content: "";
+    display: table;
+}
+.clearfix:after,
+.grid:after {
+    clear: both;
+}
+.clearfix, .grid {
+    zoom: 1; /* For IE 6/7 (trigger hasLayout) */
+}
+.grid.equalHeight {
+	display: -webkit-flex;
+	display: flex;
+	flex-wrap: wrap;/*allow to wrap if too many columns*/
+}
+.grid [class*="col-"] {
+	padding: 0 12px;
+	float: left;
+	clear: none;
+	-webkit-box-sizing: border-box;
+	-moz-box-sizing: border-box;
+	box-sizing: border-box;
+	min-height: 1px;/*keeps it from collapsing fully. allows other columns to float alongside.*/
+}
+.grid.nopad > [class*="col-"] {
+	padding: 0;
+}
+.grid [class*="col-"]:last-child {
+	float: right;/*so edges always line up.*/
+}
+.grid.edges {
+	margin-left: -12px;
+	margin-right: -12px;
+	box-sizing: content-box;
+}
+.grid .col-1 {
+	width: 4.1666%;
+}
+.grid .col-2 {
+	width: 8.3%;
+}
+.grid .col-3 {
+	width: 12.5%;
+}
+.grid .col-4 {
+	width: 16.666%;
+}
+.grid .col-5 {
+	width: 20.8333%;
+}
+.grid .col-6 {
+	width: 25%;
+}
+.grid .col-7 {
+	width: 29.1666%;
+}
+.grid .col-8 {
+	width: 33.333%;
+}
+.grid .col-9 {
+	width: 37.5%;
+}
+.grid .col-10 {
+	width: 41.666%;
+}
+.grid .col-11 {
+	width: 45.8333%;
+}
+.grid .col-12 {
+	width: 50%;
+}
+.grid .col-13 {
+	width: 54.1666%;
+}
+.grid .col-14 {
+	width: 58.333%;
+}
+.grid .col-15 {
+	width: 62.5%;
+}
+.grid .col-16 {
+	width: 66.666%;
+}
+.grid .col-17 {
+	width: 70.8333%;
+}
+.grid .col-18 {
+	width: 75%;
+}
+.grid .col-19 {
+	width: 79.1666%;
+}
+.grid .col-20 {
+	width: 83.333%;
+}
+.grid .col-21 {
+	width: 87.5%;
+}
+.grid .col-22 {
+	width: 91.666%;
+}
+.grid .col-23 {
+	width: 95.8333%;
+}
+.grid .col-24 {
+	width: 100%;
+}
