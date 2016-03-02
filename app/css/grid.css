@@ -20,7 +20,7 @@
 	display: flex;
 	flex-wrap: wrap;/*allow to wrap if too many columns*/
 }
-.grid [class*="col-"] {
+.grid .col {
 	padding: 0 12px;
 	float: left;
 	clear: none;
@@ -29,11 +29,8 @@
 	box-sizing: border-box;
 	min-height: 1px;/*keeps it from collapsing fully. allows other columns to float alongside.*/
 }
-.grid.nopad > [class*="col-"] {
+.grid.nopad > .col {
 	padding: 0;
-}
-.grid [class*="col-"]:last-child {
-	float: right;/*so edges always line up.*/
 }
 .grid.edges {
 	margin-left: -12px;
