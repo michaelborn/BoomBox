@@ -18,8 +18,9 @@ var lib = function() {
   };
 
   var ajax = function(endpoint,data,callback,method) {
-    var body,boundary,
-        method = method ? method : "GET";//method is GET by default
+    var reqBody = '',
+        reqBoundary,
+        reqMethod = method ? method : "GET";//method is GET by default
         data = data ? data : {}; // data object is empty object by default
 
     // parameter validation
@@ -30,14 +31,14 @@ var lib = function() {
       callback(json);
     };
 
-    var addFormData = function() {
+    var addFormData = function(dat) {
       var bodyStr = '',
-          boundary = parseInt(Math.random()*1000),
-          boundaryStr = "---"+boundary;
+          reqBoundary = parseInt(Math.random()*1000),
+          boundaryStr = "---"+reqBoundary;
       
-      for (var field in data) {
+      for (var field in dat) {
         bodyStr += '\r\n' + 'Content-Disposition: form-data; name="'+field;
-        bodyStr += data[field];
+        bodyStr += dat[field];
         bodyStr += '\r\n' + boundaryStr;
       }
       bodyStr += '---';//end of form data!
@@ -47,12 +48,12 @@ var lib = function() {
 
     var myRequest = new XMLHttpRequest();
     myRequest.addEventListener("load",callback);
-    if (method==="POST") 
-      myRequest.setRequestHeader("Content-Type", "multipart\/form-data; boundary="+boundary);
-      body = addFormData();
+    myRequest.open(reqMethod,"/api/v1/"+endpoint);
+    if (reqMethod === "POST") {
+      myRequest.setRequestHeader("Content-Type", "multipart\/form-data; boundary="+reqBoundary);
+      reqBody = addFormData();
     }
-    myRequest.open(method,"/api/v1/"+endpoint);
-    myRequest.send();
+    myRequest.send(reqBody);
   };
 
   return {
