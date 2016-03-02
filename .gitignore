@@ -3,3 +3,6 @@ node_modules/
 
 #ignore log file!
 npm_debug.log
+
+#ignore all Vi/Vim swapfiles
+*.swp
