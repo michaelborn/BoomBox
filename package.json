@@ -5,7 +5,8 @@
   "private": true,
   "dependencies": {
     "express": "4.13.4",
-    "mu2express": "0.0.1"
+    "mu2express": "0.0.1",
+    "node-static": "~0.7.7"
   },
   "devDependencies": {
     "grunt": "~0.4.5",
