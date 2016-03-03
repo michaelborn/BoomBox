@@ -2,6 +2,12 @@
 
 var lib = function() {
 
+  var toDom = function(str) {
+    var tmp = document.createElement("div");
+    tmp.innerHTML = str;console.log(tmp);
+    return tmp.children;
+  };
+
   var serialize = function(obj) {
     /**
      * serialize()
@@ -58,6 +64,7 @@ var lib = function() {
 
   return {
     serialize: serialize,
-    ajax: ajax
+    ajax: ajax,
+    toDom: toDom
   };
 };
