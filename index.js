@@ -20,6 +20,12 @@ app.engine('mustache', mu2Express.engine);
 app.set('view engine', 'mustache');
 app.set('views', path.join(__dirname, 'app/views'));
 
+// allow GET requests for static files in the /app folder.
+app.use('/app', express.static(__dirname + '/app'));
+
+// log requests made AFTER this module is loaded
+// app.use(logger());
+
 //start the server
 app.listen(8080, function() {
   console.log("Listening on port 8080!");
