@@ -36,3 +36,34 @@
   font-weight: 700;
   color: inherit;
 }
+
+
+/* app data - songs */
+.list-item {
+  background-color: #444;
+  border-bottom: 1px solid #555;
+  color: #fff;
+  padding: .7em;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.list-item .media {
+  margin-right: .7em;
+}
+
+
+/* song controls - play/pause buttons INSIDE LIST */
+.song-controls button {
+  background: none;
+  border-radius: 1em;
+  border: 0;
+  padding: .4em;
+  text-shadow: 2px 2px 3px rgba(255, 255, 255, 0.5);
+  text-align: center;
+  font-size: 1.4em;
+  color: #E81C0C;
+}
+/* app data - albums */
+
+/* app data - artists */
