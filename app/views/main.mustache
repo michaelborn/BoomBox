@@ -1,19 +1,40 @@
 <!doctype html>
 <html class="no-js" lang="">
-    <head>
-        <meta charset="utf-8">
-        <meta http-equiv="x-ua-compatible" content="ie=edge" />
-        <title>BoomBox App</title>
-        <meta name="description" content="" />
-        <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <head>
+      <meta charset="utf-8">
+      <meta http-equiv="x-ua-compatible" content="ie=edge" />
+      <title>BoomBox App</title>
+      <meta name="description" content="" />
+      <meta name="viewport" content="width=device-width, initial-scale=1" />
 
-        <link rel="stylesheet" href="/app/css/app.min.css" />
-    </head>
-    <body>
-        <div class="wrapper">
-        <h1>BoomBox</h1>
+      <link rel="stylesheet" href="/app/css/app.min.css" />
 
-        </div><!--/.wrapper-->
-        <script src="/app/js/app.min.js"></script>
-    </body>
+      <!-- // Thanks to FontAwesome for the font icons! -->
+      <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css">
+      
+      <!-- // Thanks to Google Fonts for the free/open source "Open Sans" font! -->
+      <link href="https://fonts.googleapis.com/css?family=Open+Sans:400,700" rel="stylesheet" type="text/css">
+  </head>
+  <body>
+      <div class="wrapper">
+        <header class="app-bar">
+          <button class="action.settings"><span class="fa fa-navicon"></span></button>
+          <ul class="app-tabs">
+            <li><a href="#">Songs</a></li> 
+            <li><a href="#">Albums</a></li> 
+            <li><a href="#">Artists</a></li> 
+          </ul><!--/.app-tabs"-->
+          <button class="action.search"><span class="fa fa-search"></span></button>
+        </header><!--/.app-bar-->
+
+        <main class="app-data">
+
+        </main><!--/.app-data-->
+        
+        <footer class="app-foot">
+
+        </footer>
+      </div><!--/.wrapper-->
+      <script src="/app/js/app.min.js"></script>
+  </body>
 </html>
