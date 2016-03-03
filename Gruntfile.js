@@ -13,7 +13,7 @@ module.exports = function(grunt) {
         sourceMap: true
       },
       dist: {
-        src: ['app/js/api.js','app/js/main.js','app/js/lib.js'],
+        src: ['app/js/api.js','app/js/lib.js','app/js/main.js'],
         dest: 'app/js/app.js'
       },
     },
