@@ -1,0 +1,38 @@
+/* app bar - controls at top */
+.app-bar {
+  background: #CC2900;
+  display: flex;
+  justify-content: space-between;
+  padding: .7em 0;
+  color: #fff;
+}
+.app-bar button {
+  background: none;
+  border: 0;
+  display: block;
+  padding: .4em;
+  font-size: 1.4rem;
+  color: inherit;
+}
+
+/* app tabs - tablist of "songs","albums", and "artists" at top */
+.app-tabs {
+  display: flex;
+  align-items: center;
+}
+
+.app-tabs li {
+  display: inline-block;
+  margin: 0;
+  padding: 0;
+  list-style-type: none;
+}
+.app-tabs li a {
+  display: inline-block;
+  padding: 4px;
+  border-bottom: #FF704C;
+  text-transform: uppercase;
+  text-decoration: none;
+  font-weight: 700;
+  color: inherit;
+}
