@@ -4,7 +4,8 @@ body {
 }
 body::after {
   background: transparent url("https://images.unsplash.com/photo-1442323794357-25b2ec110967") repeat scroll center center / cover;
-  filter: blur(36px) brightness(.9);
+  background-image: url("https://source.unsplash.com/400x900/?industrial,metal");
+  filter: blur(26px) brightness(.9) grayscale(1);
   content: '';
   display: block;
   position: fixed;
@@ -57,6 +58,25 @@ body::after {
   color: inherit;
 }
 
+/* app settings - slide in from left */
+#app-settings {
+  background: rgba(0,0,0,0.9);
+  box-sizing: border-box;
+  position: fixed;
+  left: -70vw;
+  width: 70vw;
+  min-height: 100vh;
+  padding: 15px;
+  color: #fff;
+
+
+  /*transition the settings screen open*/
+  transition: .2s transform;
+}
+#app-settings.open {
+  transform: translate(70vw,0);
+}
+
 
 /* app data - songs */
 .list-item {
@@ -74,8 +94,10 @@ body::after {
   max-width: 100%;
   height: auto;
 }
-.list-item h4 {
+.list-item .title {
   margin: 0;
+  background: rgba(0,0,0,0.15);
+  padding: 3px 10px;
 }
 
 
@@ -87,6 +109,16 @@ body::after {
   text-align: center;
   font-size: .9em;
   color: inherit;
+}
+.song.play.active {
+  background-color: #ea5916;
+  color: #DADADA;
+}
+.song-controls button:focus, 
+.song-controls button:active,
+.song-controls button:focus .fa, 
+.song-controls button:active .fa {
+  outline: none;
 }
 /* app data - albums */
 
