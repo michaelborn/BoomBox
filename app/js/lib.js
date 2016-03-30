@@ -1,10 +1,10 @@
 // lib.js - this is a short library of useful functions, primarily Ajax.
 
-var lib = function() {
+var Lib = function() {
 
   var toDom = function(str) {
     var tmp = document.createElement("div");
-    tmp.innerHTML = str;console.log(tmp);
+    tmp.innerHTML = str;
     return tmp.children;
   };
 
@@ -33,8 +33,8 @@ var lib = function() {
     if (!endpoint) { console.warn('Ajax endpoint is required.'); }
     if (!callback) { console.warn('Ajax callback is required.'); }
 
-    var myCallback = function() {
-      callback(json);
+    var myCallback = function(e) {
+        callback(data,e.target);
     };
 
     var addFormData = function(dat) {
@@ -53,7 +53,8 @@ var lib = function() {
     };
 
     var myRequest = new XMLHttpRequest();
-    myRequest.addEventListener("load",callback);
+    myRequest.responseType = "json";
+    myRequest.addEventListener("load",myCallback);
     myRequest.open(reqMethod,"/api/v1/"+endpoint);
     if (reqMethod === "POST") {
       myRequest.setRequestHeader("Content-Type", "multipart\/form-data; boundary="+reqBoundary);
@@ -68,3 +69,4 @@ var lib = function() {
     toDom: toDom
   };
 };
+lib = Lib();
