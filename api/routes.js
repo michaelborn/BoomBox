@@ -6,7 +6,9 @@ module.exports = function(app) {
   app.get(api_version_str+'/track', function(req, res) {
     if (typeof req.query.id === "undefined") {
       //then return all tracks.
-     res.send("ALL tracks");
+      res.send("ALL tracks");
+      console.log("tracks data=",tracks);
+      //tracks.find({});
     } else {
       //only return track info for the track:ID
       res.send("track info for track #"+req.query.id);
