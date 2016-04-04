@@ -2,7 +2,8 @@ var express = require('express'),
     app = express(),
     path = require('path'),
     mu2Express = require("mu2express"),
-    MongoClient = require('mongodb').MongoClient;
+    MongoClient = require('mongodb').MongoClient,
+    exec = require('child_process').exec;
 
 
 //include all the routes for the API
@@ -29,16 +30,16 @@ app.get('/', function(req, res) {
 });
 
 // start mongodb database connection 
-var url = 'mongodb://127.0.0.1';
+var url = 'mongodb://127.0.0.1:27017/test';
 MongoClient.connect(url, function(err, db) {
-  if (err !== null) { 
+  if (!err) { 
     console.log("Mongodb started correctly");
-//
+
     ////now get the tracks, artists, and albums collections
-    //var tracks = db.collection("tracks");
-    //var albums = db.collection("albums");
-    //var artists= db.collection ("artists");
-       //
+    var tracks = db.collection("tracks");
+    var albums = db.collection("albums");
+    var artists= db.collection ("artists");
+       
     //start the server
     app.listen(8080, function() {
       console.log("Listening on port 8080!");

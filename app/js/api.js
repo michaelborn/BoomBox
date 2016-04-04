@@ -11,6 +11,9 @@ var Api = function() {
     };
     lib.ajax("track",data,whenDone,"GET");
   };
+  this.songs.insert = function(opts) {
+    // we may not need to insert tracks through the frontend.
+  };
 
 };
 var api = new Api();
