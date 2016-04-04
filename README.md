@@ -31,8 +31,8 @@ Each endpoint (except for /stream/recent) accepts these parameters:
 
 ````javascript
 { 
-id: integer //REQUIRED
-random: boolean //optional
+  id: integer //REQUIRED
+  random: boolean //optional
 }
 ````
 
