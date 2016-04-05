@@ -30,6 +30,7 @@ Manage song tracks
   + Attributes (array[Song Track])
 ### Insert song [POST /track/{id}]
 + Response 201
++ Attributes (Song Track)
 ### Update song [PUT /track/{id}]
 + Response 204
 ### Delete song [DELETE /track/{id}]
@@ -45,6 +46,7 @@ Manage song albums.
   + Attributes (array[Song Album])
 ### Insert album [POST]
 + Response 201
++ Attributes (Song Album)
 ### Update album [PUT]
 + Response 204
 ### Delete album [DELETE]
@@ -60,17 +62,36 @@ Manage song artists.
   + Attributes (array[Song Artist])
 ### Insert artist [POST]
 + Response 201
++ Attributes (Song Artist)
 ### Update artist [PUT]
 + Response 204
 ### Delete artist [DELETE]
 + Response 204
 
 ## Stream audio [/stream]
-Each endpoint (except for /stream/recent) accepts these parameters:
 
-````javascript
-{ 
-  id: integer //REQUIRED
-  random: boolean //optional
-}
-````
+### Stream song [GET /stream/track/{id}]
+Play a given song.
++ Attributes
+  + id (number,required)
+  + repeat (boolean) - if true, infinitely loops the song track
+    + default: false
+
+### Stream album [GET /stream/album/{id}]
+Play all songs from a given album.
++ Attributes
+  + id (number,required)
+  + shuffle (boolean) - if true, randomizes play order of tracks by artist
+    + default: false
+  + repeat (boolean) - if true, infinitely loops the song tracks
+    + default: false
+
+### Stream artist [GET /stream/artist/{id}]
+Play all songs by a given artist.
++ Attributes
+  + id (number,required)
+  + shuffle (boolean) - if true, randomizes play order of tracks by artist
+    + default: false
+  + repeat (boolean) - if true, infinitely loops the song tracks
+    + default: false
+
