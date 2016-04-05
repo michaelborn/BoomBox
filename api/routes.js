@@ -46,6 +46,7 @@ module.exports = function(app) {
         console.info("played/playing song file!");
       });
     }
+  });
 
   // Routes for getting, creating, updating, and deleting song tracks by ID.
   // ID is required for all except GET.
