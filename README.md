@@ -7,6 +7,7 @@ Use a raspberry pi or any computer as a media server for audio files.
 * Grunt.js
 
 ## API docs
+This will probably, hopefully, soon be converted to (API Blueprint)[https://apiblueprint.org/].
 
 ### Manage tracks
 * `GET          /track`
