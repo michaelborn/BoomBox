@@ -1,0 +1,50 @@
+FORMAT: 1A
+# BoomBox
+Use a raspberry pi or any computer as a media server for audio files.
+
+# Group Tracks
+Manage song tracks
+
+## Song track collection [/track]
+
+### List one or all albums [GET]
+### Insert new album [POST]
+### Update album info [PUT]
+### Delete song [DELETE]
+
+# Group Albums
+Manage song albums
+
+## Song album collection [/album]
+
+### List one or all albums [GET]
+### Insert new album [POST]
+### Update album info [PUT]
+### Delete song [DELETE]
+
+# Group Artists
+Manage song artists.
+
+## Song artist collection [/artist]
+
+### List one or all albums [GET]
++ Response 200
+### Insert new album [POST]
+### Update album info [PUT]
+### Delete song [DELETE]
+### Manage artists
+
+## Stream songs/artists/albums
+Each endpoint (except for /stream/recent) accepts these parameters:
+
+````javascript
+{ 
+  id: integer //REQUIRED
+  random: boolean //optional
+}
+````
+
+* `GET          /stream/track:id`
+* `GET          /stream/album:id`
+* `GET          /stream/artist:id`
+* `GET          /stream/recent`
