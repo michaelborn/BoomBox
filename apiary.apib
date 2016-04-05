@@ -1,7 +1,24 @@
 FORMAT: 1A
-<<<<<<< HEAD
+
 # BoomBox
 Use a raspberry pi or any computer as a media server for audio files.
+
+# Data Structures
+
+## Song Track (object)
++ id: (number,required)
++ albumid (number)
++ name: (string,required)
++ filename (string,required)
+
+## Song Album (object)
++ id: (number,required)
++ artistid (number,required)
++ name: (string)
+
+## Song Artist (object)
++ id: (number,required)
++ name: (string)
 
 # Group Tracks
 Manage song tracks
@@ -9,9 +26,12 @@ Manage song tracks
 ## Song track collection [/track]
 
 ### List one or all albums [GET]
++ Response 200 (application/json)
+  + Attributes (array[Song Track])
 ### Insert new album [POST]
 ### Update album info [PUT]
 ### Delete song [DELETE]
++ Response 204
 
 # Group Albums
 Manage song albums
@@ -22,6 +42,7 @@ Manage song albums
 ### Insert new album [POST]
 ### Update album info [PUT]
 ### Delete song [DELETE]
++ Response 204
 
 # Group Artists
 Manage song artists.
@@ -33,9 +54,9 @@ Manage song artists.
 ### Insert new album [POST]
 ### Update album info [PUT]
 ### Delete song [DELETE]
-### Manage artists
++ Response 204
 
-## Stream songs/artists/albums
+## Stream audio [/stream]
 Each endpoint (except for /stream/recent) accepts these parameters:
 
 ````javascript
@@ -44,4 +65,3 @@ Each endpoint (except for /stream/recent) accepts these parameters:
   random: boolean //optional
 }
 ````
-
