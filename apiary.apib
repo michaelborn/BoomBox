@@ -25,12 +25,12 @@ Manage song tracks
 
 ## Song track collection [/track]
 
-### List one or all albums [GET]
+### List one or all songs [GET /track]
 + Response 200 (application/json)
   + Attributes (array[Song Track])
-### Insert song [POST]
-### Update song [PUT]
-### Delete song [DELETE]
+### Insert song [POST /track/{id}]
+### Update song [PUT /track/{id}]
+### Delete song [DELETE /track/{id}]
 + Response 204
 
 # Group Albums
@@ -51,7 +51,7 @@ Manage song artists.
 
 ## Song artist collection [/artist]
 
-### List one or all artist [GET]
+### List one or all artists [GET]
 + Response 200 (application/json)
   + Attributes (array[Song Artist])
 ### Insert artist [POST]
