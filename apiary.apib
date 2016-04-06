@@ -18,7 +18,7 @@ Use a raspberry pi or any computer as a media server for audio files.
 + genre: Country
 
 ## Song Artist (object)
-+ id: (number,required)
++ id: 1 (number,required)
 + name: Merle Haggard (string,required)
 
 # Group Tracks
@@ -29,8 +29,8 @@ Manage song tracks
 ### List one or all songs [GET /track[/{id}]]
 Search song collection, paginate by limit and page parameters, or limit by id.
 + Parameters 
-  + search (number,optional) - keyword or phrase to search for
-  + limit (number,optional) - maximum number of items to retrieve
+  + search: `Dock of the bay` (number,optional) - keyword or phrase to search for
+  + limit: `3` (number,optional) - maximum number of items to retrieve
     + Default: 25
   + page (number,optional) - retrieve nth page of {limit} items
     + Default: 1
@@ -55,8 +55,8 @@ Manage song albums.
 ### List one or all albums [GET /album[/{id}]]
 Search album collection, paginate by limit and page parameters, or limit by id.
 + Parameters 
-  + search (number,optional) - keyword or phrase to search for
-  + limit (number,optional) - maximum number of items to retrieve
+  + search: `Man in black` (number,optional) - keyword or phrase to search for
+  + limit: `3` (number,optional) - maximum number of items to retrieve
     + Default: 25
   + page (number,optional) - retrieve nth page of {limit} items
     + Default: 1
@@ -81,8 +81,8 @@ Manage song artists.
 ### List one or all artists [GET /artist[/{id}]]
 Search artists collection, paginate by limit and page parameters, or limit by id.
 + Parameters 
-  + search (number,optional) - keyword or phrase to search for
-  + limit (number,optional) - maximum number of items to retrieve
+  + search: `Johnny` (number,optional) - keyword or phrase to search for
+  + limit: `3` (number,optional) - maximum number of items to retrieve
     + Default: 25
   + page (number,optional) - retrieve nth page of {limit} items
     + Default: 1
