@@ -31,9 +31,9 @@ Search song collection, paginate by limit and page parameters, or limit by id.
 + Parameters 
   + search: `Dock of the bay` (number,optional) - keyword or phrase to search for
   + limit: `3` (number,optional) - maximum number of items to retrieve
-    + Default: 25
-  + page (number,optional) - retrieve nth page of {limit} items
-    + Default: 1
+    + Default: `25`
+  + page: `1` (number,optional) - retrieve nth page of {limit} items
+    + Default: `1`
 + Response 200 (application/json)
   + Attributes (array[Song Track])
 ### Insert song [POST /track/{id}]
@@ -57,9 +57,9 @@ Search album collection, paginate by limit and page parameters, or limit by id.
 + Parameters 
   + search: `Man in black` (number,optional) - keyword or phrase to search for
   + limit: `3` (number,optional) - maximum number of items to retrieve
-    + Default: 25
+    + Default: `25`
   + page (number,optional) - retrieve nth page of {limit} items
-    + Default: 1
+    + Default: `1`
 + Response 200 (application/json)
   + Attributes (array[Song Album])
 ### Insert album [POST /album/{id}]
@@ -83,9 +83,9 @@ Search artists collection, paginate by limit and page parameters, or limit by id
 + Parameters 
   + search: `Johnny` (number,optional) - keyword or phrase to search for
   + limit: `3` (number,optional) - maximum number of items to retrieve
-    + Default: 25
+    + Default: `25`
   + page (number,optional) - retrieve nth page of {limit} items
-    + Default: 1
+    + Default: `1`
 + Response 200 (application/json)
   + Attributes (array[Song Artist])
 ### Insert artist [POST /album/{id}]
@@ -108,25 +108,25 @@ Manage the audio stream. Includes play, pause, and choosing resources to play, s
 Play a given song, indicated by the id in the url.
 + Parameters
   + repeat (boolean) - if true, infinitely loops the song track
-    + Default: false
+    + Default: `false`
 + Response 200
 
 ### Stream album [GET /stream/album/{id}]
 Play all songs from a given album, indicated by the id in the url.
 + Parameters
   + shuffle (boolean) - if true, randomizes play order of tracks by artist
-    + Default: false
+    + Default: `false`
   + repeat (boolean) - if true, infinitely loops the song tracks
-    + Default: false
+    + Default: `false`
 + Response 200
 
 ### Stream artist [GET /stream/artist/{id}]
 Play all songs by a given artist, indicated by the id in the url.
 + Parameters
   + shuffle (boolean) - if true, randomizes play order of tracks by artist
-    + Default: false
+    + Default: `false`
   + repeat (boolean) - if true, infinitely loops the song tracks
-    + Default: false
+    + Default: `false`
 + Response 200
 
 ### Pause audio stream [GET /stream/pause]
