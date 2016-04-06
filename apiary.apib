@@ -27,12 +27,13 @@ Manage song tracks
 ## Song track collection [/track]
 
 ### List one or all songs [GET /track[/{id}]]
+Search song collection, paginate by limit and page parameters, or limit by id.
 + Parameters 
   + search (number,optional) - keyword or phrase to search for
   + limit (number,optional) - maximum number of items to retrieve
-    + default: 25
+    + Default: 25
   + page (number,optional) - retrieve nth page of {limit} items
-    + default: 1
+    + Default: 1
 + Response 200 (application/json)
   + Attributes (array[Song Track])
 ### Insert song [POST /track/{id}]
@@ -49,12 +50,13 @@ Manage song albums.
 ## Song album collection [/album]
 
 ### List one or all albums [GET /album[/{id}]]
+Search album collection, paginate by limit and page parameters, or limit by id.
 + Parameters 
   + search (number,optional) - keyword or phrase to search for
   + limit (number,optional) - maximum number of items to retrieve
-    + default: 25
+    + Default: 25
   + page (number,optional) - retrieve nth page of {limit} items
-    + default: 1
+    + Default: 1
 + Response 200 (application/json)
   + Attributes (array[Song Album])
 ### Insert album [POST /album/{id}]
@@ -71,12 +73,13 @@ Manage song artists.
 ## Song artist collection [/artist]
 
 ### List one or all artists [GET /artist[/{id}]]
+Search artists collection, paginate by limit and page parameters, or limit by id.
 + Parameters 
   + search (number,optional) - keyword or phrase to search for
   + limit (number,optional) - maximum number of items to retrieve
-    + default: 25
+    + Default: 25
   + page (number,optional) - retrieve nth page of {limit} items
-    + default: 1
+    + Default: 1
 + Response 200 (application/json)
   + Attributes (array[Song Artist])
 ### Insert artist [POST /album/{id}]
@@ -96,21 +99,21 @@ Manage the audio stream. Includes play, pause, and choosing resources to play, s
 Play a given song, indicated by the id in the url.
 + Attributes
   + repeat (boolean) - if true, infinitely loops the song track
-    + default: false
+    + Default: false
 
 ### Stream album [GET /stream/album/{id}]
 Play all songs from a given album, indicated by the id in the url.
 + Attributes
   + shuffle (boolean) - if true, randomizes play order of tracks by artist
-    + default: false
+    + Default: false
   + repeat (boolean) - if true, infinitely loops the song tracks
-    + default: false
+    + Default: false
 
 ### Stream artist [GET /stream/artist/{id}]
 Play all songs by a given artist, indicated by the id in the url.
 + Attributes
   + shuffle (boolean) - if true, randomizes play order of tracks by artist
-    + default: false
+    + Default: false
   + repeat (boolean) - if true, infinitely loops the song tracks
-    + default: false
+    + Default: false
 
