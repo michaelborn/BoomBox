@@ -38,8 +38,8 @@ Search song collection, paginate by limit and page parameters, or limit by id.
   + Attributes (array[Song Track])
 ### Insert song [POST /track/{id}]
 Save information about an audio track. This does not include the capability to upload/save the file to the hard drive! Which means that the file must already exist.
-+ Response 201
-+ Attributes (array[Song Track])
++ Response 201 (application/json)
+  + Attributes (array[Song Track])
 ### Update song [PUT /track/{id}]
 Update a field or set of fields concerning a given audio track.
 + Response 204
@@ -64,8 +64,8 @@ Search album collection, paginate by limit and page parameters, or limit by id.
   + Attributes (array[Song Album])
 ### Insert album [POST /album/{id}]
 Save information about a new album.
-+ Response 201
-+ Attributes (array[Song Album])
++ Response 201 (application/json)
+  + Attributes (array[Song Album])
 ### Update album [PUT /album/{id}]
 Update a field or set of fields concerning a given album.
 + Response 204
@@ -91,7 +91,7 @@ Search artists collection, paginate by limit and page parameters, or limit by id
 ### Insert artist [POST /album/{id}]
 Save information about a new artist.
 + Response 201
-+ Attributes (Song Artist)
+  + Attributes (Song Artist)
 ### Update artist [PUT /album/{id}]
 Update a field or set of fields concerning a given artist.
 + Response 204
@@ -106,25 +106,28 @@ Manage the audio stream. Includes play, pause, and choosing resources to play, s
 
 ### Stream song [GET /stream/track/{id}]
 Play a given song, indicated by the id in the url.
-+ Attributes
++ Parameters
   + repeat (boolean) - if true, infinitely loops the song track
     + Default: false
++ Response 200
 
 ### Stream album [GET /stream/album/{id}]
 Play all songs from a given album, indicated by the id in the url.
-+ Attributes
++ Parameters
   + shuffle (boolean) - if true, randomizes play order of tracks by artist
     + Default: false
   + repeat (boolean) - if true, infinitely loops the song tracks
     + Default: false
++ Response 200
 
 ### Stream artist [GET /stream/artist/{id}]
 Play all songs by a given artist, indicated by the id in the url.
-+ Attributes
++ Parameters
   + shuffle (boolean) - if true, randomizes play order of tracks by artist
     + Default: false
   + repeat (boolean) - if true, infinitely loops the song tracks
     + Default: false
++ Response 200
 
 ### Pause audio stream [GET /stream/pause]
 Gracefully halts the audio stream. (duh, y'all should know what "pause" means!)
