@@ -25,7 +25,7 @@ Manage song tracks
 
 ## Song track collection [/track]
 
-### List one or all songs [GET /track]
+### List one or all songs [GET /track[{id}]]
 + Response 200 (application/json)
   + Attributes (array[Song Track])
 ### Insert song [POST /track/{id}]
@@ -41,15 +41,15 @@ Manage song albums.
 
 ## Song album collection [/album]
 
-### List one or all albums [GET]
+### List one or all albums [GET /album[/{id}]]
 + Response 200 (application/json)
   + Attributes (array[Song Album])
-### Insert album [POST]
+### Insert album [POST /album/{id}]
 + Response 201
 + Attributes (Song Album)
-### Update album [PUT]
+### Update album [PUT /album/{id}]
 + Response 204
-### Delete album [DELETE]
+### Delete album [DELETE /album/{id}]
 + Response 204
 
 # Group Artists
@@ -57,15 +57,15 @@ Manage song artists.
 
 ## Song artist collection [/artist]
 
-### List one or all artists [GET]
+### List one or all artists [GET /artist[/{id}]]
 + Response 200 (application/json)
   + Attributes (array[Song Artist])
-### Insert artist [POST]
+### Insert artist [POST /album/{id}]
 + Response 201
 + Attributes (Song Artist)
-### Update artist [PUT]
+### Update artist [PUT /album/{id}]
 + Response 204
-### Delete artist [DELETE]
+### Delete artist [DELETE /album/{id}]
 + Response 204
 
 # Group Stream
