@@ -6,19 +6,20 @@ Use a raspberry pi or any computer as a media server for audio files.
 # Data Structures
 
 ## Song Track (object)
-+ id: (number,required)
-+ albumid (number)
-+ name: (string,required)
++ id: 1 (number,required)
++ name: Mama Tried (string,required)
 + filename (string,required)
++ albumid: 1 (number)
 
 ## Song Album (object)
-+ id: (number,required)
-+ artistid (number,required)
-+ name: (string)
++ id: 1 (number,required)
++ artistid: 1 (number,required)
++ name: A Portrait of Merle Haggard (string)
++ genre: Country
 
 ## Song Artist (object)
 + id: (number,required)
-+ name: (string)
++ name: Merle Haggard (string,required)
 
 # Group Tracks
 Manage song tracks
@@ -36,7 +37,7 @@ Manage song tracks
   + Attributes (array[Song Track])
 ### Insert song [POST /track/{id}]
 + Response 201
-+ Attributes (Song Track)
++ Attributes (array[Song Track])
 ### Update song [PUT /track/{id}]
 + Response 204
 ### Delete song [DELETE /track/{id}]
@@ -58,7 +59,7 @@ Manage song albums.
   + Attributes (array[Song Album])
 ### Insert album [POST /album/{id}]
 + Response 201
-+ Attributes (Song Album)
++ Attributes (array[Song Album])
 ### Update album [PUT /album/{id}]
 + Response 204
 ### Delete album [DELETE /album/{id}]
