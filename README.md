@@ -10,6 +10,7 @@ Use a raspberry pi or any computer as a media server for audio files.
 * Install node and npm. `sudo apt-get install nodejs npm`
 * Install Mongo. `sudo apt-get install mongodb`
 * Install package dependencies. `npm install`
+* Install grunt. `sudo npm install -g grunt-cli`
 * Run grunt to compile frontend scripts, etc. `grunt`
 
 ## API docs
