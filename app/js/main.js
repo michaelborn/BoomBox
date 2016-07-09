@@ -36,7 +36,7 @@ var songList = dataBox.querySelectorAll(".song");
 for (var i=0;i<songList.length;i++) {
   var curSong = new Song(songList[i]);
   songList[i].addEventListener("click",curSong.toggle);
-  console.log(curSong);
+  //console.log(curSong);
 }
 
 console.log("This should be an API() object, with a songs.get() method.",api);
