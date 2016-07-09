@@ -5,7 +5,7 @@ module.exports = function(grunt) {
     uglify: {
       build: {
         src: 'app/js/app.js',
-        dest: 'app/js/app.min.js'
+        dest: 'app/dist/js/app.min.js'
       }
     },
     concat: {
@@ -14,7 +14,7 @@ module.exports = function(grunt) {
       },
       dist: {
         src: ['app/js/api.js','app/js/lib.js','app/js/main.js'],
-        dest: 'app/js/app.js'
+        dest: 'app/dist/js/app.js'
       },
     },
     jshint: {
@@ -30,7 +30,7 @@ module.exports = function(grunt) {
     cssmin: {
       target: {
         files: {
-          'app/css/app.min.css': ['app/css/reset.css','app/css/grid.css','app/css/main.css']
+          'app/dist/css/app.min.css': ['app/css/reset.css','app/css/grid.css','app/css/main.css']
         }
       }
     }
