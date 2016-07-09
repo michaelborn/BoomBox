@@ -35,7 +35,7 @@ MongoClient.connect(url, function(err, db) {
   if (!err) { 
     console.log("Mongodb started correctly");
 
-    ////now get the tracks, artists, and albums collections
+    //now get the tracks, artists, and albums collections
     var tracks = db.collection("tracks");
     var albums = db.collection("albums");
     var artists= db.collection ("artists");
