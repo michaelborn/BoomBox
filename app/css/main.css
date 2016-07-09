@@ -2,6 +2,7 @@
 body {
   height: 100%;
 }
+/*
 body::after {
   background: transparent url("https://images.unsplash.com/photo-1442323794357-25b2ec110967") repeat scroll center center / cover;
   background-image: url("https://source.unsplash.com/400x900/?industrial,metal");
@@ -15,15 +16,17 @@ body::after {
   right: -50%;
   bottom: -50%;
 }
+*/
 
 
 /* app bar - controls at top */
 .app-bar {
-  background: linear-gradient(#000,rgba(0,0,0,0.5));
+  background: #f3c027;
   display: flex;
   height: 2.5em;
   justify-content: space-between;
   padding: .7em 0;
+  text-shadow: 1px 1px 1px rgba(0,0,0,0.5);
   color: #fff;
 }
 .app-bar button {
@@ -80,7 +83,7 @@ body::after {
 
 /* app data - songs */
 .list-item {
-  color: #fff;
+  color: #ff8125;
   padding: .5em 1em;
   display: flex;
   align-items: center;
@@ -96,7 +99,6 @@ body::after {
 }
 .list-item .title {
   margin: 0;
-  background: rgba(0,0,0,0.15);
   padding: 3px 10px;
 }
 
