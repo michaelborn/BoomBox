@@ -33,13 +33,9 @@ app.get('/', function(req, res) {
 var url = 'mongodb://127.0.0.1:27017/test';
 MongoClient.connect(url, function(err, db) {
   if (!err) { 
+    global.db = db; // Share the database to the global scope
     console.log("Mongodb started correctly");
 
-    //now get the tracks, artists, and albums collections
-    var tracks = db.collection("tracks");
-    var albums = db.collection("albums");
-    var artists= db.collection ("artists");
-       
     //start the server
     app.listen(8080, function() {
       console.log("Listening on port 8080!");
