@@ -34,7 +34,7 @@ var url = 'mongodb://127.0.0.1:27017/test';
 MongoClient.connect(url, function(err, db) {
   if (!err) { 
     global.db = db; // Share the database to the global scope
-    console.log("Mongodb started correctly");
+    console.log("Connected to Mongo!");
 
     //start the server
     app.listen(8080, function() {
