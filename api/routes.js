@@ -48,18 +48,30 @@ module.exports = function(app) {
     }
   });
 
+  // http://docs.boombox.apiary.io/#reference/tracks/list-one-or-all-songs
   // Routes for getting, creating, updating, and deleting song tracks by ID.
   // ID is required for all except GET.
   app.get(api_version_str+'/track', function(req, res) {
-    if (typeof req.query.id === "undefined") {
-      //then return all tracks.
-      res.send("ALL tracks");
-      console.log("database:",db);
-      console.log("tracks data=",db.collection("tracks"));
-    } else {
-      //only return track info for the track:ID
-      res.send("track info for track #"+req.query.id);
+    var filterOpts = {};
+    if (typeof req.query.id !== "undefined") {
+      filterOpts._id = { $eq: req.query.id };
     }
+
+    if (typeof req.query.limit !== "number" || req.query.limit > 50) {
+      req.query.limit = 50; // Max 50 records. TODO: Return page number with data set
+    }
+
+    if (typeof req.query.search !== "undefined") {
+      // turn search into an array of keywords.
+      filterOpts.name = { $in: req.query.search.split(' ') };
+    }
+    //console.log("Searching by filterOpts:",filterOpts);
+    // Return tracks searchable by name, sorted a-z by name, LIMIT 50
+    data = db.collection("tracks").find(filterOpts).sort({name: -1}).limit(req.query.limit);
+
+    data.toArray(function(err,results) {
+      res.send(results);
+    })
   });
   app.post(api_version_str+'/track/:id', function(req, res) {
     console.log(req.params);
