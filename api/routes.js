@@ -52,12 +52,16 @@ module.exports = function(app) {
   // Routes for getting, creating, updating, and deleting song tracks by ID.
   // ID is required for all except GET.
   app.get(api_version_str+'/track', function(req, res) {
-    var filterOpts = {};
-    if (typeof req.query.id !== "undefined") {
-      filterOpts._id = { $eq: req.query.id };
-    }
+    var filterOpts = {},
+        data;
 
-    if (typeof req.query.limit !== "number" || req.query.limit > 50) {
+    if (typeof req.query.id !== "undefined") {
+      filterOpts._id = new ObjectId(req.query.id);
+    }
+    if (typeof req.query.limit !== "undefined") {
+      req.query.limit = parseInt(req.query.limit);
+    }
+    if (typeof req.query.limit === "undefined" || req.query.limit > 50) {
       req.query.limit = 50; // Max 50 records. TODO: Return page number with data set
     }
 
@@ -65,12 +69,17 @@ module.exports = function(app) {
       // turn search into an array of keywords.
       filterOpts.name = { $in: req.query.search.split(' ') };
     }
-    //console.log("Searching by filterOpts:",filterOpts);
+
+    console.log("Searching by filterOpts:",filterOpts);
     // Return tracks searchable by name, sorted a-z by name, LIMIT 50
     data = db.collection("tracks").find(filterOpts).sort({name: -1}).limit(req.query.limit);
 
     data.toArray(function(err,results) {
-      res.send(results);
+      if (err) {
+        res.send(err)
+      } else {
+        res.send(results);
+      }
     })
   });
   app.post(api_version_str+'/track/:id', function(req, res) {
