@@ -1,9 +1,15 @@
 var express = require('express'),
     app = express(),
     path = require('path'),
-    mu2Express = require("mu2express"),
-    MongoClient = require('mongodb').MongoClient,
-    exec = require('child_process').exec;
+    mu2Express = require('mu2express'),
+    mongodb = require('mongodb'),
+    MongoClient = mongodb.MongoClient,
+    exec = require('child_process').exec,
+    ObjectId = mongodb.ObjectID;
+
+// this is stupid
+global.mongodb = mongodb;
+global.ObjectId = ObjectId;
 
 
 //include all the routes for the API
@@ -29,15 +35,11 @@ app.get('/', function(req, res) {
 var url = 'mongodb://127.0.0.1:27017/test';
 MongoClient.connect(url, function(err, db) {
   if (!err) { 
-    console.log("Connected to Mongo!");
+    console.log("Connected to Mongo on port 27017!");
 
     // Share the database to the global scope
     global.db = db;
     
-    // testing purposes: remove all, insert one
-    db.collection("tracks").remove();
-    db.collection("tracks").insert({"name" : "Mama Tried", "filename" : "/audio/merle/mama.ogg", "albumid" : 1 });
-
     //start the server
     app.listen(8080, function() {
       console.log("Listening on port 8080!");
