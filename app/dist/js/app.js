@@ -4,12 +4,9 @@ var Api = function() {
   this.albums = {};
   this.artists = {};
 
-  this.songs.get = function(opts) {
-    var data = opts; 
-    var whenDone = function(dat) {
-      console.log("Ajax response:",dat);
-    };
-    lib.ajax("track",data,whenDone,"GET");
+  this.songs.get = function(opts,callback) {
+    var data = opts;
+    lib.ajax("/api/v1/track",data,callback,"GET");
   };
   this.songs.insert = function(opts) {
     // we may not need to insert tracks through the frontend.
@@ -18,15 +15,29 @@ var Api = function() {
 };
 var api = new Api();
 
-
 // lib.js - this is a short library of useful functions, primarily Ajax.
 
 var Lib = function() {
 
+  var template = function(str, data) {
+    var retstr = str;
+
+    // loop over all data properties
+    for (var prop in data) {
+      // create a regex searcher for {prop}
+      var regex = new RegExp('\{'+prop+'\}','ig');
+      //console.log("lib.js/template(): regex",regex);
+      
+      // update string
+      retstr = retstr.replace(regex,data[prop]);
+    }
+    return retstr;
+  };
+
   var toDom = function(str) {
     var tmp = document.createElement("div");
     tmp.innerHTML = str;
-    return tmp.children;
+    return tmp.childNodes;
   };
 
   var serialize = function(obj) {
@@ -44,18 +55,19 @@ var Lib = function() {
     return str.join("&");
   };
 
-  var ajax = function(endpoint,data,callback,method) {
+  var ajax = function(url,data,callback,method) {
     var reqBody = '',
         reqBoundary,
         reqMethod = method ? method : "GET";//method is GET by default
         data = data ? data : {}; // data object is empty object by default
 
     // parameter validation
-    if (!endpoint) { console.warn('Ajax endpoint is required.'); }
-    if (!callback) { console.warn('Ajax callback is required.'); }
+    if (!url) { console.warn('lib.js/ajax(): Url is required.'); }
+    if (!callback) { console.warn('lib.js/ajax(): Callback is required.'); }
 
     var myCallback = function(e) {
-        callback(data,e.target);
+      //console.log("lib.js/ajax(): Ajax request completed!",arguments);
+      callback(e.target.response,e.target);
     };
 
     var addFormData = function(dat) {
@@ -69,14 +81,15 @@ var Lib = function() {
         bodyStr += '\r\n' + boundaryStr;
       }
       bodyStr += '---';//end of form data!
-      console.log('Ajax form data:',bodyStr);
+      console.log('lib.js/ajax(): form data:',bodyStr);
       return bodyStr;
     };
 
     var myRequest = new XMLHttpRequest();
     myRequest.responseType = "json";
     myRequest.addEventListener("load",myCallback);
-    myRequest.open(reqMethod,"/api/v1/"+endpoint);
+    myRequest.open(reqMethod,url);
+
     if (reqMethod === "POST") {
       myRequest.setRequestHeader("Content-Type", "multipart\/form-data; boundary="+reqBoundary);
       reqBody = addFormData();
@@ -87,12 +100,16 @@ var Lib = function() {
   return {
     serialize: serialize,
     ajax: ajax,
-    toDom: toDom
+    toDom: toDom,
+    template: template
   };
 };
 lib = Lib();
 
 //main.js - This file does all the app-ish stuff. Includes buttons, animations, and possibly offline functionality.
+// Templates
+templates = {};
+templates.song = '<div class="list-item" id="{_id}"><div class="media"><img src="{imgsrc}" alt="{name}" /></div><h4 class="title">{name}</h4><div class="song-controls"><button class="song play"><span class="fa fa-play"></button></div></div>';
 
 // Buttons!
 var settingsBtn = document.getElementById("btnSettings"),
@@ -103,8 +120,9 @@ var settingsBtn = document.getElementById("btnSettings"),
 var dataBox = document.getElementById("app-data");
 
 
-// for now, we'll use a dummy template string to generate a dummy list of songs.
-var songTemplate = '<div class="list-item"><div class="media"><img src="http://placebacon.net/75/75" alt="Song image" /></div><h4 class="title">Jailhouse Rock</h4><div class="song-controls"><button class="song play"><span class="fa fa-play"></button></div></div>';
+/*
+// for now, we'll generate a dummy list of songs.
+
 songTemplate += songTemplate + songTemplate + songTemplate;
 // add dummy data to databox for now.
 var songList = Array.prototype.slice.call(lib.toDom(songTemplate));
@@ -112,7 +130,7 @@ var appendSong = function(song) {
   dataBox.appendChild(song);
 };
 songList.forEach(appendSong);
-
+*/
 
 var openSettings = function() {
   document.getElementById("app-settings").classList.toggle("open");
@@ -123,17 +141,27 @@ var openSettings = function() {
 // here we set up all the button click events
 settingsBtn.addEventListener("click",openSettings);
 
+// Get songs
+api.songs.get({},function(json) {
+  var allsongs = '';
+  //console.log("Ajax response:",json);
 
-//songs play/pause events
-var songList = dataBox.querySelectorAll(".song");
+  // insert into page
+  for (var i=0;i<json.length;i++) {
+    // use our new template function in the library
+    allsongs += lib.template(templates.song,json[i]);
 
-for (var i=0;i<songList.length;i++) {
-  var curSong = new Song(songList[i]);
-  songList[i].addEventListener("click",curSong.toggle);
-  console.log(curSong);
-}
-
-console.log("This should be an API() object, with a songs.get() method.",api);
+    /*
+    var curSong = new Song(dataBox.getElementById(json[i]._id));
+    songList[i].addEventListener("click",curSong.toggle);
+    console.log(curSong);
+    */
+  }
+  //console.log(allsongs);
+  console.log(lib.toDom(allsongs));
+  //dataBox.innerHTML += allsongs;
+  document.getElementById("app-data").appendChild(lib.toDom(allsongs)[0].parentNode);
+});
 
 //This object does all the stuff with the song divs.
 function Song(song) {
