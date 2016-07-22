@@ -23,14 +23,14 @@ var Lib = function() {
     return str.join("&");
   };
 
-  var ajax = function(endpoint,data,callback,method) {
+  var ajax = function(url,data,callback,method) {
     var reqBody = '',
         reqBoundary,
         reqMethod = method ? method : "GET";//method is GET by default
         data = data ? data : {}; // data object is empty object by default
 
     // parameter validation
-    if (!endpoint) { console.warn('Ajax endpoint is required.'); }
+    if (!url) { console.warn('Ajax url is required.'); }
     if (!callback) { console.warn('Ajax callback is required.'); }
 
     var myCallback = function(e) {
@@ -55,7 +55,7 @@ var Lib = function() {
     var myRequest = new XMLHttpRequest();
     myRequest.responseType = "json";
     myRequest.addEventListener("load",myCallback);
-    myRequest.open(reqMethod,"/api/v1/"+endpoint);
+    myRequest.open(reqMethod,url);
     if (reqMethod === "POST") {
       myRequest.setRequestHeader("Content-Type", "multipart\/form-data; boundary="+reqBoundary);
       reqBody = addFormData();

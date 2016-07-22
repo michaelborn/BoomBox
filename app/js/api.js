@@ -4,12 +4,12 @@ var Api = function() {
   this.albums = {};
   this.artists = {};
 
-  this.songs.get = function(opts) {
+  this.songs.get = function(opts,callback) {
     var data = opts; 
     var whenDone = function(dat) {
       console.log("Ajax response:",dat);
     };
-    lib.ajax("track",data,whenDone,"GET");
+    lib.ajax("/api/v1/track",data,callback,"GET");
   };
   this.songs.insert = function(opts) {
     // we may not need to insert tracks through the frontend.
