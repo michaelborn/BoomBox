@@ -8,10 +8,11 @@ var Lib = function() {
     // loop over all data properties
     for (var prop in data) {
       // create a regex searcher for {prop}
-      var regex = new RegExp('/{'+prop+'}/');
+      var regex = new RegExp('\{'+prop+'\}','ig');
+      //console.log("lib.js/template(): regex",regex);
       
       // update string
-      retstr.replace(regex,data[prop]);
+      retstr = retstr.replace(regex,data[prop]);
     }
     return retstr;
   };
@@ -48,7 +49,7 @@ var Lib = function() {
     if (!callback) { console.warn('lib.js/ajax(): Callback is required.'); }
 
     var myCallback = function(e) {
-      console.log("lib.js/ajax(): Ajax request completed!",arguments);
+      //console.log("lib.js/ajax(): Ajax request completed!",arguments);
       callback(e.target.response,e.target);
     };
 
