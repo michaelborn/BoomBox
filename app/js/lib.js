@@ -2,6 +2,20 @@
 
 var Lib = function() {
 
+  var template = function(str, data) {
+    var retstr = str;
+
+    // loop over all data properties
+    for (var prop in data) {
+      // create a regex searcher for {prop}
+      var regex = new RegExp('/{'+prop+'}/');
+      
+      // update string
+      retstr.replace(regex,data[prop]);
+    }
+    return retstr;
+  };
+
   var toDom = function(str) {
     var tmp = document.createElement("div");
     tmp.innerHTML = str;
@@ -30,11 +44,12 @@ var Lib = function() {
         data = data ? data : {}; // data object is empty object by default
 
     // parameter validation
-    if (!url) { console.warn('Ajax url is required.'); }
-    if (!callback) { console.warn('Ajax callback is required.'); }
+    if (!url) { console.warn('lib.js/ajax(): Url is required.'); }
+    if (!callback) { console.warn('lib.js/ajax(): Callback is required.'); }
 
     var myCallback = function(e) {
-        callback(data,e.target);
+      console.log("lib.js/ajax(): Ajax request completed!",arguments);
+      callback(e.target.response,e.target);
     };
 
     var addFormData = function(dat) {
@@ -48,7 +63,7 @@ var Lib = function() {
         bodyStr += '\r\n' + boundaryStr;
       }
       bodyStr += '---';//end of form data!
-      console.log('Ajax form data:',bodyStr);
+      console.log('lib.js/ajax(): form data:',bodyStr);
       return bodyStr;
     };
 
@@ -56,6 +71,7 @@ var Lib = function() {
     myRequest.responseType = "json";
     myRequest.addEventListener("load",myCallback);
     myRequest.open(reqMethod,url);
+
     if (reqMethod === "POST") {
       myRequest.setRequestHeader("Content-Type", "multipart\/form-data; boundary="+reqBoundary);
       reqBody = addFormData();
@@ -66,7 +82,8 @@ var Lib = function() {
   return {
     serialize: serialize,
     ajax: ajax,
-    toDom: toDom
+    toDom: toDom,
+    template: template
   };
 };
 lib = Lib();
