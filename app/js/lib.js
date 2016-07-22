@@ -20,7 +20,7 @@ var Lib = function() {
   var toDom = function(str) {
     var tmp = document.createElement("div");
     tmp.innerHTML = str;
-    return tmp.children;
+    return tmp.childNodes;
   };
 
   var serialize = function(obj) {

@@ -5,7 +5,7 @@ var Api = function() {
   this.artists = {};
 
   this.songs.get = function(opts,callback) {
-    var data = opts; 
+    var data = opts;
     lib.ajax("/api/v1/track",data,callback,"GET");
   };
   this.songs.insert = function(opts) {
