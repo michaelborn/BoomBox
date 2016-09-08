@@ -149,18 +149,13 @@ api.songs.get({},function(json) {
   // insert into page
   for (var i=0;i<json.length;i++) {
     // use our new template function in the library
-    allsongs += lib.template(templates.song,json[i]);
-
-    /*
-    var curSong = new Song(dataBox.getElementById(json[i]._id));
-    songList[i].addEventListener("click",curSong.toggle);
-    console.log(curSong);
-    */
+    var song = lib.toDom(lib.template(templates.song,json[i]));
+    //console.log("song:",song);
+    dataBox.appendChild(song[0]);
+    
+    var curSong = new Song(document.getElementById(json[i]._id));
+    
   }
-  //console.log(allsongs);
-  console.log(lib.toDom(allsongs));
-  //dataBox.innerHTML += allsongs;
-  document.getElementById("app-data").appendChild(lib.toDom(allsongs)[0].parentNode);
 });
 
 //This object does all the stuff with the song divs.
@@ -187,6 +182,9 @@ function Song(song) {
       self.play(e);
     }
   };
+
+  // setup the play/pause button event listener
+  song.querySelector(".song.play").addEventListener("click",self.toggle);
 
   return this;
 }
