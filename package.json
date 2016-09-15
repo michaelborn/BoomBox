@@ -4,11 +4,14 @@
   "version": "0.0.1",
   "private": true,
   "dependencies": {
+    "acoustid": "^1.2.1",
     "express": "4.13.4",
-    "mu2express": "0.0.1",
-    "node-static": "~0.7.7",
+    "fpcalc": "^1.2.1",
     "mongodb": "~2.1.7",
-    "mongoose": "~4.4.8"
+    "mongoose": "~4.4.8",
+    "mu2express": "0.0.1",
+    "musicnamer": "^0.2.4",
+    "node-static": "~0.7.7"
   },
   "devDependencies": {
     "grunt": "~0.4.5",
