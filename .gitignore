@@ -1,8 +1,11 @@
-#ignore modules pulled in via npm and package.json:
+# Ignore modules pulled in via npm and package.json:
 node_modules/
 
-#ignore log file!
+# Ignore log file!
 npm_debug.log
 
-#ignore all Vi/Vim swapfiles
+# Ignore all Vi/Vim swapfiles
 *.swp
+
+# Ignore distribution directory. This is for the uglified CSS and JS.
+app/dist
