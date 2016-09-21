@@ -1,5 +1,14 @@
 #!/usr/bin/env node
 
+/**
+ * This file currently uses node-acoustid to get the acoustid for each file.
+ * I'll probably switch it to use node-groove, and then use groove for everything else while I'm at it.
+ * Have node-groove fingerprint the files and save the retrieved metadata to the tags.
+ * Then, my code will also save the important metadata in Mongo.
+ * @cite: https://github.com/parshap/node-acoustid
+ * @cite: https://github.com/andrewrk/node-groove
+ */
+
 var fs = require('fs')
     path = require('path')
     acoustid = require('acoustid'),
@@ -11,7 +20,7 @@ fs.readdir(audioDir, function(err,filelist) {
     console.warn("Error reading directory:",err);
     return false;
   }
-  // console.log("There are these files in the dir:",filelist);
+
   for (var i=0;i<filelist.length;i++) {
     if (fs.statSync(audioDir + filelist[i]).isDirectory()) {
       continue;
@@ -21,6 +30,7 @@ fs.readdir(audioDir, function(err,filelist) {
 
 
 
+    console.log("Looking up filename: ",filelist[i]);
 
     // Fingerprint the files using fpcalc,
     // then use node-acoustid to get the musicbrainz.org metadata
