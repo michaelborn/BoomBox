@@ -14,6 +14,46 @@ var fs = require('fs')
     acoustid = require('acoustid'),
     audioDir = '../audio/';
 
+var acoustIDer = {
+  opts : {
+    key: "y1QtljLfrL",
+    meta: "tracks"
+  },
+  scan: function(filename, callback) {
+    // Fingerprint the files using fpcalc,
+    // then use node-acoustid to get the musicbrainz.org metadata
+    // from the acoustid web service
+    // https://github.com/parshap/node-acoustid
+    // https://acoustid.org/webservice
+    var self = this;
+    acoustid(filename,self.opts,function(err,result) {
+      if (err) {
+        console.warn("Error getting music brainz metadata:",err);
+        return false;
+      }
+      callback(err,result);
+    });
+  },
+  rateLimit: function(runFunc) {
+    /**
+     * Acoustid says no more than 3 requests per second!
+     * https://acoustid.org/webservice
+     * This function accepts a callback, and executes the function
+     * once the timer has passed
+     * @callback runFunc 
+     */
+  }
+};
+
+/*
+var testFilename = '../audio/01 - The Christmas Song (Merry Christmas to You).m4a';
+console.log("Looking up filename: ",testFilename);
+acoustIDer.scan(testFilename,function(err,result) {
+
+      console.log("got result:",JSON.stringify(result,null,2));
+});
+*/
+
 // get all files in the audio directory
 fs.readdir(audioDir, function(err,filelist) {
   if (err) {
@@ -25,28 +65,15 @@ fs.readdir(audioDir, function(err,filelist) {
     if (fs.statSync(audioDir + filelist[i]).isDirectory()) {
       continue;
     }
+    var fullFilename = audioDir + filelist[i];
     // TODO: Use node-musicnamer to move the files to /[artist]/[album]/filename.mp3.
     // https://github.com/bahamas10/node-musicnamer
 
+    console.log("Looking up filename: ",fullFilename);
 
-
-    console.log("Looking up filename: ",filelist[i]);
-
-    // Fingerprint the files using fpcalc,
-    // then use node-acoustid to get the musicbrainz.org metadata
-    // from the acoustid web service
-    // https://github.com/parshap/node-acoustid
-    // https://acoustid.org/webservice
-    opts = {
-      key: "y1QtljLfrL"
-    };
-    acoustid(audioDir + filelist[i], opts, function(err, result) {
-      if (err) {
-        console.warn("Error getting music brainz metadata:",err);
-        return false;
-      }
-      console.log("got result:",result);
-      
+    acoustIDer.scan(fullFilename, function(err,result) {
+      console.log("got result:",JSON.stringify(result,null,2));
+    
     });
   }
 });
