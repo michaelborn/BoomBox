@@ -30,7 +30,7 @@
  * GET          /stream/artist:id
  * GET          /stream/recent
 *************************************************/
-module.exports = function(app) {
+module.exports = function(app, db) {
   var api_version_str = "/api/v1";
 
   app.get(api_version_str+'/stream/track:id', function(req, res) {
