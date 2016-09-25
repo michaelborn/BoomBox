@@ -12,12 +12,14 @@
 var fs = require('fs')
     path = require('path')
     acoustid = require('acoustid'),
-    audioDir = '../audio/';
+    audioDir = '../audio/',
+    db = require('../init-mongo.js');
 
+console.log(db);
 var acoustIDer = {
   opts : {
     key: "y1QtljLfrL",
-    meta: "tracks"
+    meta: "recordings"
   },
   scan: function(filename, callback) {
     // Fingerprint the files using fpcalc,
@@ -33,26 +35,16 @@ var acoustIDer = {
       }
       callback(err,result);
     });
-  },
-  rateLimit: function(runFunc) {
-    /**
-     * Acoustid says no more than 3 requests per second!
-     * https://acoustid.org/webservice
-     * This function accepts a callback, and executes the function
-     * once the timer has passed
-     * @callback runFunc 
-     */
   }
 };
 
-/*
 var testFilename = '../audio/01 - The Christmas Song (Merry Christmas to You).m4a';
 console.log("Looking up filename: ",testFilename);
 acoustIDer.scan(testFilename,function(err,result) {
 
       console.log("got result:",JSON.stringify(result,null,2));
 });
-*/
+/*
 
 // get all files in the audio directory
 fs.readdir(audioDir, function(err,filelist) {
@@ -77,3 +69,4 @@ fs.readdir(audioDir, function(err,filelist) {
     });
   }
 });
+*/
