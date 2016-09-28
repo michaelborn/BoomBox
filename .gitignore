@@ -9,3 +9,8 @@ npm_debug.log
 
 # Ignore distribution directory. This is for the uglified CSS and JS.
 app/dist
+
+# Ignore the audio files - these are probably copyrighted!
+audio/*.m4a
+audio/*.ogg
+audio/*.mp3
