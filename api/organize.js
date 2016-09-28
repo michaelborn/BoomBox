@@ -41,8 +41,20 @@ var acoustIDer = {
 var testFilename = '../audio/01 - The Christmas Song (Merry Christmas to You).m4a';
 console.log("Looking up filename: ",testFilename);
 acoustIDer.scan(testFilename,function(err,result) {
+    // use first result, assume it's accurate
+    var track = result[0];
+    console.log("got track:",JSON.stringify(track,null,2));
 
-      console.log("got result:",JSON.stringify(result,null,2));
+    // Add track to db.tracks collection
+    db.collection("tracks").insert({
+      id: track.id
+      name: track.recordings.title,
+      filename: path.basename(testFilename),
+      duration: track.recordings.duration
+      albumid: ''
+    });
+
+      // Add artist to DB.artists collection
 });
 /*
 
