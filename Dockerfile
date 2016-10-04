@@ -8,14 +8,24 @@ FROM mhart/alpine-node:base
 WORKDIR /var/www
 
 ## We need to do this first?
-RUN apk update && apk upgrade
+RUN apt-get update
 
 
 # Different things we need for development / use
-#RUN apk add libchromaprint-tools
-RUN apk add git
-RUN apk add mongodb-server
+RUN apt-get install -y \
+    libchromaprint-tools \
+    python \
+    python-dev \
+    python-distribute \
+    python-libdiscid\
+    python-pip
+RUN apk add \
+    git \
+    mongodb-server
 
+# install python dependencies
+RUN pip install \
+    
 
 
 # Setup SSH keys for git (how will this even work?)
