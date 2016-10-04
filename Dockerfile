@@ -12,7 +12,7 @@ RUN apk update && apk upgrade
 
 
 # Different things we need for development / use
-RUN apk add libchromaprint-tools
+#RUN apk add libchromaprint-tools
 RUN apk add git
 RUN apk add mongodb-server
 
