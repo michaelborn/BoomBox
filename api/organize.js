@@ -15,7 +15,7 @@ var fs = require('fs')
     audioDir = '../audio/',
     db = require('../init-mongo.js');
 
-var acoustidOpts: {
+var acoustidOpts = {
   key: "y1QtljLfrL",
   meta: "recordings"
 };
@@ -37,19 +37,19 @@ fs.readdir(audioDir, function(err,filelist) {
 
     console.log("Looking up filename: ",fullFilename);
 
-    getAcoustInfo(testFilename,acoustidResults = function(err,result) {
+    getAcoustInfo(fullFilename,acoustidResults = function(err,result) {
         if (!err) {
-          saveTrack(result);
+          saveTrack(result,fullFilename);
         }
     });
 
 
     // Add artist to DB.artists collection
-  });
-}
+  };
+});
 var getAcoustInfo = function(filename,callback) {
   var retval;
-  acoustid(testFilename,acoustidOpts,function(err,result) {
+  acoustid(filename,acoustidOpts,function(err,result) {
     if (err) {
       console.warn("Error getting acoustid metadata:",err);
     } else {
@@ -58,17 +58,17 @@ var getAcoustInfo = function(filename,callback) {
       console.log("got track:",JSON.stringify(retval,null,2));
     }
     callback(err,retval);
-  };
+  });
 };
-var saveTrack = function(track) {
+var saveTrack = function(track,filename) {
   // Add track to db.tracks collection
   var newTrack = {
     id: track.id,
     name: track.recordings.title,
-    filename: path.basename(testFilename),
-    duration: track.recordings.duration
+    filename: path.basename(filename),
+    duration: track.recordings.duration,
     albumid: ''
-  });
+  };
   db.collection("tracks").insert(newTrack);
 
 };
