@@ -1,7 +1,7 @@
 {
   "name": "BoomBox-server",
   "description": "A music player / media server which can be controlled via a web frontend.",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "private": true,
   "dependencies": {
     "acoustid": "^1.2.1",
