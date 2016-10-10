@@ -1,7 +1,7 @@
 //main.js - This file does all the app-ish stuff. Includes buttons, animations, and possibly offline functionality.
 // Templates
 templates = {};
-templates.song = '<div class="list-item" id="{_id}"><div class="media"><img src="{imgsrc}" alt="{name}" /></div><h4 class="title">{name}</h4><div class="song-controls"><button class="song play"><span class="fa fa-play"></button></div></div>';
+templates.song = '<div class="list-item" id="{_id}"><div class="media"><img src="{imgsrc}" alt="{title}" /></div><h4 class="title">{title}</h4><div class="song-controls"><button class="song play"><span class="fa fa-play"></button></div></div>';
 
 // Buttons!
 var settingsBtn = document.getElementById("btnSettings"),
