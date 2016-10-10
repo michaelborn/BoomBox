@@ -39,6 +39,7 @@ pyShell.run('musicbrainz_discid/musicbrainz_discid.py', {}, function(err,results
     return false;
   }  else {
 
+  console.log("Got CD metadata: ",results);
     /**
      * begin the cd ripping process using cdparanoia
      * Note we can include an integer argument 
@@ -47,7 +48,7 @@ pyShell.run('musicbrainz_discid/musicbrainz_discid.py', {}, function(err,results
      *
      * @cite: http://xiph.org/paranoia/
      */
-    cdripper = spawn("cdparanoia",["-B", "1"]);
+    cdripper = spawn("cdparanoia",["-B"]);
     
     // output to standard output -
     // this probably means a song has been successfully saved to disk
@@ -57,7 +58,7 @@ pyShell.run('musicbrainz_discid/musicbrainz_discid.py', {}, function(err,results
 
     // output to standard error
     cdripper.stderr.on("data",function(data) {
-      console.log("cdparanoia stderr:",data);
+      //console.log("cdparanoia stderr:",data);
     });
 
     // cdparanoia is done!
@@ -68,8 +69,14 @@ pyShell.run('musicbrainz_discid/musicbrainz_discid.py', {}, function(err,results
       shell.exec("eject",{},function() {
         console.log("DONE! CD ejected.");
       });
+      
+      // Move the audio files to the correct directory
+      newDir = "../audio/wav/artist/album/";
+      runCmd = "mkdir -p " + newDir + ";mv *.wav " + newDir;
+      shell.exec(runCmd,{},function() {
+        console.log("DONE! files moved to correct directory.");
+      });
     });
   }
 
-  console.log("Got CD metadata: ",results);
 });
