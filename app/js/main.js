@@ -55,16 +55,18 @@ function Song(song) {
   var self = this,
       playbutton = song.querySelector(".fa");
 
-  this.play = function(e) {//console.log("play!",e,song);
+  this.play = function(e) {
     song.classList.add("active");
     playbutton.classList.remove("fa-play");
     playbutton.classList.add("fa-pause");
+    api.play(song.id);
   };
   
   this.pause = function(e) {//console.log("pause!",e,song);
     song.classList.remove("active");
     playbutton.classList.add("fa-play");
     playbutton.classList.remove("fa-pause");
+    api.pause();
   };
 
   this.toggle = function(e) {//console.log("toggle!",e,song);
