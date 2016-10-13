@@ -30,22 +30,41 @@
  * GET          /stream/artist:id
  * GET          /stream/recent
 *************************************************/
-module.exports = function(app, db) {
-  var api_version_str = "/api/v1";
 
-  app.get(api_version_str+'/stream/track:id', function(req, res) {
-    if (typeof req.query.id === "undefined") {
+
+
+module.exports = function(app, db) {
+  var api_version_str = "/api/v1",
+      Player = require("player");
+
+  app.get(api_version_str+'/stream/track/:id', function(req, res) {
+    if (typeof req.params.id === "undefined") {
       res.status(400).json({error: "You must specify an ID."});
     } else {
-      // run the ogg123 binary and pass the audio track filename/filepath to it.
-      var cmd = 'ogg123 ' + tracks.findOne({id:req.params.id}).filename;
+      /**
+       * play .wav files out to the speakers
+       * @cite: https://github.com/turingou/player
+       */
+      db.tracks.findOne({},function(err,nowPlaying) {
+        if (!nowPlaying || err) {
+          res.json({"error":false,"playing":false});
+          return;
+        }
 
-      //run the command and get the results.
-      //note this will probably have to be done via spawning child processes, else it'll hang up the server.
-      exec(cmd, function(error, stdout, stderr) {
-        console.info("played/playing song file!");
+        // open the file and start playing
+        var player = new Player("audio/wav/The-Martins/The-Martins/track03.cdda.wav");
+
+        // set up a handler
+        player.play(function(err,player) {
+          console.log("End of playback!",arguments);
+          res.json({"error":false,"playing":false});
+        });
       });
     }
+  });
+  app.get(api_version_str+'/stream/pause', function(req, res) {
+    // will need to extend the Play module to support a "pause" event
+    res.json({success: true});
   });
 
   // http://docs.boombox.apiary.io/#reference/tracks/list-one-or-all-songs

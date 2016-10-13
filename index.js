@@ -5,9 +5,7 @@ var express = require('express'),
     path = require('path'),
     mu2Express = require('mu2express'),
     exec = require('child_process').exec,
-    db = require('./init-mongo.js'),
-    mongodb = require('mongodb');
-    ObjectId = mongodb.ObjectID;
+    db = require('./init-mongo.js');
 
 //include all the routes for the API
 var api = require('./api/routes.js')(app, db);
