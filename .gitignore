@@ -11,7 +11,4 @@ npm_debug.log
 app/dist
 
 # Ignore the audio files - these are probably copyrighted!
-audio/m4a/*.m4a
-audio/ogg/*.ogg
-audio/mp3/*.mp3
-audio/wav/*.wav
+audio
