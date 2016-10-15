@@ -52,16 +52,16 @@ var fs = require('fs'),
  * @returns {Object} - artist, album, and tracks
  */
 var collateResults = function(data) {
-  var trackList = data.medium-list[0].track-list,
+  var trackList = data["medium-list"][0]["track-list"],
       artist = {
-        _id: data.artist-credit[0].artist.id,
-        name: data.artist-credit[0].artist.name
+        _id: data["artist-credit"][0].artist.id,
+        name: data["artist-credit"][0].artist.name
       },
       album = {
         _id: data.id,
         title: data.title,
         date: data.date,
-        track_count:data.medium-list[0].track-count
+        track_count:data["medium-list"][0]["track-count"]
       };
 
   // add the foreign key ids 
@@ -226,25 +226,18 @@ var useAudioMeta = function(err,results) {
       // send to mongo
       saveToMongo(mongoData.artist,mongoData.album,mongoData.tracks);
 
-      // Make the new directory in the /audio/wav directory
-      script.push("mkdir -p ../" + newDir);
+      var runCmd = "./convertwav.sh " + newDir;
 
-      // move the .wav files to the new directory
-      script.push("mv *.mp3 ../" + newDir);
-
-      // eject the CD tray, just cuz we can.
-      script.push("eject");
-
-      // put our shell command together,
-      // join multiple statements with a semicolon.
-      runCmd = script.join(";");
-
-      // run everything
       shell.exec(runCmd,{},function() {
-        console.log("DONE! CD ejected and files moved to correct directory.");
+        console.log("arguments:",arguments);
       });
     });
   }
 };
 
-pyShell.run('musicbrainz_discid/discid_json.py', {}, useAudioMeta);
+// use the -j flag to return JSON
+// (which, incidentally, I coded myself)
+var discidOpts = {
+  args: ["-j"]
+};
+pyShell.run('musicbrainz_discid/musicbrainz_discid.py', discidOpts, useAudioMeta);
