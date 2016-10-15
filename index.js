@@ -27,6 +27,7 @@ app.get('/', function(req, res) {
 });
 
 //start the server
+console.log("Server");
 app.listen(8080, function() {
-  console.log("Listening on port 8080!");
+  console.log("..... listening on port 8080");
 });
