@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: ripdisc.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: ripdisc.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>#!/usr/bin/env node
+
+/**
+ * This file uses python-discid to check the CD-rom
+ * to see if the songs are catalogued in musicbrainz.org.
+ *
+ * @cite: https://github.com/mborn319/python-discid2
+ * @cite: https://pypi.python.org/pypi/musicbrainzngs/0.6
+ * @cite: https://github.com/bmc0/musicbrainz_discid
+ * @cite: https://www.npmjs.com/package/python-shell
+ * @cite: http://xiph.org/paranoia/
+ */
+
+/**
+ * the track object, collated from musicbrainz metadata
+ * @typedef {Object} Track
+ * @property {string} _id - primary key, this is the musicbrainz track id
+ * @property {string} title - the musicbrainz track title
+ * @property {string} filename - the relative pathname + unique filename + .cdda.wav extension
+ * @property {string} recording_id - the musicbrainz recording.id property - currently not used
+ * @property {string} albumid - foreign key for the musicbrainz album "release"
+ * @property {string} artistid - foreign key for the musicbrainz artist
+ */
+
+/**
+ * the Album object, collated from musicbrainz metadata and sent to Mongo
+ * @typedef {Object} Album
+ * @property {string} _id - primary key, this is the musicbrainz album id
+ * @property {string} title - musicbrainz release title
+ * @property {string} date - musicbrainz release date
+ * @property {number} track_count - musicbrainz release track count
+ */
+
+/**
+ * the Artist object, collated from musicbrainz metadata and sent to Mongo
+ * @typedef {Object} Artist
+ * @property {string} _id - primary key, this is the musicbrainz artist id
+ * @property {string} name - musicbrainz artist name
+ */
+
+var fs = require('fs'),
+    path = require('path'),
+    acoustid = require('acoustid'),
+    db = require('../init-mongo.js'),
+    pyShell = require('python-shell'),
+    shell = require('child_process'),
+    spawn = shell.spawn;
+
+/**
+ * do any special formatting before we save the data to Mongo
+ * loop through each track, append albumid
+ * @returns {Object} - artist, album, and tracks
+ */
+var collateResults = function(data) {
+  var trackList = data.medium-list[0].track-list,
+      artist = {
+        _id: data.artist-credit[0].artist.id,
+        name: data.artist-credit[0].artist.name
+      },
+      album = {
+        _id: data.id,
+        title: data.title,
+        date: data.date,
+        track_count:data.medium-list[0].track-count
+      };
+
+  // add the foreign key ids 
+  // note these IDs come all the way from musicbrainz.org!!
+  // http://musicbrainz.org/artist/6e0ae159-8449-4262-bba5-18ec87fa529f
+  for (var i=0;i&lt;trackList.length;i++) {
+    // first, we "guess" at the track filename.
+    // it's an intelligent guess because we know the file extension
+    // and the track number / order number.
+    // hopefully this never breaks, but it could,
+    // which would result in track X being associated with
+    // the metadata for track X+-1.
+    trackList[i].filename = getTrackFilename(trackList[i]);
+
+    // "flatten" the recording object into the track
+    trackList[i].title = trackList[i].recording.title;
+    trackList[i].recording_id = trackList[i].recording.id;
+    delete trackList[i].recording;
+
+    // add album id foreign key for Mongo
+    trackList[i].albumid = album._id;
+
+    // add artist id foreign key for Mongo
+    trackList[i].artistid = artist._id;
+
+    // make sure we have a proper mongodb id
+    trackList[i]._id = trackList[i].id;
+    delete trackList[i].id;
+  }
+
+  return { artist: artist, album: album, tracks: trackList };
+};
+/**
+ * given the track object with number property
+ * return the cdparanoia-generated filename
+ * @param {Track}
+ * @return {string} the correct filename
+ */
+var getTrackFilename = function(track) {
+  var typical = "track[number].cdda.wav",
+    trackNum = getTrackNumLeadingZero(track.number);
+  return typical.replace(/\[number\]/,trackNum);
+};
+/**
+ * given an artist name and album name
+ * send back a pathname in the form audio/wav/artist/album
+ * making sure to strip bad characters to avoid bad paths
+ * Note that the returned pathname is
+ * RELATIVE to the boombox root directory
+ * @param {string} artist
+ * @param {string} album
+ * @return {string} relative pathname
+ */
+var getUniqueDirectory = function(artist, album) {
+  var typical = "audio/mp3/[artist]/[album]/",
+      artistName = getCleanFilename(artist),
+      albumTitle = getCleanFilename(album);
+
+  typical = typical.replace(/\[artist\]/,artistName);
+  typical = typical.replace(/\[album\]/,albumTitle);
+
+  return typical;
+};
+/**
+ * given an integer track identifer
+ * return zero plus the integer
+ * UNLESS the integer is greater than 9
+ * @param {number} track integer
+ * @return {string} left-padded track integer
+ */
+var getTrackNumLeadingZero = function(num) {
+  return num &lt; 10 ? "0" + num : num;
+};
+/**
+ * Given a particular filename (NOT full filepath!)
+ * replace all non-alphanumeric characters with a dash
+ * @param {string} filename
+ * @return {string} clean filename
+ */
+var getCleanFilename = function(filename) {
+  var tmp = filename.replace(/[^-a-zA-Z0-9]/g,"-");
+  return tmp.replace(/--/g,'-');
+};
+
+/**
+ * send the artist, album, and track info to Mongo.
+ * Currently, if the document already exists, it is not updated.
+ * @param {Track[]} tracks - array of disc tracks with artistid and albumid foreign keys
+ * @param {Album} album
+ * @param {Artist} artist 
+ */
+var saveToMongo = function(artist,album,tracks) {
+  // save artist to mongo's "artists" collection
+  db.artists.insert(artist);
+  // save album to mongo's "albums" collection
+  db.albums.insert(album);
+  // duh
+  db.tracks.insert(tracks);
+};
+
+/**
+ * Begin the cd analyzing using libdiscid
+ * and musicbrainz_discid.py.
+ *
+ * @cite: https://github.com/mborn319/python-discid2
+ * @cite: https://pypi.python.org/pypi/musicbrainzngs/0.6
+ * @cite: https://github.com/bmc0/musicbrainz_discid
+ * @cite: https://www.npmjs.com/package/python-shell
+ */
+var useAudioMeta = function(err,results) {
+  if (err) {
+    if (err.exitCode === 1) {
+      console.error("Can't find audio metadata. Please ensure there is an audio disc in the CD tray.");
+    } else {
+      console.error("Got error from musicbrainz_discid:",err);
+    }
+    return false;
+  }  else {
+    // success, start ripping the cd songs
+
+    /**
+     * begin the cd ripping process using cdparanoia
+     * Note we can include an integer argument 
+     * which signals that we only want a particular track number.
+     * This is quite useful for debugging, as it speeds up wait times.
+     *
+     * @cite: http://xiph.org/paranoia/
+     */
+    cdripper = spawn("cdparanoia",["-B"]);
+    
+    // output to standard output -
+    // this probably means a song has been successfully saved to disk
+    cdripper.stdout.on("data",function(data) {
+      console.log("cdparanoia stdout:",data);
+    });
+
+    // output to standard error
+    cdripper.stderr.on("data",function(data) {
+      //console.log("cdparanoia stderr:",data);
+    });
+
+    // cdparanoia is done!
+    cdripper.on("close",function(code) {
+      // properly organize the data before sending to Mongo
+      var data = JSON.parse(results)[0],
+          script = [],
+          mongoData = collateResults(data);
+      //console.log("cdparanoia done, exit code ", code);
+
+      // console.log("Got CD metadata: ",mongoData);
+      
+      // unique directory for this artist/album combo
+      newDir = getUniqueDirectory(mongoData.artist.name,mongoData.album.title);
+      console.log("saving files to:",newDir);
+
+      // update track filenames with full pathname
+      mongoData.tracks.map(function(item) {
+        item.filename = newDir + item.filename;
+        return item;
+      });
+
+      // send to mongo
+      saveToMongo(mongoData.artist,mongoData.album,mongoData.tracks);
+
+      // Make the new directory in the /audio/wav directory
+      script.push("mkdir -p ../" + newDir);
+
+      // move the .wav files to the new directory
+      script.push("mv *.mp3 ../" + newDir);
+
+      // eject the CD tray, just cuz we can.
+      script.push("eject");
+
+      // put our shell command together,
+      // join multiple statements with a semicolon.
+      runCmd = script.join(";");
+
+      // run everything
+      shell.exec(runCmd,{},function() {
+        console.log("DONE! CD ejected and files moved to correct directory.");
+      });
+    });
+  }
+};
+
+pyShell.run('musicbrainz_discid/discid_json.py', {}, useAudioMeta);
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Global</h3><ul><li><a href="global.html#collateResults">collateResults</a></li><li><a href="global.html#getCleanFilename">getCleanFilename</a></li><li><a href="global.html#getTrackFilename">getTrackFilename</a></li><li><a href="global.html#getTrackNumLeadingZero">getTrackNumLeadingZero</a></li><li><a href="global.html#getUniqueDirectory">getUniqueDirectory</a></li><li><a href="global.html#saveToMongo">saveToMongo</a></li><li><a href="global.html#useAudioMeta">useAudioMeta</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.4.2</a> on Fri Oct 14 2016 19:59:38 GMT-0400 (EDT)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>
