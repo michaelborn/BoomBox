@@ -1,0 +1,15 @@
+# ignore generated documentation
+docs
+
+# ignore the musicbrainz_discid python package.
+organize/musicbrainz_discid
+
+# ignore the node modules
+node_modules
+
+# ignore the .git directory
+.git
+
+# ignore vim swap files
+*.swp
+*.swo

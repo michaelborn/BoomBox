@@ -15,42 +15,24 @@ RUN apk update && apk upgrade
 
 
 # Different things we need for development / use
-RUN apk add --update python
-#RUN apk add \
-#    python \
-#    python-dev \
-#    python-distribute \
-#    python-libdiscid
-#    libchromaprint-tools \
-#    python \
-#    python-dev \
-#    python-distribute \
-#    python-libdiscid\
-#    python-pip
-#RUN apk add \
-#    git \
-#    mongodb-server
-#
-## install python dependencies
-#RUN pip install \
-#    
-#
-#
-## Setup SSH keys for git (how will this even work?)
-#
-## cloning repo
-#RUN mkdir /var/www
-#RUN chmod a+w www/
-#RUN git clone https://github.com/mborn319/BoomBox.git /var/www
-#
+RUN apk search -v mongo
+RUN apk add \
+    python \
+    python-pip \
+    git
+    #mongodb-server
+
+# install python dependencies
+RUN pip install python-libdiscid
+    
 ## Expose the Node.JS server port
-#EXPOSE 8080
-#
+EXPOSE 8080
+
 ## install the node modules
-# RUN npm install
-#
+RUN npm install
+
 ## make git pull in all submodules within the project
-# RUN git submodule init
-#
+RUN git submodule init
+
 ## Run command to start the server and keep it running so we can access the audio track list
-## CMD["node","index.js"]
+CMD["node","index.js"]
