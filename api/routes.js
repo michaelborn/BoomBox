@@ -45,14 +45,16 @@ module.exports = function(app, db) {
        * play .wav files out to the speakers
        * @cite: https://github.com/turingou/player
        */
-      db.tracks.findOne({},function(err,nowPlaying) {
+      db.tracks.findOne({_id: req.params.id},function(err,nowPlaying) {
         if (!nowPlaying || err) {
           res.json({"error":false,"playing":false});
           return;
         }
 
+        console.log("Now playing: ", nowPlaying);
+
         // open the file and start playing
-        var player = new Player("audio/wav/The-Martins/The-Martins/track03.cdda.wav");
+        var player = new Player("/var/www/Server/boombox/www/" + nowPlaying.filename);
 
         // set up a handler
         player.play(function(err,player) {

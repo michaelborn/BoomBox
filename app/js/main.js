@@ -59,14 +59,18 @@ function Song(song) {
     song.classList.add("active");
     playbutton.classList.remove("fa-play");
     playbutton.classList.add("fa-pause");
-    api.play(song.id);
+    api.stream.track.play(song.id, function() {
+      console.log("Whoa... it's playing?!",arguments);
+    });
   };
   
   this.pause = function(e) {//console.log("pause!",e,song);
     song.classList.remove("active");
     playbutton.classList.add("fa-play");
     playbutton.classList.remove("fa-pause");
-    api.pause();
+    api.pause(song.id, function() {
+      console.log("Whoa... it's paused!?",arguments);
+    });
   };
 
   this.toggle = function(e) {//console.log("toggle!",e,song);
