@@ -35,37 +35,52 @@
 
 module.exports = function(app, db) {
   var api_version_str = "/api/v1",
-      Player = require("player");
+      Player = require("player"),
+      playlist = new Player(),
+      nowPlaying;
 
   app.get(api_version_str+'/stream/track/:id', function(req, res) {
     if (typeof req.params.id === "undefined") {
       res.status(400).json({error: "You must specify an ID."});
     } else {
       /**
-       * play .wav files out to the speakers
+       * play .mp3 files out to the speakers
        * @cite: https://github.com/turingou/player
        */
-      db.tracks.findOne({_id: req.params.id},function(err,nowPlaying) {
-        if (!nowPlaying || err) {
+      db.tracks.findOne({_id: req.params.id},function(err,result) {
+        if (!result || err) {
           res.json({"error":false,"playing":false});
           return;
         }
 
-        console.log("Now playing: ", nowPlaying);
+        console.log("Now playing: ", result);
 
         // open the file and start playing
-        var player = new Player("/var/www/Server/boombox/www/" + nowPlaying.filename);
+        if (!nowPlaying || nowPlaying._id !== result._id) {
+          // if it's a new song, stop the old song from playing
+          // and start the new song
+          if (nowPlaying) {
+            playlist.stop();
+          }
 
-        // set up a handler
-        player.play(function(err,player) {
+          playlist.add("/var/www/Server/boombox/www/" + result.filename);
+        }
+
+        // play the stream
+        // note that if the nowPlaying song hasn't changed
+        // then we do NOT do a playlist.add(),
+        // we just play() from the current position
+        playlist.play(function(err,player) {
           console.log("End of playback!",arguments);
           res.json({"error":false,"playing":false});
         });
+        nowPlaying = result;
       });
     }
   });
   app.get(api_version_str+'/stream/pause', function(req, res) {
-    // will need to extend the Play module to support a "pause" event
+    // pause the playlist / audio stream.
+    playlist.pause();
     res.json({success: true});
   });
 
