@@ -53,16 +53,22 @@ module.exports = function(app, db) {
           return;
         }
 
-        console.log("Now playing: ", result);
 
-        // open the file and start playing
-        if (!nowPlaying || nowPlaying._id !== result._id) {
+        if (nowPlaying && nowPlaying._id === result._id && playlist.paused) {
+          // if we have THIS song in the player, AND it is paused,
+          // THEN call the "pause" function to resume the string.
+          playlist.pause();
+          console.info("Resuming the song: ", result.title);
+          return;
+        } else {
+          // open the file and start playing
           // if it's a new song, stop the old song from playing
           // and start the new song
           if (nowPlaying) {
             playlist.stop();
           }
 
+          console.log("Now playing: ", result.title);
           playlist.add("/var/www/Server/boombox/www/" + result.filename);
         }
 
@@ -79,9 +85,17 @@ module.exports = function(app, db) {
     }
   });
   app.get(api_version_str+'/stream/pause', function(req, res) {
+
     // pause the playlist / audio stream.
-    playlist.pause();
-    res.json({success: true});
+    if (!playlist.paused) {
+      // provided there's actually something playing, of course
+      console.info("Pausing the song");
+      playlist.pause();
+      res.json({success: true});
+    } else {
+      console.info("Dude, we weren't playing anything!");
+      res.json({success: false});
+    }
   });
 
   // http://docs.boombox.apiary.io/#reference/tracks/list-one-or-all-songs
@@ -106,7 +120,6 @@ module.exports = function(app, db) {
       filterOpts.name = { $in: req.query.search.split(' ') };
     }
 
-    console.log("Searching by filterOpts:",filterOpts);
     // Return tracks searchable by name, sorted a-z by name, LIMIT 50
     data = db.collection("tracks").find(filterOpts).sort({name: -1}).limit(req.query.limit);
 
