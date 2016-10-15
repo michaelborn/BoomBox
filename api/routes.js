@@ -95,11 +95,11 @@ module.exports = function(app, db) {
 
     data.toArray(function(err,results) {
       if (err) {
-        res.send(err)
+        res.send(err);
       } else {
         res.send(results);
       }
-    })
+    });
   });
   app.post(api_version_str+'/track/:id', function(req, res) {
     console.log(req.params);
@@ -112,7 +112,7 @@ module.exports = function(app, db) {
         filename: req.params.filename
       };
       tracks.insert(newtrack,function(err,response) {
-        if (!err) { console.info("Inserted ",response.insertedCount," tracks!") };
+        if (!err) { console.info("Inserted ",response.insertedCount," tracks!"); }
       });
     }
   });
