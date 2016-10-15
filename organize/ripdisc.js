@@ -101,7 +101,7 @@ var collateResults = function(data) {
  * @return {string} the correct filename
  */
 var getTrackFilename = function(track) {
-  var typical = "track[number].cdda.wav",
+  var typical = "track[number].cdda.mp3",
     trackNum = getTrackNumLeadingZero(track.number);
   return typical.replace(/\[number\]/,trackNum);
 };
@@ -226,10 +226,11 @@ var useAudioMeta = function(err,results) {
       // send to mongo
       saveToMongo(mongoData.artist,mongoData.album,mongoData.tracks);
 
+      // let bash take care of converting and moving the files
       var runCmd = "./convertwav.sh " + newDir;
-
-      shell.exec(runCmd,{},function() {
-        console.log("arguments:",arguments);
+      shell.exec(runCmd,{},function(err,stdout,stderr) {
+        console.log(stdout);
+        console.log(stderr);
       });
     });
   }
