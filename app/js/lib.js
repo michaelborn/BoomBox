@@ -45,27 +45,12 @@ var Lib = function() {
         data = data ? data : {}; // data object is empty object by default
 
     // parameter validation
-    if (!url) { console.warn('lib.js/ajax(): Url is required.'); }
-    if (!callback) { console.warn('lib.js/ajax(): Callback is required.'); }
+    if (!url) { throw "lib.js/ajax(): Url is required."; }
+    if (!callback) { throw "lib.js/ajax(): Callback is required."; }
 
     var myCallback = function(e) {
       //console.log("lib.js/ajax(): Ajax request completed!",arguments);
       callback(e.target.response,e.target);
-    };
-
-    var addFormData = function(dat) {
-      var bodyStr = '',
-          reqBoundary = parseInt(Math.random()*1000),
-          boundaryStr = "---"+reqBoundary;
-      
-      for (var field in dat) {
-        bodyStr += '\r\n' + 'Content-Disposition: form-data; name="'+field;
-        bodyStr += dat[field];
-        bodyStr += '\r\n' + boundaryStr;
-      }
-      bodyStr += '---';//end of form data!
-      console.log('lib.js/ajax(): form data:',bodyStr);
-      return bodyStr;
     };
 
     var myRequest = new XMLHttpRequest();
@@ -74,10 +59,10 @@ var Lib = function() {
     myRequest.open(reqMethod,url);
 
     if (reqMethod === "POST") {
-      myRequest.setRequestHeader("Content-Type", "multipart\/form-data; boundary="+reqBoundary);
+      myRequest.setRequestHeader("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8");
       reqBody = addFormData();
     }
-    myRequest.send(reqBody);
+    myRequest.send(data);
   };
 
   return {
