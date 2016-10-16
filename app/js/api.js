@@ -16,8 +16,18 @@ var Api = function() {
     var data = opts;
     lib.ajax("/api/v1/track",data,callback,"GET");
   };
+  /*
   self.songs.insert = function(opts) {
     // we may not need to insert tracks through the frontend.
+  };
+  */
+  self.albums.get = function(opts, callback) {
+    var data = opts;
+    lib.ajax("/api/v1/album",data,callback,"GET");
+  };
+  self.artists.get = function(opts, callback) {
+    var data = opts;
+    lib.ajax("/api/v1/artist",data,callback,"GET");
   };
 
   // streaming endpoints

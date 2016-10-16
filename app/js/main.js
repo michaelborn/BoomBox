@@ -5,24 +5,49 @@ templates.song = '<div class="list-item" id="{_id}"><div class="media"><img src=
 
 // Buttons!
 var settingsBtn = document.getElementById("btnSettings"),
-    searchBtn = document.getElementById("btnSearch");
+    searchBtn = document.getElementById("btnSearch"),
+    lSongsBtn = document.getElementById("list-songs-btn"),
+    lArtistsBtn = document.getElementById("list-artists-btn"),
+    lAlbumsBtn = document.getElementById("list-albums-btn");
+
+
+// the "Songs" tab in the app nav
+lSongsBtn.addEventListener("click",function(e) {
+  e.preventDefault();
+
+  // get all songs
+  api.songs.get({},loadList);
+
+  // load data into page
+  lSongsBtn.classList.add("active");
+});
+
+// the "Albums" tab in the app nav
+lAlbumsBtn.addEventListener("click",function(e) {
+  e.preventDefault();
+
+  // get all songs
+  api.albums.get({},loadList);
+
+  // load data into page
+  lAlbumsBtn.classList.add("active");
+});
+
+// the "Artists" tab in the app nav
+lArtistsBtn.addEventListener("click",function(e) {
+  e.preventDefault();
+
+  // get all songs
+  api.artists.get({},loadList);
+
+  // load data into page
+  lArtistsBtn.classList.add("active");
+});
 
 // Data
 // here we set up the loading of song lists, album lists, artist lists, etc.
 var dataBox = document.getElementById("app-data");
 
-
-/*
-// for now, we'll generate a dummy list of songs.
-
-songTemplate += songTemplate + songTemplate + songTemplate;
-// add dummy data to databox for now.
-var songList = Array.prototype.slice.call(lib.toDom(songTemplate));
-var appendSong = function(song) {
-  dataBox.appendChild(song);
-};
-songList.forEach(appendSong);
-*/
 
 var openSettings = function() {
   document.getElementById("app-settings").classList.toggle("open");
@@ -34,9 +59,9 @@ var openSettings = function() {
 settingsBtn.addEventListener("click",openSettings);
 
 // Get songs
-api.songs.get({},function(json) {
+var loadList = function(json) {
   var allsongs = '';
-  //console.log("Ajax response:",json);
+  console.log("Ajax response:",json);
 
   // insert into page
   for (var i=0;i<json.length;i++) {
@@ -46,12 +71,11 @@ api.songs.get({},function(json) {
     dataBox.appendChild(song[0]);
     
     var curSong = new Song(document.getElementById(json[i]._id));
-    
   }
-});
+};
 
 //This object does all the stuff with the song divs.
-function Song(song) {
+var Song = function(song) {
   var self = this,
       playbutton = song.querySelector(".fa");
 
@@ -85,4 +109,6 @@ function Song(song) {
   song.querySelector(".song.play").addEventListener("click",self.toggle);
 
   return this;
-}
+};
+
+lSongsBtn.click();

@@ -31,6 +31,18 @@
  * GET          /stream/recent
 *************************************************/
 
+var API = {
+  mongo : {
+    sendResults : function(err,result) {
+      console.log("got results from Mongo!",result,err);
+      if (!result || err) {
+        res.json({"error":false,"message":"Error searching for artists"});
+        return;
+      }
+      res.json(result);
+    }
+  }
+};
 
 
 module.exports = function(app, db) {
@@ -40,6 +52,7 @@ module.exports = function(app, db) {
       nowPlaying;
 
   app.get(api_version_str+'/stream/track/:id', function(req, res) {
+    console.log("Dude, who called my API??");
     if (typeof req.params.id === "undefined") {
       res.status(400).json({error: "You must specify an ID."});
     } else {
@@ -48,6 +61,7 @@ module.exports = function(app, db) {
        * @cite: https://github.com/turingou/player
        */
       db.tracks.findOne({_id: req.params.id},function(err,result) {
+        console.log("db.tracks.findOne() found track!");
         if (!result || err) {
           res.json({"error":false,"playing":false});
           return;
@@ -71,6 +85,7 @@ module.exports = function(app, db) {
           console.log("Now playing: ", result.title);
           playlist.add("/var/www/Server/boombox/www/" + result.filename);
         }
+        console.log(playlist.list);
 
         // play the stream
         // note that if the nowPlaying song hasn't changed
@@ -101,7 +116,7 @@ module.exports = function(app, db) {
   // http://docs.boombox.apiary.io/#reference/tracks/list-one-or-all-songs
   // Routes for getting, creating, updating, and deleting song tracks by ID.
   // ID is required for all except GET.
-  app.get(api_version_str+'/track', function(req, res) {
+  app.get(api_version_str+'/track(/:id)?', function(req, res) {
     var filterOpts = {},
         data;
 
@@ -121,7 +136,7 @@ module.exports = function(app, db) {
     }
 
     // Return tracks searchable by name, sorted a-z by name, LIMIT 50
-    data = db.collection("tracks").find(filterOpts).sort({name: -1}).limit(req.query.limit);
+    data = db.collection("tracks").find(filterOpts).sort({ number: 1 }).limit(req.query.limit);
 
     data.toArray(function(err,results) {
       if (err) {
@@ -137,13 +152,6 @@ module.exports = function(app, db) {
       res.status(400).json({error: "You must specify an ID."});
     } else {
       //insert tracks!
-      var newtrack = {
-        name: req.params.name,
-        filename: req.params.filename
-      };
-      tracks.insert(newtrack,function(err,response) {
-        if (!err) { console.info("Inserted ",response.insertedCount," tracks!"); }
-      });
     }
   });
   app.put(api_version_str+'/track/:id', function(req, res) {
@@ -167,13 +175,17 @@ module.exports = function(app, db) {
 
   // Routes for getting, creating, updating, and deleting song artists by ID.
   // ID is required for all except GET.
-  app.get(api_version_str+'/artist', function(req, res) {
-    if (typeof req.query.id === "undefined") {
+  app.get(api_version_str+'/artist(/:id)?', function(req, res) {
+    console.log("req.params:",req.params);
+    console.log("req.query:",req.query);
+    if (typeof req.params.id === "undefined") {
       //then return all artists.
-     res.send("ALL artists");
+      console.info("ALL artists");
+      db.collection("artists").find().sort({ title: 1 }, API.mongo.sendResults);
     } else {
       //return artists!
-      res.send("artist info for artist #"+req.query.id);
+      console.info("artist info for artist #"+req.query.id);
+      db.artists.find({_id: req.params.id}, API.mongo.sendResults);
     }
   });
   app.post(api_version_str+'/artist/:id', function(req, res) {
@@ -206,13 +218,15 @@ module.exports = function(app, db) {
 
   // Routes for getting, creating, updating, and deleting song albums by ID.
   // ID is required for all except GET.
-  app.get(api_version_str+'/album', function(req, res) {
-    if (typeof req.query.id === "undefined") {
+  app.get(api_version_str+'/album(/:id)?', function(req, res) {
+    if (typeof req.params.id === "undefined") {
       //then return all albums.
-     res.send("ALL albums");
+      console.info("ALL albums");
+      db.albums.find().sort({ title: 1 }, API.mongo.sendResults);
     } else {
       //return albums!
-      res.send("album info for album #"+req.query.id);
+      console.info("album info for album #"+req.query.id);
+      db.albums.findOne({_id: req.params.id}, API.mongo.sendResults);
     }
   });
   app.post(api_version_str+'/album/:id', function(req, res) {
