@@ -1,7 +1,4 @@
 //main.js - This file does all the app-ish stuff. Includes buttons, animations, and possibly offline functionality.
-// Templates
-templates = {};
-templates.song = '<div class="list-item" id="{_id}"><div class="media"><img src="{imgsrc}" alt="{title}" /></div><h4 class="title">{title}</h4><div class="song-controls"><button class="song play"><span class="fa fa-play"></button></div></div>';
 
 // Buttons!
 var settingsBtn = document.getElementById("btnSettings"),
@@ -16,9 +13,11 @@ lSongsBtn.addEventListener("click",function(e) {
   e.preventDefault();
 
   // get all songs
-  api.songs.get({},loadList);
+  api.songs.get({},loadSongs);
 
   // load data into page
+  lAlbumsBtn.classList.remove("active");
+  lArtistsBtn.classList.remove("active");
   lSongsBtn.classList.add("active");
 });
 
@@ -27,9 +26,11 @@ lAlbumsBtn.addEventListener("click",function(e) {
   e.preventDefault();
 
   // get all songs
-  api.albums.get({},loadList);
+  api.albums.get({},loadAlbums);
 
   // load data into page
+  lSongsBtn.classList.remove("active");
+  lArtistsBtn.classList.remove("active");
   lAlbumsBtn.classList.add("active");
 });
 
@@ -38,9 +39,11 @@ lArtistsBtn.addEventListener("click",function(e) {
   e.preventDefault();
 
   // get all songs
-  api.artists.get({},loadList);
+  api.artists.get({},loadArtists);
 
   // load data into page
+  lSongsBtn.classList.remove("active");
+  lAlbumsBtn.classList.remove("active");
   lArtistsBtn.classList.add("active");
 });
 
@@ -59,33 +62,74 @@ var openSettings = function() {
 settingsBtn.addEventListener("click",openSettings);
 
 // Get songs
-var loadList = function(json) {
-  var allsongs = '';
+var loadSongs = function(json) {
+  var songTemplate = '<div class="list-item" id="{_id}" data-type="song"><div class="media"><img src="{imgsrc}" alt="{title}" /></div><h4 class="title">{title}</h4><div class="song-controls"><button class="playBtn"><span class="fa fa-play"></button></div></div>';
+  return loadItems(json,songTemplate);
+};
+var loadArtists = function(json) {
+  var songTemplate = '<div class="list-item" id="{_id}" data-type="artist"><div class="media"><img src="{imgsrc}" alt="{name}" /></div><h4 class="title">{name}</h4><div class="song-controls"><button class="playBtn"><span class="fa fa-play"></button></div></div>';
+  return loadItems(json,songTemplate);
+};
+var loadAlbums = function(json) {
+  var songTemplate = '<div class="list-item" id="{_id}" data-type="album"><div class="media"><img src="{albumart}" alt="{title}" /></div><h4 class="title">{title}</h4><div class="song-controls"><button class="playBtn"><span class="fa fa-play"></button></div></div>';
+  return loadItems(json,songTemplate);
+};
+var loadItems = function(json, mediaTemplate) {
   console.log("Ajax response:",json);
+  dataBox.innerHTML = '';
 
   // insert into page
   for (var i=0;i<json.length;i++) {
     // use our new template function in the library
-    var song = lib.toDom(lib.template(templates.song,json[i]));
+    var song = lib.toDom(lib.template(mediaTemplate,json[i]));
     //console.log("song:",song);
     dataBox.appendChild(song[0]);
     
-    var curSong = new Song(document.getElementById(json[i]._id));
+    var curSong = new mediaItem(document.getElementById(json[i]._id));
   }
 };
 
 //This object does all the stuff with the song divs.
-var Song = function(song) {
+var mediaItem = function(song) {
   var self = this,
       playbutton = song.querySelector(".fa");
 
+  this.clearBtns = function() {
+    var curPlayingSongBtn = document.querySelector(".fa.fa-pause");
+    if (curPlayingSongBtn) {
+      curPlayingSongBtn.classList.remove("fa-pause");
+      curPlayingSongBtn.classList.add("fa-play");
+    }
+  };
   this.play = function(e) {
+    self.clearBtns();
     song.classList.add("active");
     playbutton.classList.remove("fa-play");
     playbutton.classList.add("fa-pause");
-    api.stream.track.play(song.id, function() {
-      console.log("Whoa... it's playing?!",arguments);
-    });
+
+    // play the particular type of media
+    switch(item.dataset.type) {
+      case "album":
+        // play all the songs in the album
+        api.stream.album.play(song.id, self.playResponse);
+        break;
+      case "artist":
+        // play all the songs for the particular artist
+        api.stream.artist.play(song.id, self.playResponse);
+        break;
+      case "track":
+        // play this particular song
+        api.stream.track.play(song.id, self.playResponse);
+        break;
+    }
+  };
+  this.playResponse = function(req) {
+      if (req.response.error) {
+        console.warn("Error, couldn't find item!",req.response);
+        alert("Error! Could not find item");
+      } else {
+        console.log("Whoa... it's playing?!",req.response);
+      }
   };
   
   this.pause = function(e) {//console.log("pause!",e,song);
@@ -106,7 +150,7 @@ var Song = function(song) {
   };
 
   // setup the play/pause button event listener
-  song.querySelector(".song.play").addEventListener("click",self.toggle);
+  song.querySelector(".playBtn").addEventListener("click",self.toggle);
 
   return this;
 };

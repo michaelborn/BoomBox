@@ -62,6 +62,9 @@ body::after {
 .app-tabs a.active {
   background-color: #1C2E6B;
 }
+.app-tabs a:focus {
+  outline: none;
+}
 
 /* app settings - slide in from left */
 #app-settings {
