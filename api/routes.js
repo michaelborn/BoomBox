@@ -3,21 +3,21 @@
  *
  * ### Manage tracks ###
  * GET          /track
- * POST         /track:id
- * PUT          /track:id
- * DELETE       /track:id
+ * POST         /track/:id
+ * PUT          /track/:id
+ * DELETE       /track/:id
  *
  * ### Manage albums ###
  * GET          /album
- * POST         /album:id
- * PUT          /album:id
- * DELETE       /album:id
+ * POST         /album/:id
+ * PUT          /album/:id
+ * DELETE       /album/:id
  *
  * ### Manage artists ###
  * GET          /artist
- * POST         /artist:id
- * PUT          /artist:id
- * DELETE       /artist:id
+ * POST         /artist/:id
+ * PUT          /artist/:id
+ * DELETE       /artist/:id
  *
  * ### Play songs/artists/albums ###
  * Each endpoint (except for /stream/recent) accepts these parameters:
@@ -25,22 +25,43 @@
  *    id: integer //REQUIRED
  *    random: boolean //optional
  *  } 
- * GET          /stream/track:id
- * GET          /stream/album:id
- * GET          /stream/artist:id
+ * GET          /stream/track/:id
+ * GET          /stream/album/:id
+ * GET          /stream/artist/:id
  * GET          /stream/recent
 *************************************************/
 
 var API = {
   mongo : {
-    sendResults : function(err,result) {
-      console.log("got results from Mongo!",result,err);
+    sendResults : function(err,result,res) {
+      //console.log("got results from Mongo!",result,err);
       if (!result || err) {
         res.json({"error":false,"message":"Error searching for artists"});
         return;
       }
       res.json(result);
     }
+  },
+  params: function(url) {
+    var struct = {
+      find: {}
+    };
+    if (typeof url.id !== "undefined") {
+      struct.find._id = url.id;
+    }
+    if (typeof url.limit !== "undefined") {
+      struct.limit = parseInt(url.limit);
+    }
+    if (typeof url.search !== "undefined") {
+      // turn search into an array of keywords.
+      struct.find.name = { $in: url.search.split(' ') };
+    }
+    if (typeof struct.limit === "undefined" || struct.limit > 50) {
+      // Max 50 records. TODO: Return page number with data set
+      struct.limit = 50; 
+    }
+    // return parameters ready to query Mongo
+    return struct;
   }
 };
 
@@ -61,12 +82,12 @@ module.exports = function(app, db) {
        * @cite: https://github.com/turingou/player
        */
       db.tracks.findOne({_id: req.params.id},function(err,result) {
-        console.log("db.tracks.findOne() found track!");
         if (!result || err) {
-          res.json({"error":false,"playing":false});
+          res.json({"error":true,"playing":false,"msg":"Track not found."});
           return;
         }
 
+        res.json({"error":false,"playing":true});
 
         if (nowPlaying && nowPlaying._id === result._id && playlist.paused) {
           // if we have THIS song in the player, AND it is paused,
@@ -120,30 +141,13 @@ module.exports = function(app, db) {
     var filterOpts = {},
         data;
 
-    if (typeof req.query.id !== "undefined") {
-      filterOpts._id = new ObjectId(req.query.id);
-    }
-    if (typeof req.query.limit !== "undefined") {
-      req.query.limit = parseInt(req.query.limit);
-    }
-    if (typeof req.query.limit === "undefined" || req.query.limit > 50) {
-      req.query.limit = 50; // Max 50 records. TODO: Return page number with data set
-    }
-
-    if (typeof req.query.search !== "undefined") {
-      // turn search into an array of keywords.
-      filterOpts.name = { $in: req.query.search.split(' ') };
-    }
+    filterOpts = API.params(req.query);
 
     // Return tracks searchable by name, sorted a-z by name, LIMIT 50
-    data = db.collection("tracks").find(filterOpts).sort({ number: 1 }).limit(req.query.limit);
+    data = db.collection("tracks").find(filterOpts.find).sort({ number: 1 }).limit(filterOpts.limit);
 
     data.toArray(function(err,results) {
-      if (err) {
-        res.send(err);
-      } else {
-        res.send(results);
-      }
+      API.mongo.sendResults(err,results,res);
     });
   });
   app.post(api_version_str+'/track/:id', function(req, res) {
@@ -178,15 +182,19 @@ module.exports = function(app, db) {
   app.get(api_version_str+'/artist(/:id)?', function(req, res) {
     console.log("req.params:",req.params);
     console.log("req.query:",req.query);
+    filterOpts = API.params(req.query);
     if (typeof req.params.id === "undefined") {
       //then return all artists.
       console.info("ALL artists");
-      db.collection("artists").find().sort({ title: 1 }, API.mongo.sendResults);
+      data = db.collection("artists").find(filterOpts.find).sort({ title: 1 }).limit(filterOpts.limit);
     } else {
       //return artists!
       console.info("artist info for artist #"+req.query.id);
-      db.artists.find({_id: req.params.id}, API.mongo.sendResults);
+      data = db.artists.find({_id: req.params.id});
     }
+    data.toArray(function(err,results) {
+      API.mongo.sendResults(err,results,res);
+    });
   });
   app.post(api_version_str+'/artist/:id', function(req, res) {
     console.log(req.params);
@@ -222,12 +230,17 @@ module.exports = function(app, db) {
     if (typeof req.params.id === "undefined") {
       //then return all albums.
       console.info("ALL albums");
-      db.albums.find().sort({ title: 1 }, API.mongo.sendResults);
+      filterOpts = API.params(req);
+
+      data = db.albums.find(filterOpts.find).sort({ title: 1 }).limit(filterOpts.limit);
     } else {
       //return albums!
       console.info("album info for album #"+req.query.id);
-      db.albums.findOne({_id: req.params.id}, API.mongo.sendResults);
+      data = db.albums.findOne({_id: req.params.id});
     }
+    data.toArray(function(err,results) {
+      API.mongo.sendResults(err,results,res);
+    });
   });
   app.post(api_version_str+'/album/:id', function(req, res) {
     console.log(req.params);
