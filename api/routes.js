@@ -30,6 +30,8 @@
  * GET          /stream/artist/:id
  * GET          /stream/recent
 *************************************************/
+var Sock = require('socket.io'),
+    playState;
 
 var API = {
   mongo : {
@@ -69,8 +71,7 @@ var API = {
 module.exports = function(app, db) {
   var api_version_str = "/api/v1",
       Player = require("player"),
-      playlist = new Player(),
-      nowPlaying;
+      playlist = new Player();
 
   app.get(api_version_str+'/stream/track/:id', function(req, res) {
     console.log("Dude, who called my API??");
@@ -87,9 +88,9 @@ module.exports = function(app, db) {
           return;
         }
 
-        res.json({"error":false,"playing":true});
+        res.json({"error":false,"playing":true,"type":"track","id":result._id});
 
-        if (nowPlaying && nowPlaying._id === result._id && playlist.paused) {
+        if (playState && playState.trackid === result._id && playlist.paused) {
           // if we have THIS song in the player, AND it is paused,
           // THEN call the "pause" function to resume the string.
           playlist.pause();
@@ -99,7 +100,7 @@ module.exports = function(app, db) {
           // open the file and start playing
           // if it's a new song, stop the old song from playing
           // and start the new song
-          if (nowPlaying) {
+          if (playState) {
             playlist.stop();
           }
 
@@ -109,16 +110,105 @@ module.exports = function(app, db) {
         console.log(playlist.list);
 
         // play the stream
-        // note that if the nowPlaying song hasn't changed
+        // note that if the playState song hasn't changed
         // then we do NOT do a playlist.add(),
         // we just play() from the current position
         playlist.play(function(err,player) {
           console.log("End of playback!",arguments);
           res.json({"error":false,"playing":false});
         });
-        nowPlaying = result;
+
+        // maintain our state
+        playState = {
+          "state":"playing",
+          "trackid":result._id,
+          "next": false,
+          "prev": false
+        };
+
+        // send it to the frontend
+        Sock.emit(playState);
       });
     }
+  });
+  app.get(api_version_str+'/stream/album/:id', function(req, res) {
+    console.log("okay, we're going to add an entire album to the playlist!");
+      db.albums.findOne({_id: req.params.id},function(err,result) {
+        if (!result || err) {
+          res.json({"error":true,"playing":false,"msg":"Album not found."});
+          return;
+        }
+
+        db.tracks.find({ albumid: result._id }).sort({ number: 1}, function(err,tracks) {
+          if (err || !tracks) {
+            console.warn("No tracks found for album:", req.params.id);
+            return;
+          }
+
+          // add each song to the playlist
+          tracks.forEach(function(thisTrack) {
+            console.log("Adding this item to playlist:",thisTrack.title);
+            playlist.add(thisTrack.filename);
+          });
+
+          // start playing the new playlist
+          playlist.play();
+
+          // maintain our state
+          playState = {
+            "state":"playing",
+            "trackid":tracks[0]._id,
+            "next": tracks.len > 1 ? tracks[0]._id : false,
+            "prev": false
+          };
+
+          // send it to the frontend
+          Sock.emit(playState);
+          
+          // respond nicely
+          res.json({"error":false,"playing":true,"type":"album","id":result._id});
+        });
+      });
+  });
+  app.get(api_version_str+'/stream/artist/:id', function(req, res) {
+    console.log("okay, we're going to add an entire artist to the playlist!");
+      db.artists.findOne({_id: req.params.id},function(err,result) {
+        if (!result || err) {
+          res.json({"error":true,"playing":false,"msg":"Artist not found."});
+          return;
+        }
+
+        // get all songs by this artist
+        db.tracks.find({ artistid: result._id }).sort({ number: 1 }, function(err,tracks) {
+          if (err || !tracks) {
+            console.warn("No tracks found for artist:", req.params.id);
+            return;
+          }
+
+          // add each song to the playlist
+          tracks.forEach(function(thisTrack) {
+            console.log("Adding this item to playlist:",thisTrack.title);
+            playlist.add(thisTrack.filename);
+          });
+
+          // start playing the new playlist.
+          playlist.play();
+
+          // maintain our state
+          playState = {
+            "state":"playing",
+            "trackid":tracks[0]._id,
+            "next": tracks.len > 1 ? tracks[0]._id : false,
+            "prev": false
+          };
+
+          // send it to the frontend
+          Sock.emit(playState);
+
+          // respond nicely, keep frontend informed
+          res.json({"error":false,"playing":true,"type":"artist","id":result._id});
+        });
+      });
   });
   app.get(api_version_str+'/stream/pause', function(req, res) {
 
