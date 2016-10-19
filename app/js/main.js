@@ -90,9 +90,9 @@ var loadItems = function(json, mediaTemplate) {
 };
 
 //This object does all the stuff with the song divs.
-var mediaItem = function(song) {
+var mediaItem = function(item) {
   var self = this,
-      playbutton = song.querySelector(".fa");
+      playbutton = item.querySelector(".fa");
 
   this.clearBtns = function() {
     var curPlayingSongBtn = document.querySelector(".fa.fa-pause");
@@ -102,8 +102,9 @@ var mediaItem = function(song) {
     }
   };
   this.play = function(e) {
+    console.log("playing something!");
     self.clearBtns();
-    song.classList.add("active");
+    item.classList.add("active");
     playbutton.classList.remove("fa-play");
     playbutton.classList.add("fa-pause");
 
@@ -111,15 +112,15 @@ var mediaItem = function(song) {
     switch(item.dataset.type) {
       case "album":
         // play all the songs in the album
-        api.stream.album.play(song.id, self.playResponse);
+        api.stream.album.play(item.id, self.playResponse);
         break;
       case "artist":
         // play all the songs for the particular artist
-        api.stream.artist.play(song.id, self.playResponse);
+        api.stream.artist.play(item.id, self.playResponse);
         break;
       case "track":
         // play this particular song
-        api.stream.track.play(song.id, self.playResponse);
+        api.stream.track.play(item.id, self.playResponse);
         break;
     }
   };
@@ -132,17 +133,17 @@ var mediaItem = function(song) {
       }
   };
   
-  this.pause = function(e) {//console.log("pause!",e,song);
-    song.classList.remove("active");
+  this.pause = function(e) {//console.log("pause!",e,item);
+    item.classList.remove("active");
     playbutton.classList.add("fa-play");
     playbutton.classList.remove("fa-pause");
-    api.pause(song.id, function() {
+    api.pause(item.id, function() {
       console.log("Whoa... it's paused!?",arguments);
     });
   };
 
-  this.toggle = function(e) {//console.log("toggle!",e,song);
-    if (song.classList.contains("active")) {//then song is being played right now.
+  this.toggle = function(e) {//console.log("toggle!",e,item);
+    if (item.classList.contains("active")) {//then song is being played right now.
       self.pause(e);
     } else {//else song is currently paused. play it!
       self.play(e);
@@ -150,7 +151,7 @@ var mediaItem = function(song) {
   };
 
   // setup the play/pause button event listener
-  song.querySelector(".playBtn").addEventListener("click",self.toggle);
+  item.querySelector(".playBtn").addEventListener("click",self.toggle);
 
   return this;
 };
