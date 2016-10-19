@@ -1,50 +1,56 @@
 //main.js - This file does all the app-ish stuff. Includes buttons, animations, and possibly offline functionality.
 
+// First, maintain state
+app = {};
+app.state = {
+  "playing":false
+};
+
 // Buttons!
 var settingsBtn = document.getElementById("btnSettings"),
     searchBtn = document.getElementById("btnSearch"),
-    lSongsBtn = document.getElementById("list-songs-btn"),
-    lArtistsBtn = document.getElementById("list-artists-btn"),
-    lAlbumsBtn = document.getElementById("list-albums-btn");
+    songTab = document.getElementById("tab__songs"),
+    artistTab = document.getElementById("tab__artists"),
+    albumTab = document.getElementById("tab__albums");
 
 
 // the "Songs" tab in the app nav
-lSongsBtn.addEventListener("click",function(e) {
+songTab.addEventListener("click",function(e) {
   e.preventDefault();
 
   // get all songs
   api.songs.get({},loadSongs);
 
   // load data into page
-  lAlbumsBtn.classList.remove("active");
-  lArtistsBtn.classList.remove("active");
-  lSongsBtn.classList.add("active");
+  albumTab.classList.remove("active");
+  artistTab.classList.remove("active");
+  songTab.classList.add("active");
 });
 
 // the "Albums" tab in the app nav
-lAlbumsBtn.addEventListener("click",function(e) {
+albumTab.addEventListener("click",function(e) {
   e.preventDefault();
 
   // get all songs
   api.albums.get({},loadAlbums);
 
   // load data into page
-  lSongsBtn.classList.remove("active");
-  lArtistsBtn.classList.remove("active");
-  lAlbumsBtn.classList.add("active");
+  songTab.classList.remove("active");
+  artistTab.classList.remove("active");
+  albumTab.classList.add("active");
 });
 
 // the "Artists" tab in the app nav
-lArtistsBtn.addEventListener("click",function(e) {
+artistTab.addEventListener("click",function(e) {
   e.preventDefault();
 
   // get all songs
   api.artists.get({},loadArtists);
 
   // load data into page
-  lSongsBtn.classList.remove("active");
-  lAlbumsBtn.classList.remove("active");
-  lArtistsBtn.classList.add("active");
+  songTab.classList.remove("active");
+  albumTab.classList.remove("active");
+  artistTab.classList.add("active");
 });
 
 // Data
@@ -156,4 +162,4 @@ var mediaItem = function(item) {
   return this;
 };
 
-lSongsBtn.click();
+songTab.click();
