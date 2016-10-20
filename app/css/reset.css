@@ -4,7 +4,7 @@
  *       */
 
 html, body, div, span, applet, object, iframe,
-h1, h2, h3, h4, h5, h6, p, blockquote, pre,
+p, blockquote, pre,
 a, abbr, acronym, address, big, cite, code,
 del, dfn, em, img, ins, kbd, q, s, samp,
 small, strike, strong, sub, sup, tt, var,
@@ -54,10 +54,12 @@ html, body {
 p, li {
   font-family: "Open Sans", sans-serif;
   margin: .5em 0;
+  padding: 0;
 }
 h1, h2, h3, h4, h5, h6 {
   font: 100 1rem/1.3em "Open Sans", sans-serif;
   margin: .2em 0;
+  padding: 0;
 }
 h1 { font-size: 3rem; }
 h2 { font-size: 2.5rem; }

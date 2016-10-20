@@ -125,6 +125,66 @@ body::after {
 .song-controls button:active .fa {
   outline: none;
 }
-/* app data - albums */
 
-/* app data - artists */
+/* footer - play controls and now-playing info */
+.app-footer {
+  border-top: 5px solid #9E249D;
+  background: #722C6A;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 50;
+  height: 0;
+  overflow: hidden;
+  display: flex;
+  color: #fff;
+}
+body.open-footer .app-footer {
+  height: 112px;
+}
+body.open-footer main {
+  padding-bottom: 112px;
+}
+
+/* song play controls */
+.app__controls {
+  width: 30%;
+  display: flex;
+  flex-wrap: wrap;
+}
+.app__controls button {
+  background: #9E249D;
+  border: 0;
+  border-radius: 0;
+  display: block;
+  width: 44%;
+  height: 38px;
+  margin: 3px 3%;
+  font-size: 22px;
+  color: #fff;
+}
+#control__playbtn {
+  font-size: 50px;
+  width: 100%;
+  height: auto;
+}
+
+/* now playing song info */
+.now-playing {
+  width: 70%;
+  box-sizing: border-box;
+  padding: 3%;
+}
+.playing__track__title {
+  font-size: 1.5rem;
+}
+.playing__track__artist {
+  font-size: 1.3rem;
+}
+.playing__track__album {
+  font-size: 1.1rem;
+}
+.playing__track__duration {
+  display: none;
+}
