@@ -160,36 +160,21 @@ var mediaItem = function(item) {
       case "album":
         // play all the songs in the album
         console.log("play: this album's songs");
-        api.stream.album.play(item.id, self.playResponse);
+        api.stream.album.play(item.id, app.controls.playResponse);
         break;
       case "artist":
         // play all the songs for the particular artist
         console.log("play: this artist's songs");
-        api.stream.artist.play(item.id, self.playResponse);
+        api.stream.artist.play(item.id, app.controls.playResponse);
         break;
       case "track":
         // play this particular song
         console.log("play: this particular song");
-        api.stream.track.play(item.id, self.playResponse);
+        api.stream.track.play(item.id, app.controls.playResponse);
         break;
     }
   };
 
-  this.playResponse = function(json) {
-    if (json.error) {
-      console.warn("Error, couldn't find item!",json);
-      alert("Error! Could not find item");
-    } else {
-      console.log("playing:",json);
-
-      // update the state
-      app.setState(json);
-      app.foot.update();
-
-      // open the footer "now playing" thing
-      app.foot.open();
-    }
-  };
 
   this.pause = function(e) {//console.log("pause!",e,item);
     item.classList.remove("active");

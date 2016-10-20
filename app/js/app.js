@@ -66,28 +66,40 @@ app.controls = {
   next: document.getElementById("control__playnext"),
   play: document.getElementById("control__playbtn"),
   onPrev: function(e) {
+    e.preventDefault();
     if (app.state.prev) {
       // if the API says there is a "previous" song that we can play
-      api.stream.track.play(app.state.prev,callback);
+      api.stream.track.play(app.state.prev, app.controls.playResponse);
     } else {
       // else error?
     }
   },
   onNext: function(e) {
+    e.preventDefault();
     if (app.state.next) {
       // if the API says there is a "next" song that we can play
-      api.stream.track.play(app.state.next,callback);
+      api.stream.track.play(app.state.next, app.controls.playResponse);
     } else {
       // else error?
     }
   },
   onPlay: function(e) {
-    if (app.state.playing) {
-      // pause
+    e.preventDefault();
+    api.stream.track.play(app.state.track._id, app.controls.playResponse);
+  },
+  playResponse: function(json) {
+    if (json.error) {
+      console.warn("Error, couldn't find item!",json);
+      alert("Error! Could not find item");
     } else {
-      // else play the current song
-      // as defined in app.state.track._id
-      // api.stream.track.play(app.state.track._id,callback);
+      console.log("playing:",json);
+
+      // update the state
+      app.setState(json);
+      app.foot.update();
+
+      // open the footer "now playing" thing
+      app.foot.open();
     }
   }
 };
@@ -103,6 +115,15 @@ app.foot = {
     app.foot.trackEl.innerHTML = app.state.track.title;
     app.foot.artistEl.innerHTML = app.state.artist.name;
     app.foot.albumEl.innerHTML = app.state.album.title;
+    // if there is no "next" song, disable the button
+    if (!app.state.next) {
+      app.controls.next.classList.add("disabled");
+    }
+
+    // if there is no "previous" song, disable the button
+    if (!app.state.prev) {
+      app.controls.prev.classList.add("disabled");
+    }
   },
   open: function() {
     /**

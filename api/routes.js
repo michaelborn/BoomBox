@@ -120,6 +120,7 @@ module.exports = function(app, db) {
         // maintain our state
         playState = {
           "playing": true,
+          "playtype": "track",
           "track": result,
           "next": false,
           "prev": false
@@ -159,7 +160,7 @@ module.exports = function(app, db) {
             "playing": true,
             "playtype": "album",
             "track": tracks[0],
-            "next": tracks.len > 1 ? tracks[0]._id : false,
+            "next": tracks.length > 1 ? tracks[1]._id : false,
             "prev": false
           };
 
@@ -200,7 +201,7 @@ module.exports = function(app, db) {
             "playing": true,
             "playtype": "artist",
             "track": tracks[0],
-            "next": tracks.len > 1 ? tracks[0]._id : false,
+            "next": tracks.length > 1 ? tracks[1]._id : false,
             "prev": false
           };
 

@@ -169,6 +169,10 @@ body.open-footer main {
   width: 100%;
   height: auto;
 }
+.app__controls .disabled {
+  opacity: .5;
+  background: #777;
+}
 
 /* now playing song info */
 .now-playing {
