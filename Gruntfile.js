@@ -13,12 +13,12 @@ module.exports = function(grunt) {
         sourceMap: true
       },
       dist: {
-        src: ['app/js/api.js','app/js/lib.js','app/js/main.js','app/js/controls.js'],
+        src: ['app/js/api.js','app/js/lib.js','app/js/app.js','app/js/main.js'],
         dest: 'app/dist/js/app.js'
       },
     },
     jshint: {
-      beforeconcat: ['app/js/api.js','app/js/main.js','app/js/lib.js','app/js/controls.js',"organize/ripdisc.js","api/routes.js"]
+      beforeconcat: ['app/js/api.js','app/js/main.js','app/js/lib.js','app/js/app.js',"organize/ripdisc.js","api/routes.js"]
     },
     csslint: {
       options: {
