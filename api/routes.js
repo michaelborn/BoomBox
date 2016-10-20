@@ -31,6 +31,9 @@
  * GET          /stream/recent
 *************************************************/
 var Sock = require('socket.io'),
+    api_version_str = "/api/v1",
+    Player = require("player"),
+    playlist = new Player(),
     playState;
 
 var API = {
@@ -69,9 +72,6 @@ var API = {
 
 
 module.exports = function(app, db) {
-  var api_version_str = "/api/v1",
-      Player = require("player"),
-      playlist = new Player();
 
   app.get(api_version_str+'/stream/track/:id', function(req, res) {
     console.log("Dude, who called my API??");
@@ -120,14 +120,16 @@ module.exports = function(app, db) {
 
         // maintain our state
         playState = {
-          "state":"playing",
+          "playing":true,
           "trackid":result._id,
+          "artistid": result.artistid,
+          "albumid": result.albumid,
           "next": false,
           "prev": false
         };
 
         // send it to the frontend
-        Sock.emit(playState);
+        //Sock.emit(playState);
       });
     }
   });
@@ -156,17 +158,20 @@ module.exports = function(app, db) {
 
           // maintain our state
           playState = {
-            "state":"playing",
-            "trackid":tracks[0]._id,
+            "playing": true,
+            "playtype": "album",
+            "trackid": tracks[0]._id,
+            "artistid": tracks[0].artistid,
+            "albumid": tracks[0].albumid,
             "next": tracks.len > 1 ? tracks[0]._id : false,
             "prev": false
           };
 
           // send it to the frontend
-          Sock.emit(playState);
+          //Sock.emit(playState);
           
           // respond nicely
-          res.json({"error":false,"playing":true,"type":"album","id":result._id});
+          res.json(playState);
         });
       });
   });
@@ -196,17 +201,21 @@ module.exports = function(app, db) {
 
           // maintain our state
           playState = {
-            "state":"playing",
-            "trackid":tracks[0]._id,
+            "playing": true,
+            "playtype": "artist",
+            "trackid": tracks[0]._id,
+            "artistid": tracks[0].artistid,
+            "albumid": tracks[0].albumid,
             "next": tracks.len > 1 ? tracks[0]._id : false,
             "prev": false
           };
 
+
           // send it to the frontend
-          Sock.emit(playState);
+          //Sock.emit(playState);
 
           // respond nicely, keep frontend informed
-          res.json({"error":false,"playing":true,"type":"artist","id":result._id});
+          res.json(playState);
         });
       });
   });
@@ -217,10 +226,14 @@ module.exports = function(app, db) {
       // provided there's actually something playing, of course
       console.info("Pausing the song");
       playlist.pause();
-      res.json({success: true});
+
+      // maintain our state
+      playState.playing = false;
+
+      res.json(playState);
     } else {
       console.info("Dude, we weren't playing anything!");
-      res.json({success: false});
+      res.json({error: true});
     }
   });
 
