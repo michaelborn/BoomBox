@@ -1,10 +1,5 @@
 //main.js - This file does all the app-ish stuff. Includes buttons, animations, and possibly offline functionality.
 
-// First, maintain state
-app = {};
-app.state = {
-  "playing":false
-};
 
 // Buttons!
 var settingsBtn = document.getElementById("btnSettings"),
@@ -16,10 +11,27 @@ var settingsBtn = document.getElementById("btnSettings"),
 
 // the "Songs" tab in the app nav
 songTab.addEventListener("click",function(e) {
+  /**
+   * Deal with someone clicking the song tab or pulling to refresh.
+   * later, we'll set refresh = true if someone swiped down.
+   * This allows us to update the local storage if, say, new songs were ripped from a CD.
+   */
+  var refresh = false;
   e.preventDefault();
 
-  // get all songs
-  api.songs.get({},loadSongs);
+  if (typeof window.localStorage !== "object" || !localStorage.getItem("tracks")) {
+    refresh = true;
+  }
+
+  if (refresh) {
+    // get all songs
+    api.songs.get({},loadSongs);
+  } else {
+    app.tracks = JSON.parse(localStorage.getItem("tracks"));
+    loadSongs(app.tracks);
+  }
+  e.preventDefault();
+
 
   // load data into page
   albumTab.classList.remove("active");
@@ -29,10 +41,25 @@ songTab.addEventListener("click",function(e) {
 
 // the "Albums" tab in the app nav
 albumTab.addEventListener("click",function(e) {
+  /**
+   * Deal with someone clicking the album tab or pulling to refresh.
+   * later, we'll set refresh = true if someone swiped down.
+   * This allows us to update the local storage if, say, new songs were ripped from a CD.
+   */
+  var refresh = false;
   e.preventDefault();
 
-  // get all songs
-  api.albums.get({},loadAlbums);
+  if (typeof window.localStorage !== "object" || !localStorage.getItem("albums")) {
+    refresh = true;
+  }
+
+  if (refresh) {
+    // get all songs
+    api.albums.get({},loadAlbums);
+  } else {
+    app.albums = JSON.parse(localStorage.getItem("albums"));
+    loadAlbums(app.albums);
+  }
 
   // load data into page
   songTab.classList.remove("active");
@@ -42,10 +69,26 @@ albumTab.addEventListener("click",function(e) {
 
 // the "Artists" tab in the app nav
 artistTab.addEventListener("click",function(e) {
+  /**
+   * Deal with someone clicking the album tab or pulling to refresh.
+   * later, we'll set refresh = true if someone swiped down.
+   * This allows us to update the local storage if, say, new songs were ripped from a CD.
+   */
+  var refresh = false;
   e.preventDefault();
 
-  // get all songs
-  api.artists.get({},loadArtists);
+  if (typeof window.localStorage !== "object" || !localStorage.getItem("artists")) {
+    refresh = true;
+  }
+
+  if (refresh) {
+    // get all songs
+    api.artists.get({},loadArtists);
+  } else {
+    app.artists = JSON.parse(localStorage.getItem("artists"));
+    loadArtists(app.artists);
+  }
+
 
   // load data into page
   songTab.classList.remove("active");
@@ -69,15 +112,33 @@ settingsBtn.addEventListener("click",openSettings);
 
 // Get songs
 var loadSongs = function(json) {
-  var songTemplate = '<div class="list-item" id="{_id}" data-type="song"><div class="media"><img src="{imgsrc}" alt="{title}" /></div><h4 class="title">{title}</h4><div class="song-controls"><button class="playBtn"><span class="fa fa-play"></button></div></div>';
+  var songTemplate = '<div class="list-item" id="{_id}" data-type="track"><div class="media"><img src="{imgsrc}" alt="{title}" /></div><h4 class="title">{title}</h4><div class="song-controls"><button class="playBtn"><span class="fa fa-play"></button></div></div>';
+
+  app.tracks = json;
+  if (typeof window.localStorage === "object") {
+    localStorage.setItem("tracks", JSON.stringify(json));
+  }
+
   return loadItems(json,songTemplate);
 };
 var loadArtists = function(json) {
   var songTemplate = '<div class="list-item" id="{_id}" data-type="artist"><div class="media"><img src="{imgsrc}" alt="{name}" /></div><h4 class="title">{name}</h4><div class="song-controls"><button class="playBtn"><span class="fa fa-play"></button></div></div>';
+
+  app.artists = json;
+  if (typeof window.localStorage === "object") {
+    localStorage.setItem("artists", JSON.stringify(json));
+  }
+
   return loadItems(json,songTemplate);
 };
 var loadAlbums = function(json) {
   var songTemplate = '<div class="list-item" id="{_id}" data-type="album"><div class="media"><img src="{albumart}" alt="{title}" /></div><h4 class="title">{title}</h4><div class="song-controls"><button class="playBtn"><span class="fa fa-play"></button></div></div>';
+
+  app.albums = json;
+  if (typeof window.localStorage === "object") {
+    localStorage.setItem("albums", JSON.stringify(json));
+  }
+
   return loadItems(json,songTemplate);
 };
 var loadItems = function(json, mediaTemplate) {
@@ -107,6 +168,7 @@ var mediaItem = function(item) {
       curPlayingSongBtn.classList.add("fa-play");
     }
   };
+
   this.play = function(e) {
     console.log("playing something!");
     self.clearBtns();
@@ -118,24 +180,35 @@ var mediaItem = function(item) {
     switch(item.dataset.type) {
       case "album":
         // play all the songs in the album
+        console.log("play: this album's songs");
         api.stream.album.play(item.id, self.playResponse);
         break;
       case "artist":
         // play all the songs for the particular artist
+        console.log("play: this artist's songs");
         api.stream.artist.play(item.id, self.playResponse);
         break;
       case "track":
         // play this particular song
+        console.log("play: this particular song");
         api.stream.track.play(item.id, self.playResponse);
         break;
     }
   };
+
   this.playResponse = function(req) {
       if (req.response.error) {
         console.warn("Error, couldn't find item!",req.response);
         alert("Error! Could not find item");
       } else {
         console.log("Whoa... it's playing?!",req.response);
+
+        // update the state
+        app.setState(req.response);
+        app.foot.update(app.state);
+
+        // open the footer "now playing" thing
+        document.body.classList.add("open-footer");
       }
   };
   
@@ -162,4 +235,5 @@ var mediaItem = function(item) {
   return this;
 };
 
+// on initial page load, show all the songs
 songTab.click();
