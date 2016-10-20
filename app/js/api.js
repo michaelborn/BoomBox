@@ -35,7 +35,6 @@ var Api = function() {
     lib.ajax("/api/v1/stream/pause",{},callback,"GET");
   };
   self.play = function(type, id, callback) {
-    console.log("play called!",arguments);
     var allowedStreamTypes = ["track","album","artist"];
     if (allowedStreamTypes.indexOf(type) == -1) {
       throw "Stream play type must be one of: " + allowedStreamTypes;

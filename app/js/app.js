@@ -1,4 +1,22 @@
 app = {
+  artists: false,
+  albums: false,
+  tracks: false,
+  loadFromLS: function() {
+    if (typeof window.localStorage !== "object") {
+      console.warn("Browser does not support local storage.");
+    } else {
+      if (localStorage.getItem("tracks")) {
+        app.tracks = JSON.parse(localStorage.getItem("tracks"));
+      }
+      if (localStorage.getItem("artists")) {
+        app.artists = JSON.parse(localStorage.getItem("artists"));
+      }
+      if (localStorage.getItem("albums")) {
+        app.albums = JSON.parse(localStorage.getItem("albums"));
+      }
+    }
+  },
   state: {
     /**
      * this object helps keep track of the currently playing song,
@@ -18,19 +36,24 @@ app = {
      * knowing the current track in the state,
      * get the album info and artist info
      * @param {State} state - the currently playing song
+     * @return {State} state - the UPDATED playing state, with full album info and artist info
      */
-    if (app.state.albumid) {
+    app.state = state;
+    if (app.state.track.artistid && app.artists) {
       // get the album by id
       // note, all these albums / artists come from local storage
-      app.state.artist = app.artists[app.state.artistid];
+      app.state.artist = app.artists.find(function(x) {
+        return x._id === app.state.track.artistid;
+      });
     }
-    if (app.state.albumid) {
+    if (app.state.track.albumid && app.albums) {
       // get the album by id
       // note, all these albums / artists come from local storage
-      app.state.album = app.albums[app.state.albumid];
+      app.state.album = app.albums.find(function(x) {
+        return x._id === app.state.track.albumid;
+      });
     }
-
-
+    return app.state;
   }
 };
 app.controls = {
@@ -63,8 +86,8 @@ app.controls = {
       // pause
     } else {
       // else play the current song
-      // as defined in app.state.trackid
-      // api.stream.track.play(app.state.trackid,callback);
+      // as defined in app.state.track._id
+      // api.stream.track.play(app.state.track._id,callback);
     }
   }
 };
@@ -78,10 +101,19 @@ app.foot = {
      * fill the footer's "now playing" info
      */
     app.foot.trackEl.innerHTML = app.state.track.title;
-    app.foot.artistEl.innerHTML = app.state.artist.title;
+    app.foot.artistEl.innerHTML = app.state.artist.name;
     app.foot.albumEl.innerHTML = app.state.album.title;
+  },
+  open: function() {
+    /**
+     * open the controls / now playing footer
+     */
+    document.body.classList.add("open-footer");
   }
 };
 app.controls.prev.addEventListener("click", app.controls.onPrev);
 app.controls.next.addEventListener("click", app.controls.onNext);
 app.controls.play.addEventListener("click", app.controls.onPlay);
+
+// get albums, artists, and tracks from local storage
+app.loadFromLS();

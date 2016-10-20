@@ -16,21 +16,14 @@ songTab.addEventListener("click",function(e) {
    * later, we'll set refresh = true if someone swiped down.
    * This allows us to update the local storage if, say, new songs were ripped from a CD.
    */
-  var refresh = false;
   e.preventDefault();
 
-  if (typeof window.localStorage !== "object" || !localStorage.getItem("tracks")) {
-    refresh = true;
-  }
-
-  if (refresh) {
+  if (!app.tracks) {
     // get all songs
     api.songs.get({},loadSongs);
   } else {
-    app.tracks = JSON.parse(localStorage.getItem("tracks"));
     loadSongs(app.tracks);
   }
-  e.preventDefault();
 
 
   // load data into page
@@ -46,18 +39,12 @@ albumTab.addEventListener("click",function(e) {
    * later, we'll set refresh = true if someone swiped down.
    * This allows us to update the local storage if, say, new songs were ripped from a CD.
    */
-  var refresh = false;
   e.preventDefault();
 
-  if (typeof window.localStorage !== "object" || !localStorage.getItem("albums")) {
-    refresh = true;
-  }
-
-  if (refresh) {
+  if (!app.albums) {
     // get all songs
     api.albums.get({},loadAlbums);
   } else {
-    app.albums = JSON.parse(localStorage.getItem("albums"));
     loadAlbums(app.albums);
   }
 
@@ -74,18 +61,12 @@ artistTab.addEventListener("click",function(e) {
    * later, we'll set refresh = true if someone swiped down.
    * This allows us to update the local storage if, say, new songs were ripped from a CD.
    */
-  var refresh = false;
   e.preventDefault();
 
-  if (typeof window.localStorage !== "object" || !localStorage.getItem("artists")) {
-    refresh = true;
-  }
-
-  if (refresh) {
+  if (!app.artists) {
     // get all songs
     api.artists.get({},loadArtists);
   } else {
-    app.artists = JSON.parse(localStorage.getItem("artists"));
     loadArtists(app.artists);
   }
 
@@ -142,7 +123,6 @@ var loadAlbums = function(json) {
   return loadItems(json,songTemplate);
 };
 var loadItems = function(json, mediaTemplate) {
-  console.log("Ajax response:",json);
   dataBox.innerHTML = '';
 
   // insert into page
@@ -170,7 +150,6 @@ var mediaItem = function(item) {
   };
 
   this.play = function(e) {
-    console.log("playing something!");
     self.clearBtns();
     item.classList.add("active");
     playbutton.classList.remove("fa-play");
@@ -196,22 +175,22 @@ var mediaItem = function(item) {
     }
   };
 
-  this.playResponse = function(req) {
-      if (req.response.error) {
-        console.warn("Error, couldn't find item!",req.response);
-        alert("Error! Could not find item");
-      } else {
-        console.log("Whoa... it's playing?!",req.response);
+  this.playResponse = function(json) {
+    if (json.error) {
+      console.warn("Error, couldn't find item!",json);
+      alert("Error! Could not find item");
+    } else {
+      console.log("playing:",json);
 
-        // update the state
-        app.setState(req.response);
-        app.foot.update(app.state);
+      // update the state
+      app.setState(json);
+      app.foot.update();
 
-        // open the footer "now playing" thing
-        document.body.classList.add("open-footer");
-      }
+      // open the footer "now playing" thing
+      app.foot.open();
+    }
   };
-  
+
   this.pause = function(e) {//console.log("pause!",e,item);
     item.classList.remove("active");
     playbutton.classList.add("fa-play");

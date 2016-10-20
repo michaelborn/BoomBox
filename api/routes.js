@@ -88,7 +88,6 @@ module.exports = function(app, db) {
           return;
         }
 
-        res.json({"error":false,"playing":true,"type":"track","id":result._id});
 
         if (playState && playState.trackid === result._id && playlist.paused) {
           // if we have THIS song in the player, AND it is paused,
@@ -120,16 +119,15 @@ module.exports = function(app, db) {
 
         // maintain our state
         playState = {
-          "playing":true,
-          "trackid":result._id,
-          "artistid": result.artistid,
-          "albumid": result.albumid,
+          "playing": true,
+          "track": result,
           "next": false,
           "prev": false
         };
 
         // send it to the frontend
         //Sock.emit(playState);
+        res.json(playState);
       });
     }
   });
@@ -160,9 +158,7 @@ module.exports = function(app, db) {
           playState = {
             "playing": true,
             "playtype": "album",
-            "trackid": tracks[0]._id,
-            "artistid": tracks[0].artistid,
-            "albumid": tracks[0].albumid,
+            "track": tracks[0],
             "next": tracks.len > 1 ? tracks[0]._id : false,
             "prev": false
           };
@@ -203,9 +199,7 @@ module.exports = function(app, db) {
           playState = {
             "playing": true,
             "playtype": "artist",
-            "trackid": tracks[0]._id,
-            "artistid": tracks[0].artistid,
-            "albumid": tracks[0].albumid,
+            "track": tracks[0],
             "next": tracks.len > 1 ? tracks[0]._id : false,
             "prev": false
           };
