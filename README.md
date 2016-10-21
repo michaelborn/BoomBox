@@ -4,7 +4,7 @@ Use a raspberry pi or any computer as a media server for audio files.
 ## Dependencies
 * Node.js
 * npm
-* Grunt.js
+* cdparanoia, a CD ripper binary
 
 ## Installation
 * Install node and npm. `sudo apt-get install nodejs npm`
