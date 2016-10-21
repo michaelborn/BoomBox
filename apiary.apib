@@ -6,19 +6,20 @@ Use a raspberry pi or any computer as a media server for audio files.
 # Data Structures
 
 ## Song Track (object)
-+ _id: 1 (number)
++ _id: ef8b2c68-ad2f-372a-a2f0-6db7c5163aef (string, required)
 + name: Mama Tried (string,required)
-+ filename: /audio/merle/mama-tried/01.ogg (string,required)
-+ albumid: 1 (number)
++ filename: audio/mp3/merle/mama-tried/01.ogg (string,required)
++ albumid: 25bb0c59-5a50-40d5-bd6c-e2109f41c5fe (string)
++ artistid: 6e0ae159-8449-4262-bba5-18ec87fa529f (string)
 
 ## Song Album (object)
-+ _id: 1 (number)
-+ artistid: 1 (number,required)
++ _id: 25bb0c59-5a50-40d5-bd6c-e2109f41c5fe (string)
++ artistid: 6e0ae159-8449-4262-bba5-18ec87fa529f (string,required)
 + name: A Portrait of Merle Haggard (string)
 + genre: Country
 
 ## Song Artist (object)
-+ _id: 1 (number)
++ _id: 25bb0c59-5a50-40d5-bd6c-e2109f41c5fe (string, required)
 + name: Merle Haggard (string,required)
 
 # Group Tracks
@@ -29,7 +30,7 @@ Manage song tracks
 ### List one or all songs [GET /track[/{id}]]
 Search song collection, paginate by limit and page parameters, or limit by id.
 + Parameters 
-  + search: `Dock of the bay` (number,optional) - keyword or phrase to search for
+  + search: `Dock of the bay` (string,optional) - keyword or phrase to search for
   + limit: `3` (number,optional) - maximum number of items to retrieve
     + Default: `25`
   + page: `1` (number,optional) - retrieve nth page of {limit} items
@@ -55,7 +56,7 @@ Manage song albums.
 ### List one or all albums [GET /album[/{id}]]
 Search album collection, paginate by limit and page parameters, or limit by id.
 + Parameters 
-  + search: `Man in black` (number,optional) - keyword or phrase to search for
+  + search: `Man in black` (string,optional) - keyword or phrase to search for
   + limit: `3` (number,optional) - maximum number of items to retrieve
     + Default: `25`
   + page (number,optional) - retrieve nth page of {limit} items
@@ -81,7 +82,7 @@ Manage song artists.
 ### List one or all artists [GET /artist[/{id}]]
 Search artists collection, paginate by limit and page parameters, or limit by id.
 + Parameters 
-  + search: `Johnny` (number,optional) - keyword or phrase to search for
+  + search: `Johnny` (string,optional) - keyword or phrase to search for
   + limit: `3` (number,optional) - maximum number of items to retrieve
     + Default: `25`
   + page (number,optional) - retrieve nth page of {limit} items
