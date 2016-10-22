@@ -46,6 +46,20 @@ var Api = function() {
     var apiUrl = "/api/v1/stream/" + type + "/" + id;
     lib.ajax(apiUrl,{},callback,"GET");
   };
+  self.next = function(callback) {
+    if (typeof callback !== "function") {
+      throw "Callback is required.";
+    }
+
+    lib.ajax("/api/v1/stream/next",{},callback,"GET");
+  };
+  self.prev = function(callback) {
+    if (typeof callback !== "function") {
+      throw "Callback is required.";
+    }
+
+    lib.ajax("/api/v1/stream/prev",{},callback,"GET");
+  };
 
   // track streaming endpoints
   self.stream.track.play = function(id,callback) {

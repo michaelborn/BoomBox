@@ -59,8 +59,18 @@ app = {
 app.controls = {
   /**
    * app controls
-   * This file manages the "Now Playing" bar at the bottom of the app.
-   * Includes a play/pause button, a track title, album title, artist title
+   * This file manages the "Now Playing" bar and app controls
+   * at the bottom of the app.
+   *
+   * The app controls include
+   *    play/pause button,
+   *    previous song button,
+   *    next button
+   *
+   * The "Now Playing" bar includes
+   *    track title,
+   *    album title,
+   *    artist title
   */
   prev: document.getElementById("control__playprev"),
   next: document.getElementById("control__playnext"),
@@ -69,7 +79,7 @@ app.controls = {
     e.preventDefault();
     if (app.state.prev) {
       // if the API says there is a "previous" song that we can play
-      api.stream.track.play(app.state.prev, app.controls.playResponse);
+      api.stream.prev(app.controls.playResponse);
     } else {
       // else error?
     }
@@ -78,7 +88,7 @@ app.controls = {
     e.preventDefault();
     if (app.state.next) {
       // if the API says there is a "next" song that we can play
-      api.stream.track.play(app.state.next, app.controls.playResponse);
+      api.stream.next(app.controls.playResponse);
     } else {
       // else error?
     }

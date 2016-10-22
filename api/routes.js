@@ -235,6 +235,30 @@ module.exports = function(app, db) {
       res.json({error: true});
     }
   });
+  app.get(api_version_str+'/stream/next', function(req, res) {
+    // play the next song in the playlist
+    playlist.next();
+
+    // maintain our state
+    playState = {
+      "playing": true,
+      "playtype": "artist",
+      "track": tracks[0],
+      "next": tracks.length > 1 ? tracks[1]._id : false,
+      "prev": false
+    };
+
+    // respond nicely, keep frontend informed
+    res.json(playState);
+  });
+  app.get(api_version_str+'/stream/prev', function(req, res) {
+    // play the "previous" song in the playlist.
+    // since node-player doesn't suppor this,
+    // I'll either have to submit a pull request
+    // or write my own implementation right here.
+    // https://github.com/guo-yu/player
+    playlist.prev();
+  });
 
   // http://docs.boombox.apiary.io/#reference/tracks/list-one-or-all-songs
   // Routes for getting, creating, updating, and deleting song tracks by ID.
