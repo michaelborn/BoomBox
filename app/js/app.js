@@ -118,11 +118,15 @@ app.foot = {
     // if there is no "next" song, disable the button
     if (!app.state.next) {
       app.controls.next.classList.add("disabled");
+    } else {
+      app.controls.next.classList.remove("disabled");
     }
 
     // if there is no "previous" song, disable the button
     if (!app.state.prev) {
       app.controls.prev.classList.add("disabled");
+    } else {
+      app.controls.prev.classList.remove("disabled");
     }
   },
   open: function() {
