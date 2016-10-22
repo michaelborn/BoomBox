@@ -105,15 +105,18 @@ module.exports = function(app, db) {
 
           console.log("Now playing: ", result.title);
           playlist.add("/var/www/Server/boombox/www/" + result.filename);
-          //playlist.next();
-          // play the stream
-          // note that if the playState song hasn't changed
-          // then we do NOT do a playlist.add(),
-          // we just play() from the current position
-          playlist.play(function(err,player) {
-            console.log("End of playback!",arguments);
-            res.json({"error":false,"playing":false});
-          });
+          if (playlist.list.length > 1) {
+            playlist.next();
+          } else {
+            // play the stream
+            // note that if the playState song hasn't changed
+            // then we do NOT do a playlist.add(),
+            // we just play() from the current position
+            playlist.play(function(err,player) {
+              console.log("End of playback!",arguments);
+              res.json({"error":false,"playing":false});
+            });
+          }
         }
         console.log(playlist.list);
 
