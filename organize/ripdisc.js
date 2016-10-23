@@ -26,6 +26,7 @@
  * the Album object, collated from musicbrainz metadata and sent to Mongo
  * @typedef {Object} Album
  * @property {string} _id - primary key, this is the musicbrainz album id
+ * @property {string} artistid - musicbrainz artist id
  * @property {string} title - musicbrainz release title
  * @property {string} date - musicbrainz release date
  * @property {number} track_count - musicbrainz release track count
@@ -59,6 +60,7 @@ var collateResults = function(data) {
       },
       album = {
         _id: data.id,
+        artistid: data["artist-credit"][0].artist.id,
         title: data.title,
         date: data.date,
         track_count:data["medium-list"][0]["track-count"]
