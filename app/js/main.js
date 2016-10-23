@@ -93,11 +93,24 @@ settingsBtn.addEventListener("click",openSettings);
 
 // Get songs
 var loadSongs = function(json) {
-  var songTemplate = '<div class="list-item" id="{_id}" data-type="track"><div class="media"><img src="{imgsrc}" alt="{title}" /></div><h4 class="title">{title}</h4><div class="song-controls"><button class="playBtn"><span class="fa fa-play"></button></div></div>';
+  var songTemplate = '<div class="list-item" id="{_id}" data-type="track"><div class="media"><img src="{imgsrc}" alt="{title}" /></div><div class="track__info"><h4 class="title">{title}</h4><h5 class="artist__name">{artist.name}</h5></div><div class="song-controls"><button class="playBtn"><span class="fa fa-play"></button></div></div>';
 
   app.tracks = json;
   if (typeof window.localStorage === "object") {
     localStorage.setItem("tracks", JSON.stringify(json));
+  }
+
+  // for each song, append the artist name
+  if (app.artists.length) {
+    for (var i=0; i < json.length; i++) {
+      for (var n=0; n < app.artists.length; n++) {
+        // for each stored artist, check the id against the current track.artistid
+        if (app.artists[n]._id === json[i].artistid) {
+          // set the artist name
+          json[i]["artist.name"] = app.artists[n].name;
+        }
+      }
+    }
   }
 
   return loadItems(json,songTemplate);
