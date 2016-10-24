@@ -32,7 +32,7 @@
 *************************************************/
 var Sock = require("socket.io"),
     api_version_str = "/api/v1",
-    Playlist = require("playlist"),
+    Playlist = require("./playlist"),
     playlist = new Playlist(),
     playState;
 
@@ -104,7 +104,7 @@ module.exports = function(app, db) {
           }
 
           console.log("Now playing: ", result.title);
-          playlist.add("/var/www/Server/boombox/www/" + result.filename);
+          playlist.add(result);
           if (playlist.list.length > 1) {
             playlist.next();
           } else {
@@ -149,7 +149,6 @@ module.exports = function(app, db) {
 
           // add each song to the playlist
           tracks.forEach(function(thisTrack) {
-            console.log("Adding this item to playlist:",thisTrack.title);
             playlist.add(thisTrack);
           });
 
@@ -250,10 +249,6 @@ module.exports = function(app, db) {
   });
   app.get(api_version_str+'/stream/prev', function(req, res) {
     // play the "previous" song in the playlist.
-    // since node-player doesn't suppor this,
-    // I'll either have to submit a pull request
-    // or write my own implementation right here.
-    // https://github.com/guo-yu/player
     playlist.prev();
   });
 

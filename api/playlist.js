@@ -1,19 +1,31 @@
 #!/usr/bin/env node
-var Player = require("Player"),
+var Player = require("player"),
     player = new Player();
 
-function Playlist() = {
+function Playlist() {
   var ret = {
     paused: false,
-    list: array[],
+    list: new Array(0),
     add: function(track) {
-      list.append(track);
-      playlist.add(track.filename);
+      var serverRoot = "/var/www/Server/boombox/www/";
+      console.log("Adding track to playlist:",track.title);
+      this.list.push(track);
+      player.add(serverRoot + track.filename);
     },
     remove: function(track) {
-
+      var delNum = function(listTrack) {
+        if (listTrack._id === track._id) {
+          console.log("removing track from playlist:",listTrack.filename);
+        }
+        return listTrack._id === track._id;
+      };
+      this.list.splice(delNum,1);
     },
     prev: function() {
+      // since node-player doesn't support this,
+      // I'll either have to submit a pull request
+      // or write my own implementation right here.
+      // https://github.com/guo-yu/player
 
     },
     next: function() {
@@ -28,9 +40,11 @@ function Playlist() = {
        * this function will pause the audio stream if current playing
        * OR will resume the audio stream if paused and a song is loaded.
        */
+      this.paused = true;
       player.pause();
     },
     resume: function() {
+      this.paused = false;
 
     },
     play: function() {
@@ -40,7 +54,10 @@ function Playlist() = {
        * clear the playlist, 
        * then start the new song.
        */
+      var self = this;
+      self.paused = false;
       player.play(function(err, player) {
+        self.paused = true;
         console.log("End of playback!",arguments);
         //res.json({"error":false,"playing":false});
       });
@@ -49,6 +66,7 @@ function Playlist() = {
       /**
        * this function stops the currently playing stream
        */
+      this.paused = true;
       player.stop();
     }
   };
