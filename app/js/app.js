@@ -2,6 +2,42 @@ app = {
   artists: false,
   albums: false,
   tracks: false,
+  getAlbumById: function(id) {
+    /**
+     * Searches through locally stored app.albums array
+     * to find the album with this id.
+     * @param {string} id - musicbrainz id of the album/release
+     * @return {Object|undefined} undefined if not found, else Album object
+     */
+    return app.albums.find(function(item) {
+      // find album with this id.
+      return item._id === id;
+    });
+  },
+  getArtistById: function(id) {
+    /**
+     * Searches through locally stored app.artists array
+     * to find the artists with this id.
+     * @param {string} id - musicbrainz id of the artist
+     * @return {Object|undefined} undefined if not found, else Artist object
+     */
+    return app.albums.find(function(item) {
+      // find album with this id.
+      return item._id === id;
+    });
+  },
+  getTrackById: function(id) {
+    /**
+     * Searches through locally stored app.tracks array
+     * to find the song track with this id.
+     * @param {string} id - musicbrainz id of the track
+     * @return {Object|undefined} undefined if not found, else Track object
+     */
+    return app.albums.find(function(item) {
+      // find album with this id.
+      return item._id === id;
+    });
+  },
   loadFromLS: function() {
     if (typeof window.localStorage !== "object") {
       console.warn("Browser does not support local storage.");
