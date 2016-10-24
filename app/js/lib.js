@@ -3,6 +3,15 @@
 var Lib = function() {
 
   var template = function(str, data) {
+    /**
+     * template()
+     * do Mustache-style templating on a string.
+     * Note this is SUPER basic. Does not do nesting, loops, conditionals, etc.
+     * Just simple {name}-value replacement.
+     * @param {string} str - the string to search/replace IN
+     * @param {Object} data - a flat object of key/value pairs to insert into the HTML string.
+     * @returns {string} a full HTML with no more {key} blocks unless the corresponding data[key] did not exist.
+     */
     var retstr = str;
 
     // loop over all data properties
@@ -18,6 +27,11 @@ var Lib = function() {
   };
 
   var toDom = function(str) {
+    /** toDom()
+     * convert a string into a fully build nodeList
+     * @param {string} str - the string of correctly-formatted HTML
+     * @return {NodeList} the HTML list of nodes
+     */
     var tmp = document.createElement("div");
     tmp.innerHTML = str;
     return tmp.childNodes;
@@ -26,9 +40,9 @@ var Lib = function() {
   var serialize = function(obj) {
     /**
      * serialize()
-     * \brief take an object, output a string fit for the querystring.
-     * \param {object} obj - the data object we wish to serialize.
-     * \cite: http://stackoverflow.com/a/1714899/1525594
+     * take an object, output a string fit for the querystring.
+     * @param {object} obj - the data object we wish to serialize.
+     * @cite: http://stackoverflow.com/a/1714899/1525594
     */
     var str = [];
     for(var p in obj)
