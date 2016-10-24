@@ -2,6 +2,32 @@
 
 var Lib = function() {
 
+  var selectParent = function(el, parentSelector) {
+    /**
+     * selectParent()
+     * similar to jquery's closest() function,
+     * the difference being that we are not chainable.
+     * @param {Node} el - the element which has parents
+     * @param {string} parentSelector - the CSS-style selector which will identify the parents we are searching for
+     * @return {Node|boolean} An HTML node if if matches the parentSelector. Else false.
+     */
+    var matchesSelector = el.matches ||
+													el.webkitMatchesSelector ||
+													el.mozMatchesSelector ||
+													el.msMatchesSelector;
+
+    while (el) {
+			// this loop traverses through the element's parent nodes
+			if (matchesSelector.call(el, parentSelector)) {
+				// if it's a match, quit and return true.
+				break;
+			}
+			el = el.parentElement;
+    }
+
+    return el;
+  };
+
   var template = function(str, data) {
     /**
      * template()
@@ -83,7 +109,8 @@ var Lib = function() {
     serialize: serialize,
     ajax: ajax,
     toDom: toDom,
-    template: template
+    template: template,
+		selectParent: selectParent
   };
 };
 lib = Lib();

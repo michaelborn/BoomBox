@@ -8,6 +8,8 @@ var settingsBtn = document.getElementById("btnSettings"),
     artistTab = document.getElementById("tab__artists"),
     albumTab = document.getElementById("tab__albums");
 
+var statusBar = document.getElementById("app-statusbar");
+console.log("status bar:",statusBar);
 
 // the "Songs" tab in the app nav
 songTab.addEventListener("click",function(e) {
@@ -93,7 +95,7 @@ settingsBtn.addEventListener("click",openSettings);
 
 // Get songs
 var loadSongs = function(json) {
-  var songTemplate = '<div class="list-item" id="{_id}" data-type="track"><div class="media"><img src="{imgsrc}" alt="{title}" /></div><div class="track__info"><h4 class="title">{title}</h4><h5 class="artist__name">{artist.name}</h5></div><div class="song-controls"><button class="playBtn"><span class="fa fa-play"></button></div></div>';
+  var songTemplate = '<div class="list-item" id="{_id}" data-type="track"><div class="track__info"><h4 class="title">{title}</h4><h5 class="artist__name">{artist.name}</h5></div><div class="song-controls"><button class="playBtn"><span class="fa fa-play"></button></div></div>';
 
   app.tracks = json;
   if (typeof window.localStorage === "object") {
@@ -103,12 +105,10 @@ var loadSongs = function(json) {
   // for each song, append the artist name
   if (app.artists.length) {
     for (var i=0; i < json.length; i++) {
-      for (var n=0; n < app.artists.length; n++) {
-        // for each stored artist, check the id against the current track.artistid
-        if (app.artists[n]._id === json[i].artistid) {
-          // set the artist name
-          json[i]["artist.name"] = app.artists[n].name;
-        }
+      // for each stored artist, check the id against the current track.artistid
+      thisArtist = app.getTrackById(json[i].artistid);
+      if (thisArtist) {
+        json[i]["artist.name"] = thisArtist.name;
       }
     }
   }
@@ -116,7 +116,7 @@ var loadSongs = function(json) {
   return loadItems(json,songTemplate);
 };
 var loadArtists = function(json) {
-  var songTemplate = '<div class="list-item" id="{_id}" data-type="artist"><div class="media"><img src="{imgsrc}" alt="{name}" /></div><h4 class="title">{name}</h4><div class="song-controls"><button class="playBtn"><span class="fa fa-play"></button></div></div>';
+  var songTemplate = '<div class="list-item item__artist" id="{_id}" data-type="artist"><h4 class="title">{name}</h4><div class="song-controls"><button class="playBtn"><span class="fa fa-play"></button></div></div>';
 
   app.artists = json;
   if (typeof window.localStorage === "object") {
@@ -126,7 +126,7 @@ var loadArtists = function(json) {
   return loadItems(json,songTemplate);
 };
 var loadAlbums = function(json) {
-  var songTemplate = '<div class="list-item" id="{_id}" data-type="album"><div class="media"><img src="{albumart}" alt="{title}" /></div><h4 class="title">{title}</h4><div class="song-controls"><button class="playBtn"><span class="fa fa-play"></button></div></div>';
+  var songTemplate = '<div class="list-item item__album" id="{_id}" data-type="album"><h4 class="title">{title}</h4><div class="song-controls"><button class="playBtn"><span class="fa fa-play"></button></div></div>';
 
   app.albums = json;
   if (typeof window.localStorage === "object") {
@@ -142,7 +142,6 @@ var loadItems = function(json, mediaTemplate) {
   for (var i=0;i<json.length;i++) {
     // use our new template function in the library
     var song = lib.toDom(lib.template(mediaTemplate,json[i]));
-    //console.log("song:",song);
     dataBox.appendChild(song[0]);
     
     var curSong = new mediaItem(document.getElementById(json[i]._id));
@@ -172,24 +171,21 @@ var mediaItem = function(item) {
     switch(item.dataset.type) {
       case "album":
         // play all the songs in the album
-        console.log("play: this album's songs");
         api.stream.album.play(item.id, app.controls.playResponse);
         break;
       case "artist":
         // play all the songs for the particular artist
-        console.log("play: this artist's songs");
         api.stream.artist.play(item.id, app.controls.playResponse);
         break;
       case "track":
         // play this particular song
-        console.log("play: this particular song");
         api.stream.track.play(item.id, app.controls.playResponse);
         break;
     }
   };
 
 
-  this.pause = function(e) {//console.log("pause!",e,item);
+  this.pause = function(e) {
     item.classList.remove("active");
     playbutton.classList.add("fa-play");
     playbutton.classList.remove("fa-pause");
@@ -198,7 +194,7 @@ var mediaItem = function(item) {
     });
   };
 
-  this.toggle = function(e) {//console.log("toggle!",e,item);
+  this.toggle = function(e) {
     if (item.classList.contains("active")) {//then song is being played right now.
       self.pause(e);
     } else {//else song is currently paused. play it!
@@ -211,6 +207,55 @@ var mediaItem = function(item) {
 
   return this;
 };
+var loadSongsByX = function(e) {
+  var item, opts,
+      album = lib.selectParent(e.target, ".item__album"),
+      artist = lib.selectParent(e.target, ".item__artist");
+
+  if (album) {
+    //console.log("found album:", album);
+		if (album) {
+      loadSongsByAlbum(album.id);
+    }
+  } else if (artist) {
+    //console.log("found artist:", artist);
+		if (artist) {
+      loadSongsByArtist(artist.id);
+    }
+	}
+};
+loadSongsByAlbum = function(albumid) {
+  var thisAlbum = app.getAlbumById(albumid);
+  albumTitle = '<h2>' + thisAlbum.title + '</h2>';
+  console.log(albumTitle);
+
+  // put album name in status bar
+  statusBar.innerHTML = albumTitle;
+
+  // query for songs by album ID
+  opts = {
+    albumid: albumid
+  };
+  api.songs.get(opts, loadSongs);
+};
+loadSongsByArtist = function(artistid) {
+  var thisArtist = app.getArtistById(artistid);
+  console.log("found artist:", thisArtist);
+  artistTitle = '<h2>' + thisArtist.name + '</h2>';
+  console.log(artistTitle);
+
+  // put artist name in status bar
+  statusBar.innerHTML = artistTitle;
+
+  // query for songs by artist ID
+  opts = {
+    artistid: artistid
+  };
+  api.songs.get(opts, loadSongs);
+};
 
 // on initial page load, show all the songs
 songTab.click();
+
+// window event listeners - listen for clicks on the non-existent album or artist divs
+window.addEventListener("click", loadSongsByX);
