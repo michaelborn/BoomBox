@@ -14,7 +14,8 @@ var Api = function() {
 
   self.songs.get = function(opts,callback) {
     var data = opts;
-    lib.ajax("/api/v1/track",data,callback,"GET");
+    console.log("getting tracks:", data);
+    lib.ajax("/api/v1/track",data,callback);
   };
   /*
   self.songs.insert = function(opts) {
@@ -23,16 +24,16 @@ var Api = function() {
   */
   self.albums.get = function(opts, callback) {
     var data = opts;
-    lib.ajax("/api/v1/album",data,callback,"GET");
+    lib.ajax("/api/v1/album",data,callback);
   };
   self.artists.get = function(opts, callback) {
     var data = opts;
-    lib.ajax("/api/v1/artist",data,callback,"GET");
+    lib.ajax("/api/v1/artist",data,callback);
   };
 
   // streaming endpoints
   self.pause = function(callback) {
-    lib.ajax("/api/v1/stream/pause",{},callback,"GET");
+    lib.ajax("/api/v1/stream/pause",{},callback);
   };
   self.play = function(type, id, callback) {
     var allowedStreamTypes = ["track","album","artist"];
@@ -44,21 +45,21 @@ var Api = function() {
     }
 
     var apiUrl = "/api/v1/stream/" + type + "/" + id;
-    lib.ajax(apiUrl,{},callback,"GET");
+    lib.ajax(apiUrl,{},callback);
   };
   self.next = function(callback) {
     if (typeof callback !== "function") {
       throw "Callback is required.";
     }
 
-    lib.ajax("/api/v1/stream/next",{},callback,"GET");
+    lib.ajax("/api/v1/stream/next",{},callback);
   };
   self.prev = function(callback) {
     if (typeof callback !== "function") {
       throw "Callback is required.";
     }
 
-    lib.ajax("/api/v1/stream/prev",{},callback,"GET");
+    lib.ajax("/api/v1/stream/prev",{},callback);
   };
 
   // track streaming endpoints
@@ -73,11 +74,11 @@ var Api = function() {
   };
   self.stream.next = function(callback) {
     var apiUrl = "/api/v1/stream/next";
-    lib.ajax(apiUrl,{},callback,"GET");
+    lib.ajax(apiUrl,{},callback);
   };
   self.stream.prev = function(callback) {
     var apiUrl = "/api/v1/stream/prev";
-    lib.ajax(apiUrl,{},callback,"GET");
+    lib.ajax(apiUrl,{},callback);
   };
 
 };
