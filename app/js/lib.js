@@ -1,8 +1,9 @@
 // lib.js - this is a short library of useful functions, primarily Ajax.
 
 var Lib = function() {
+  var self = this;
 
-  var selectParent = function(el, parentSelector) {
+  this.selectParent = function(el, parentSelector) {
     /**
      * selectParent()
      * similar to jquery's closest() function,
@@ -28,7 +29,7 @@ var Lib = function() {
     return el;
   };
 
-  var template = function(str, data) {
+  this.template = function(str, data) {
     /**
      * template()
      * do Mustache-style templating on a string.
@@ -52,7 +53,7 @@ var Lib = function() {
     return retstr;
   };
 
-  var toDom = function(str) {
+  this.toDom = function(str) {
     /** toDom()
      * convert a string into a fully build nodeList
      * @param {string} str - the string of correctly-formatted HTML
@@ -63,7 +64,7 @@ var Lib = function() {
     return tmp.childNodes;
   };
 
-  var serialize = function(obj) {
+  this.serialize = function(obj) {
     /**
      * serialize()
      * take an object, output a string fit for the querystring.
@@ -78,7 +79,7 @@ var Lib = function() {
     return str.join("&");
   };
 
-  var ajax = function(url,data,callback,method) {
+  this.ajax = function(url,data,callback,method) {
     var reqBody = '',
         reqBoundary,
         reqMethod = method ? method : "GET";//method is GET by default
@@ -96,21 +97,19 @@ var Lib = function() {
     var myRequest = new XMLHttpRequest();
     myRequest.responseType = "json";
     myRequest.addEventListener("load",myCallback);
-    myRequest.open(reqMethod,url);
 
     if (reqMethod === "POST") {
       myRequest.setRequestHeader("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8");
       reqBody = addFormData();
+    } else if (reqMethod === "GET") {
+      url = url + "?" + self.serialize(data);
     }
+
+    // open the connection, send the data
+    myRequest.open(reqMethod,url);
     myRequest.send(data);
   };
 
-  return {
-    serialize: serialize,
-    ajax: ajax,
-    toDom: toDom,
-    template: template,
-		selectParent: selectParent
-  };
+  return this;
 };
-lib = Lib();
+lib = new Lib();
