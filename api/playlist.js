@@ -5,6 +5,7 @@ var Player = require("player"),
 function Playlist() {
   var ret = {
     paused: false,
+    current: -1,
     list: new Array(0),
     add: function(track) {
       var serverRoot = "/var/www/Server/boombox/www/";
@@ -26,7 +27,7 @@ function Playlist() {
       // I'll either have to submit a pull request
       // or write my own implementation right here.
       // https://github.com/guo-yu/player
-
+      
     },
     next: function() {
       /**
@@ -72,4 +73,4 @@ function Playlist() {
   };
   return ret;
 };
-module.exports = Playlist;
+module.exports = new Playlist();
