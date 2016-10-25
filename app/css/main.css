@@ -1,6 +1,7 @@
 /* app theme */
 body {
   height: 100%;
+  padding-top: 68px;
 }
 /*
 body::after {
@@ -22,6 +23,11 @@ body::after {
 /* app bar - controls at top */
 .app-bar {
   background: #276af3;
+  position: absolute;
+  z-index: 90;
+  top: 0;
+  left: 0;
+  right: 0;
   display: flex;
   height: 2.5em;
   justify-content: space-between;
@@ -83,6 +89,16 @@ body::after {
 }
 #app-settings.open {
   transform: translate(70vw,0);
+}
+
+/* app status bar */
+#app-statusbar {
+  padding: .5em 1em;
+}
+#app-statusbar h2, 
+#app-statusbar h4 {
+  margin: 0;
+  line-height: 1.1em;
 }
 
 

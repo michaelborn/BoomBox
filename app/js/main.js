@@ -9,7 +9,6 @@ var settingsBtn = document.getElementById("btnSettings"),
     albumTab = document.getElementById("tab__albums");
 
 var statusBar = document.getElementById("app-statusbar");
-console.log("status bar:",statusBar);
 
 // the "Songs" tab in the app nav
 songTab.addEventListener("click",function(e) {
@@ -232,12 +231,15 @@ var loadSongsByX = function(e) {
 	}
 };
 loadSongsByAlbum = function(albumid) {
-  var thisAlbum = app.getAlbumById(albumid);
-  albumTitle = '<h2>' + thisAlbum.title + '</h2>';
-  console.log(albumTitle);
+  var thisAlbum = app.getAlbumById(albumid),
+      statusTemplate = "<h2>{album}</h2><h4>by {artist}</h4>",
+      dat = {
+        album: thisAlbum.title,
+        artist: app.getArtistById(thisAlbum.artistid).name
+      };
 
   // put album name in status bar
-  statusBar.innerHTML = albumTitle;
+  statusBar.innerHTML = lib.template(statusTemplate, dat);
 
   // query for songs by album ID
   opts = {
@@ -247,7 +249,6 @@ loadSongsByAlbum = function(albumid) {
 };
 loadSongsByArtist = function(artistid) {
   var thisArtist = app.getArtistById(artistid);
-  console.log("found artist:", thisArtist);
   artistTitle = '<h2>' + thisArtist.name + '</h2>';
   console.log(artistTitle);
 
