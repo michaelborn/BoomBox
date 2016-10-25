@@ -71,6 +71,14 @@ var Api = function() {
   self.stream.artist.play = function(id,callback) {
     self.play("artist",id,callback);
   };
+  self.stream.next = function(callback) {
+    var apiUrl = "/api/v1/stream/next";
+    lib.ajax(apiUrl,{},callback,"GET");
+  };
+  self.stream.prev = function(callback) {
+    var apiUrl = "/api/v1/stream/prev";
+    lib.ajax(apiUrl,{},callback,"GET");
+  };
 
 };
 var api = new Api();
