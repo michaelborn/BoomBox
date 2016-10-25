@@ -27,6 +27,8 @@ songTab.addEventListener("click",function(e) {
     loadSongs(app.tracks);
   }
 
+  // clear status bar
+  statusBar.innerHTML = '';
 
   // load data into page
   albumTab.classList.remove("active");
@@ -50,6 +52,9 @@ albumTab.addEventListener("click",function(e) {
     loadAlbums(app.albums);
   }
 
+  // clear status bar
+  statusBar.innerHTML = '';
+
   // load data into page
   songTab.classList.remove("active");
   artistTab.classList.remove("active");
@@ -72,6 +77,8 @@ artistTab.addEventListener("click",function(e) {
     loadArtists(app.artists);
   }
 
+  // clear status bar
+  statusBar.innerHTML = '';
 
   // load data into page
   songTab.classList.remove("active");
