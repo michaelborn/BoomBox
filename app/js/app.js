@@ -6,6 +6,7 @@ app = {
     /**
      * Searches through locally stored app.albums array
      * to find the album with this id.
+     * BUG: if app.albums is empty, this function triggers an error.
      * @param {string} id - musicbrainz id of the album/release
      * @return {Object|undefined} undefined if not found, else Album object
      */
@@ -18,6 +19,7 @@ app = {
     /**
      * Searches through locally stored app.artists array
      * to find the artists with this id.
+     * BUG: if app.artists is empty, this function triggers an error.
      * @param {string} id - musicbrainz id of the artist
      * @return {Object|undefined} undefined if not found, else Artist object
      */
@@ -30,6 +32,7 @@ app = {
     /**
      * Searches through locally stored app.tracks array
      * to find the song track with this id.
+     * BUG: if app.tracks is empty, this function triggers an error.
      * @param {string} id - musicbrainz id of the track
      * @return {Object|undefined} undefined if not found, else Track object
      */
