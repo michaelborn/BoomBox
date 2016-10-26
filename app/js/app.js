@@ -74,6 +74,7 @@ app = {
     /**
      * knowing the current track in the state,
      * get the album info and artist info
+     * and insert them into the app.state object.
      * @param {State} state - the currently playing song
      * @return {State} state - the UPDATED playing state, with full album info and artist info
      */
@@ -115,6 +116,11 @@ app.controls = {
   next: document.getElementById("control__playnext"),
   play: document.getElementById("control__playbtn"),
   onPrev: function(e) {
+    /**
+     * this function is called by the "next" button in the app controls
+     * it is called ONLY by pressing the "previous" button
+     * @param {object} e - the event straight from the on("click") listener
+     */
     e.preventDefault();
     if (app.state.prev) {
       // if the API says there is a "previous" song that we can play
@@ -124,6 +130,11 @@ app.controls = {
     }
   },
   onNext: function(e) {
+    /**
+     * this function is called by the "next" button in the app controls
+     * it is called ONLY by pressing the "next" button
+     * @param {object} e - the event straight from the on("click") listener
+     */
     e.preventDefault();
     if (app.state.next) {
       // if the API says there is a "next" song that we can play
@@ -133,6 +144,11 @@ app.controls = {
     }
   },
   onPlay: function(e) {
+    /**
+     * this function is called by the "play" button in the app controls
+     * it is called ONLY by pressing the play button
+     * @param {object} e - the event straight from the on("click") listener
+     */
     e.preventDefault();
     api.stream.track.play(app.state.track._id, app.controls.playResponse);
   },
@@ -160,6 +176,15 @@ app.foot = {
   update: function() {
     /**
      * fill the footer's "now playing" info
+     * using
+     * - app.state.track.title,
+     * - app.state.artist.name, and
+     * - app.state.album.title
+     *
+     * Also, disabled or enables the previous and next buttons
+     * as appropriate, depending on
+     * - app.state.prev !== false and
+     * - app.state.next !== false
      */
     app.foot.trackEl.innerHTML = app.state.track.title;
     app.foot.artistEl.innerHTML = app.state.artist.name;
@@ -181,6 +206,8 @@ app.foot = {
   open: function() {
     /**
      * open the controls / now playing footer
+     * by adding the class .open-footer to the body element.
+     * It's up to the CSS to do something with that class.
      */
     document.body.classList.add("open-footer");
   }
