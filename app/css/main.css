@@ -1,3 +1,14 @@
+/* generic buttons */
+.btn {
+  background: #1C2E6B;
+  border: 0;
+  display: inline-block;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  padding: 11px;
+  color: #fff;
+}
 /* app theme */
 body {
   height: 100%;

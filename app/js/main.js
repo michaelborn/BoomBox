@@ -6,12 +6,11 @@ var settingsBtn = document.getElementById("btnSettings"),
     searchBtn = document.getElementById("btnSearch"),
     songTab = document.getElementById("tab__songs"),
     artistTab = document.getElementById("tab__artists"),
-    albumTab = document.getElementById("tab__albums");
-
-var statusBar = document.getElementById("app-statusbar");
+    albumTab = document.getElementById("tab__albums"),
+    statusBar = document.getElementById("app-statusbar");
 
 // the "Songs" tab in the app nav
-songTab.addEventListener("click",function(e) {
+var songTabClick = function(e) {
   /**
    * Deal with someone clicking the song tab or pulling to refresh.
    * later, we'll set refresh = true if someone swiped down.
@@ -33,10 +32,10 @@ songTab.addEventListener("click",function(e) {
   albumTab.classList.remove("active");
   artistTab.classList.remove("active");
   songTab.classList.add("active");
-});
+};
 
 // the "Albums" tab in the app nav
-albumTab.addEventListener("click",function(e) {
+var albumTabClick = function(e) {
   /**
    * Deal with someone clicking the album tab or pulling to refresh.
    * later, we'll set refresh = true if someone swiped down.
@@ -58,10 +57,10 @@ albumTab.addEventListener("click",function(e) {
   songTab.classList.remove("active");
   artistTab.classList.remove("active");
   albumTab.classList.add("active");
-});
+};
 
 // the "Artists" tab in the app nav
-artistTab.addEventListener("click",function(e) {
+var artistTabClick = function(e) {
   /**
    * Deal with someone clicking the album tab or pulling to refresh.
    * later, we'll set refresh = true if someone swiped down.
@@ -83,12 +82,11 @@ artistTab.addEventListener("click",function(e) {
   songTab.classList.remove("active");
   albumTab.classList.remove("active");
   artistTab.classList.add("active");
-});
+};
 
 // Data
 // here we set up the loading of song lists, album lists, artist lists, etc.
 var dataBox = document.getElementById("app-data");
-
 
 var openSettings = function() {
   document.getElementById("app-settings").classList.toggle("open");
@@ -98,6 +96,19 @@ var openSettings = function() {
 // events
 // here we set up all the button click events
 settingsBtn.addEventListener("click",openSettings);
+songTab.addEventListener("click", songTabClick);
+albumTab.addEventListener("click", albumTabClick);
+artistTab.addEventListener("click", artistTabClick);
+document.getElementById("clear__cache").addEventListener("click", function(e) {
+  if (typeof window.localStorage !== "undefined") {
+    // we later may want to clear just app.tracks, app.albums, and app.artists, for example
+    app.albums = false;
+    app.artists = false;
+    app.tracks = false;
+    window.localStorage.clear();
+  }
+  e.preventDefault();
+});
 
 // Get songs
 var loadSongs = function(json) {
