@@ -36,7 +36,7 @@ app = {
      * @param {string} id - musicbrainz id of the track
      * @return {Object|undefined} undefined if not found, else Track object
      */
-    return app.albums.find(function(item) {
+    return app.tracks.find(function(item) {
       // find album with this id.
       return item._id === id;
     });

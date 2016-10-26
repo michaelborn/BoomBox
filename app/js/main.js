@@ -112,22 +112,23 @@ document.getElementById("clear__cache").addEventListener("click", function(e) {
 
 // Get songs
 var loadSongs = function(json) {
-  var songTemplate = '<div class="list-item" id="{_id}" data-type="track"><div class="track__info"><h4 class="title">{title}</h4><h5 class="artist__name">{artist.name}</h5></div><div class="song-controls"><button class="playBtn"><span class="fa fa-play"></button></div></div>';
+  var songTemplate = '<div class="list-item" id="{_id}" data-type="track"><div class="track__info"><h4 class="title">{title}</h4><h5 class="artist__name">{artistname}</h5></div><div class="song-controls"><button class="playBtn"><span class="fa fa-play"></button></div></div>';
 
   app.tracks = json;
-  if (typeof window.localStorage === "object") {
-    localStorage.setItem("tracks", JSON.stringify(json));
-  }
 
   // for each song, append the artist name
-  if (app.artists.length) {
+  if (!json[0].artistname && app.artists.length) {
     for (var i=0; i < json.length; i++) {
       // for each stored artist, check the id against the current track.artistid
-      thisArtist = app.getTrackById(json[i].artistid);
+      thisArtist = app.getArtistById(json[i].artistid);
       if (thisArtist) {
-        json[i]["artist.name"] = thisArtist.name;
+        json[i].artistname = thisArtist.name;
       }
     }
+  }
+
+  if (typeof window.localStorage === "object") {
+    localStorage.setItem("tracks", JSON.stringify(json));
   }
 
   return loadItems(json,songTemplate);
