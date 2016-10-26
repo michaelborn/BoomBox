@@ -2,6 +2,40 @@ app = {
   artists: false,
   albums: false,
   tracks: false,
+  init: function() {
+    var self = this;
+
+    // open web socket connection
+    app.socket = new WebSocket("ws://localhost:8081");
+    app.socket.onopen = function(ev) {
+      console.log("Socket is open!", ev);
+    };
+    app.socket.onmessage = function(dat) {
+      var json = JSON.parse(dat);
+      console.log("received message from websocket connection!", json);
+
+      // handle app state changes
+      switch(json.type) {
+        case "playevent":
+        case "pauseevent":
+          app.state = json.playstate;
+          break;
+        default: 
+          // who knows
+          break;
+      }
+    };
+
+    // get albums, artists, and tracks from local storage
+    self.loadFromLS();
+
+    // setup event listeners
+    self.controls.prev.addEventListener("click", self.controls.onPrev);
+    self.controls.next.addEventListener("click", self.controls.onNext);
+    self.controls.play.addEventListener("click", self.controls.onPlay);
+    
+    return this;
+  },
   getAlbumById: function(id) {
     /**
      * Searches through locally stored app.albums array
@@ -172,7 +206,6 @@ app.foot = {
   trackEl: document.querySelector(".playing__track__title"),
   artistEl: document.querySelector(".playing__track__artist"),
   albumEl: document.querySelector(".playing__track__album"),
-
   update: function() {
     /**
      * fill the footer's "now playing" info
@@ -189,6 +222,7 @@ app.foot = {
     app.foot.trackEl.innerHTML = app.state.track.title;
     app.foot.artistEl.innerHTML = app.state.artist.name;
     app.foot.albumEl.innerHTML = app.state.album.title;
+
     // if there is no "next" song, disable the button
     if (!app.state.next) {
       app.controls.next.classList.add("disabled");
@@ -212,9 +246,5 @@ app.foot = {
     document.body.classList.add("open-footer");
   }
 };
-app.controls.prev.addEventListener("click", app.controls.onPrev);
-app.controls.next.addEventListener("click", app.controls.onNext);
-app.controls.play.addEventListener("click", app.controls.onPlay);
 
-// get albums, artists, and tracks from local storage
-app.loadFromLS();
+app.init();
