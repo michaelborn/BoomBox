@@ -28,6 +28,6 @@ app.get('/', function(req, res) {
 
 //start the server
 console.log("Server");
-app.listen(8080, function() {
+app.listen(8080, "0.0.0.0", function() {
   console.log("..... listening on port 8080");
 });
