@@ -73,13 +73,17 @@ module.exports = function(app, db) {
        * play .mp3 files out to the speakers
        * @cite: https://github.com/turingou/player
        */
-      api.tracks.get(req.params, function(err,result) {
+      var opts = {
+        id: req.params.id,
+        limit: 1,
+      };
+      api.tracks.get(opts, function(err,result) {
         if (!result || err) {
           res.json({"error":true,"playing":false,"msg":"Track not found."});
           return;
         }
 
-        if (playState && playState.track._id === result._id && playlist.paused) {
+        if (playState && playState.track._id === result[0]._id && playlist.paused) {
           // if we have THIS song in the player, AND it is paused,
           // THEN call the "pause" function to resume the string.
           playlist.pause();
@@ -94,7 +98,7 @@ module.exports = function(app, db) {
           }
 
           console.log("Now playing: ", result.title);
-          playlist.add(result);
+          playlist.add(result[0]);
           if (playlist.list.length > 1) {
             playlist.next();
           } else {
@@ -112,7 +116,7 @@ module.exports = function(app, db) {
         playState = {
           "playing": true,
           "playtype": "track",
-          "track": result,
+          "track": result[0],
           "next": false,
           "prev": false
         };

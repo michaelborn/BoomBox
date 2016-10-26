@@ -20,13 +20,29 @@ function Api(db) {
     if (typeof id !== "undefined") {
       searchOpts._id = params.id
     }
+    if (typeof params.limit !== "number") {
+      params.limit = 50; // notice default is 50
+    }
     // Return tracks searchable by name, sorted a-z by name, LIMIT 50
-    data = db.albums.find(searchOpts).sort({ title: 1 }, callback);
+    data = db.albums.find(searchOpts).sort({ title: 1 }).limit(params.limit, callback);
   };
-  this.albums.insert =  function() {
+  this.albums.insert =  function(params, callback) {
     self.log("albums.insert():", arguments);
+    if (typeof params._id !== "string") { throw "ID is required."; }
+    if (typeof params.artistid !== "string") { throw "Artistid is required."; }
+    if (typeof params.title!== "string") { throw "Title is required."; }
+    if (typeof params.track_count !== "string") { throw "Track_count is required."; }
+
+    var doc = {
+      _id: params.id,
+      artistid: params.artistid,
+      title: params.title,
+      track_count: params.track_count
+    };
+
+    db.albums.insert(doc, callback);
   };
-  this.albums.update =  function() {
+  this.albums.update =  function(params, callback) {
     self.log("albums.update():", arguments);
   };
   this.albums.del =  function(id) {
@@ -50,13 +66,25 @@ function Api(db) {
     if (typeof id !== "undefined") {
       searchOpts._id = params.id
     }
+    if (typeof params.limit !== "number") {
+      params.limit = 50; // notice default is 50
+    }
     // Return tracks searchable by name, sorted a-z by name, LIMIT 50
-    db.artists.find(searchOpts).sort({ name: 1 }, callback);
+    db.artists.find(searchOpts).sort({ name: 1 }).limit(params.limit, callback);
   };
-  this.artists.insert =  function() {
+  this.artists.insert =  function(params, callback) {
     self.log("artists.insert():", arguments);
+    if (typeof params._id !== "string") { throw "ID is required."; }
+    if (typeof params.name !== "string") { throw "Name is required."; }
+
+    var doc = {
+      _id: params.id,
+      name: params.name
+    };
+
+    db.artists.insert(doc, callback);
   };
-  this.artists.update = function() {
+  this.artists.update = function(params, callback) {
     self.log("artists.update():", arguments);
   };
   this.artists.del = function(id) {
@@ -86,22 +114,48 @@ function Api(db) {
   this.tracks.get = function(params, callback) {
     self.log("tracks.get():", arguments);
     var searchOpts = {};
+
     if (typeof params.id !== "undefined") {
       searchOpts._id = params.id
     }
-    if (typeof params.artistid === "string") {
+    if (typeof params.artistid !== "undefined") {
+      // get all tracks by artist
       searchOpts.artistid = params.artistid;
     }
-    if (typeof params.albumid === "string") {
+    if (typeof params.albumid !== "undefined") {
+      // get all tracks from album
       searchOpts.albumid = params.albumid;
+      // Then sort by track number
+      var sortBy = { number: 1 };
     }
+    if (typeof params.limit !== "number") {
+      // notice default is 50
+      params.limit = 50;
+    }
+    if (typeof sortBy === "undefined") {
+      // default sort order is the track title
+      var sortBy = { title: 1 };
+    }
+
+    self.log("Search parameters:", searchOpts);
+    self.log("Sorting by:", sortBy);
+
     // Return tracks searchable by name, sorted a-z by name, LIMIT 50
-    db.tracks.find(searchOpts).sort({ number: 1 }, function(err, result) {
+    db.tracks.find(searchOpts).sort(sortBy).limit(params.limit, function(err, result) {
       callback(err, result);
     });
   };
   this.tracks.insert = function() {
     self.log("tracks.insert():", arguments);
+    if (typeof params._id !== "string") { throw "ID is required."; }
+    if (typeof params.name !== "string") { throw "Name is required."; }
+
+    var doc = {
+      _id: params.id,
+      name: params.name
+    };
+
+    db.artists.insert(doc, callback);
   };
   this.tracks.update = function() {
     self.log("tracks.update():", arguments);

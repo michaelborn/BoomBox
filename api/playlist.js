@@ -39,14 +39,18 @@ function Playlist() {
     pause: function() {
       /**
        * this function will pause the audio stream if current playing
-       * OR will resume the audio stream if paused and a song is loaded.
+       * If the audio stream is currently paused, this function does nothing.
        */
-      this.paused = true;
-      player.pause();
+      if (!this.paused) {
+        this.paused = true;
+        player.pause();
+      }
     },
     resume: function() {
-      this.paused = false;
-
+      if (this.paused) {
+        this.paused = false;
+        player.pause();
+      }
     },
     play: function() {
       /**
