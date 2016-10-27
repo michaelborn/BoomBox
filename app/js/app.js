@@ -226,6 +226,9 @@ app.foot = {
      * - app.state.prev !== false and
      * - app.state.next !== false
      */
+    var playIcon = app.controls.play.querySelector(".fa");
+
+    // update "now playing" info
     app.foot.trackEl.innerHTML = app.state.track.title;
     app.foot.artistEl.innerHTML = app.state.artist.name;
     app.foot.albumEl.innerHTML = app.state.album.title;
@@ -242,6 +245,16 @@ app.foot = {
       app.controls.prev.classList.add("disabled");
     } else {
       app.controls.prev.classList.remove("disabled");
+    }
+
+    if (!app.state.playing) {
+      // if paused, show the "play" icon
+      playIcon.classList.add("fa-play");
+      playIcon.classList.remove("fa-pause");
+    } else {
+      // if playing, show the "pause" icon
+      playIcon.classList.remove("fa-play");
+      playIcon.classList.add("fa-pause");
     }
   },
   open: function() {

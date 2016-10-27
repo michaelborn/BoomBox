@@ -32,10 +32,10 @@ var Api = function() {
   };
 
   // streaming endpoints
-  self.pause = function(callback) {
+  self.stream.pause = function(callback) {
     lib.ajax("/api/v1/stream/pause",{},callback);
   };
-  self.play = function(type, id, callback) {
+  self.stream.play = function(type, id, callback) {
     var allowedStreamTypes = ["track","album","artist"];
     if (allowedStreamTypes.indexOf(type) == -1) {
       throw "Stream play type must be one of: " + allowedStreamTypes;
@@ -64,13 +64,13 @@ var Api = function() {
 
   // track streaming endpoints
   self.stream.track.play = function(id,callback) {
-    self.play("track",id,callback);
+    self.stream.play("track",id,callback);
   };
   self.stream.album.play = function(id,callback) {
-    self.play("album",id,callback);
+    self.stream.play("album",id,callback);
   };
   self.stream.artist.play = function(id,callback) {
-    self.play("artist",id,callback);
+    self.stream.play("artist",id,callback);
   };
   self.stream.next = function(callback) {
     var apiUrl = "/api/v1/stream/next";
