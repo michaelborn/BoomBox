@@ -8,7 +8,8 @@ npm_debug.log
 *.swp
 
 # Ignore distribution directory. This is for the uglified CSS and JS.
-app/dist
+# UPDATE: Nevermind, we should really have this included.
+#app/dist
 
 # Ignore the audio files - these are probably copyrighted!
 audio
