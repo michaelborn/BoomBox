@@ -262,7 +262,6 @@ loadSongsByAlbum = function(albumid) {
 loadSongsByArtist = function(artistid) {
   var thisArtist = app.getArtistById(artistid);
   artistTitle = '<h2>' + thisArtist.name + '</h2>';
-  console.log(artistTitle);
 
   // put artist name in status bar
   statusBar.innerHTML = artistTitle;

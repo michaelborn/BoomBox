@@ -14,7 +14,7 @@ var Api = function() {
 
   self.songs.get = function(opts,callback) {
     var data = opts;
-    console.log("getting tracks:", data);
+    // console.log("getting tracks:", data);
     lib.ajax("/api/v1/track",data,callback);
   };
   /*

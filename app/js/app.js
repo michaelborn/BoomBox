@@ -8,17 +8,22 @@ app = {
     // open web socket connection
     app.socket = new WebSocket("ws://localhost:8081");
     app.socket.onopen = function(ev) {
-      console.log("Socket is open!", ev);
+      // console.log("Socket is open!", ev);
     };
     app.socket.onmessage = function(dat) {
-      var json = JSON.parse(dat);
+      var json = JSON.parse(dat.data);
       console.log("received message from websocket connection!", json);
 
       // handle app state changes
       switch(json.type) {
         case "playevent":
-        case "pauseevent":
-          app.state = json.playstate;
+
+          // update the state
+          app.setState(json.playstate);
+
+          // update the footer "now playing" info
+          app.foot.update();
+
           break;
         default: 
           // who knows
@@ -113,6 +118,9 @@ app = {
      * @return {State} state - the UPDATED playing state, with full album info and artist info
      */
     app.state = state;
+    app.state.artist = false;
+    app.state.album = false;
+
     if (app.state.track.artistid && app.artists) {
       // get the album by id
       // note, all these albums / artists come from local storage
@@ -120,6 +128,7 @@ app = {
         return x._id === app.state.track.artistid;
       });
     }
+
     if (app.state.track.albumid && app.albums) {
       // get the album by id
       // note, all these albums / artists come from local storage
@@ -127,6 +136,7 @@ app = {
         return x._id === app.state.track.albumid;
       });
     }
+
     return app.state;
   }
 };
@@ -193,9 +203,6 @@ app.controls = {
     } else {
       console.log("playing:",json);
 
-      // update the state
-      app.setState(json);
-      app.foot.update();
 
       // open the footer "now playing" thing
       app.foot.open();
