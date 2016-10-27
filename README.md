@@ -7,11 +7,12 @@ Use a raspberry pi or any computer as a media server for audio files.
 * cdparanoia, a CD ripper binary
 
 ## Installation
-* Install node and npm. `sudo apt-get install nodejs npm`
-* Install Mongo. `sudo apt-get install mongodb`
-* Install package dependencies. `npm install`
-* Install grunt. `sudo npm install -g grunt-cli`
-* Run grunt to compile frontend scripts, etc. `grunt`
+* Clone Boombox - `git clone https://github.com/mborn319/BoomBox.git`
+* Install node and npm - `sudo apt-get install nodejs nodejs-legacy npm`
+* Install Mongo - `sudo apt-get install mongodb`
+* Install package dependencies - `npm install`
+* Install grunt - `sudo npm install -g grunt-cli`
+* Run grunt to compile frontend scripts, etc - `grunt`
 
 ## Usage
 * First, rip a CD by placing it in the CD drive and running `ripdisc.js`, found in the `organize` folder.
