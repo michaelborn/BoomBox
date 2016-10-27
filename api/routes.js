@@ -53,7 +53,7 @@ module.exports = function(app, db, socket) {
       };
       api.tracks.get(opts, function(err,result) {
         if (!result || err) {
-          res.json({"error":true,"playing":false,"msg":"Track not found."});
+          res.json({error:true,playing:false,"msg":"Track not found."});
           return;
         }
         // open the file and start playing
@@ -72,11 +72,11 @@ module.exports = function(app, db, socket) {
     console.log("okay, we're going to add an entire album to the playlist!");
     api.albums.get(req.params, function(err, result) {
       if (!result) {
-        res.status(404).json({error:true,"playing":false,"msg":"Album not found."});
+        res.status(404).json({error:true,playing:false,msg:"Album not found."});
         return;
       }
       if (err) {
-        res.json({error:true,"playing":false,"msg":"Unexpected error searching for album"});
+        res.json({error:true,playing:false,msg:"Unexpected error searching for album"});
         return;
       }
 
@@ -90,7 +90,7 @@ module.exports = function(app, db, socket) {
         playlist.play(tracks);
 
         // respond nicely
-        res.json(playState);
+        res.json({ error: false });
       });
     });
   });
@@ -98,7 +98,7 @@ module.exports = function(app, db, socket) {
     console.log("okay, we're going to add an entire artist to the playlist!");
     api.artists.get(req.params, function(err, result) {
       if (!result) {
-        res.status(404).json({"error":true,"playing":false,"msg":"Artist not found."});
+        res.status(404).json({error:true,playing:false,msg:"Artist not found."});
         return;
       }
       if (err) {
