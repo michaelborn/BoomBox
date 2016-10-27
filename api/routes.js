@@ -30,37 +30,11 @@
  * GET          /stream/artist/:id
  * GET          /stream/recent
 *************************************************/
-var Sock = require("socket.io"),
-    playlist = new require("./playlist"),
-    playState;
 
-var API = {
-  params: function(url) {
-    var struct = {
-      find: {}
-    };
-    if (typeof url.id !== "undefined") {
-      struct.find._id = url.id;
-    }
-    if (typeof url.limit !== "undefined") {
-      struct.limit = parseInt(url.limit);
-    }
-    if (typeof url.search !== "undefined") {
-      // turn search into an array of keywords.
-      struct.find.name = { $in: url.search.split(" ") };
-    }
-    if (typeof struct.limit === "undefined" || struct.limit > 50) {
-      // Max 50 records. TODO: Return page number with data set
-      struct.limit = 50; 
-    }
-    // return parameters ready to query Mongo
-    return struct;
-  }
-};
-
-
-module.exports = function(app, db) {
-  var api = require("./api")(db);
+module.exports = function(app, db, socket) {
+  var api = require("./api")(db),
+      playlist = require("./playlist")(socket),
+      playState;
 
   console.log("API");
   console.log("...... version: ", api.version);
@@ -314,7 +288,6 @@ module.exports = function(app, db) {
   // Routes for getting, creating, updating, and deleting song artists by ID.
   // ID is required for all except GET.
   app.get(api.version+"/artist(/:id)?", function(req, res) {
-    filterOpts = API.params(req.query);
     if (typeof req.params.id === "undefined") {
       //then return all artists.
       api.artists.get(req.params, function(err, results) {
@@ -364,7 +337,6 @@ module.exports = function(app, db) {
   // Routes for getting, creating, updating, and deleting song albums by ID.
   // ID is required for all except GET.
   app.get(api.version+"/album(/:id)?", function(req, res) {
-    filterOpts = API.params(req);
     if (typeof req.params.id === "undefined") {
       //then return all albums.
 
@@ -421,5 +393,5 @@ module.exports = function(app, db) {
       });
     }
   });
-  return app;
+  return api;
 };
