@@ -18,7 +18,7 @@ wss.on("connection", function(ws) {
   console.info("WebSocket connected!");
 
   //include all the routes for the API
-  var api = require("./api/routes.js")(app, db);
+  var api = require("./api/routes.js")(app, db, ws);
 
   // push and receive should go here
   // ws.send("bla");
