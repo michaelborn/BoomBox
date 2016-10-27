@@ -13,11 +13,19 @@ var sSettings = {
   ip: "0.0.0.0"
 };
 
-//include all the routes for the API
-var api = require("./api/routes.js")(app, db);
+// listen for a web socket connection from the user(s)
+wss.on("connection", function(ws) {
+  console.info("WebSocket connected!");
 
-//Include all the routes for our frontend web app
-var web = require("./app/routes.js")(app, db);
+  //include all the routes for the API
+  var api = require("./api/routes.js")(app, db);
+
+  // push and receive should go here
+  // ws.send("bla");
+  ws.on("message", function(msg) {
+    console.log("received web socket message: ", msg);
+  });
+});
 
 //set up a templating engine
 app.engine("mustache", mu2Express.engine);
@@ -32,16 +40,6 @@ app.get("/", function(req, res) {
   res.render("main", {url:req.url});
 });
 
-// listen for a web socket connection from the user(s)
-wss.on("connection", function(ws) {
-  console.info("WebSocket connected!");
-
-  // push and receive should go here
-  // ws.send("bla");
-  ws.on("message", function(msg) {
-    console.log("received web socket message: ", msg);
-  });
-});
 
 //start the server
 console.log("Server");
