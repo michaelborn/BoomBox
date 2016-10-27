@@ -56,48 +56,15 @@ module.exports = function(app, db, socket) {
           res.json({"error":true,"playing":false,"msg":"Track not found."});
           return;
         }
+        // open the file and start playing
+        // if it's a new song, stop the old song from playing
+        // and start the new song
 
-        if (playState && playState.track._id === result[0]._id && playlist.paused) {
-          // if we have THIS song in the player, AND it is paused,
-          // THEN call the "pause" function to resume the string.
-          playlist.pause();
-          console.info("Resuming the song: ", result.title);
-          return;
-        } else {
-          // open the file and start playing
-          // if it's a new song, stop the old song from playing
-          // and start the new song
-          if (playState) {
-            playlist.stop();
-          }
-
-          console.log("Now playing: ", result.title);
-          playlist.add(result[0]);
-          if (playlist.list.length > 1) {
-            playlist.next();
-          } else {
-            // play the stream
-            // note that if the playState song hasn't changed
-            // then we do NOT do a playlist.add(),
-            // we just play() from the current position
-            playlist.play();
-          }
-        }
-        console.log(playlist.list);
-
-
-        // maintain our state
-        playState = {
-          "playing": true,
-          "playtype": "track",
-          "track": result[0],
-          "next": false,
-          "prev": false
-        };
+        console.log("Now playing: ", result.title);
+        playlist.play(result);
 
         // send it to the frontend
-        //Sock.emit(playState);
-        res.json(playState);
+        res.json({error: false });
       });
     }
   });
@@ -119,26 +86,9 @@ module.exports = function(app, db, socket) {
           return;
         }
 
-        // add each song to the playlist
-        tracks.forEach(function(thisTrack) {
-          playlist.add(thisTrack);
-        });
+        // let playlist.js take care of it.
+        playlist.play(tracks);
 
-        // start playing the new playlist
-        playlist.play();
-
-        // maintain our state
-        playState = {
-          "playing": true,
-          "playtype": "album",
-          "track": playlist.list[0],
-          "next": tracks.length > 1 ? tracks[1]._id : false,
-          "prev": false
-        };
-
-        // send it to the frontend
-        //Sock.emit(playState);
-        
         // respond nicely
         res.json(playState);
       });
@@ -164,63 +114,26 @@ module.exports = function(app, db, socket) {
           return;
         }
 
-        // add each song to the playlist
-        tracks.forEach(function(thisTrack) {
-          playlist.add(thisTrack);
-        });
-
         // start playing the new playlist.
-        playlist.play();
-
-        // maintain our state
-        playState = {
-          "playing": true,
-          "playtype": "artist",
-          "track": tracks[0],
-          "next": tracks.length > 1 ? tracks[1]._id : false,
-          "prev": false
-        };
-
-        // send it to the frontend
-        //Sock.emit(playState);
+        playlist.play(tracks);
 
         // respond nicely, keep frontend informed
-        res.json(playState);
+        res.json({ error: false });
       });
     });
   });
   app.get(api.version+"/stream/pause", function(req, res) {
 
     // pause the playlist / audio stream.
-    if (!playlist.paused) {
-      // provided there's actually something playing, of course
-      console.info("Pausing the song");
-      playlist.pause();
-
-      // maintain our state
-      playState.playing = false;
-
-      res.json(playState);
-    } else {
-      console.info("Dude, we weren't playing anything!");
-      res.json({error: true});
-    }
+    playlist.pause();
+    res.json({ error: false });
   });
   app.get(api.version+'/stream/next', function(req, res) {
     // play the next song in the playlist
     playlist.next();
 
-    // maintain our state
-    playState = {
-      "playing": true,
-      "playtype": "artist",
-      "track": playlist.list[0],
-      "next": playlist.list.length > 1 ? playlist.list[1]._id : false,
-      "prev": false
-    };
-
     // respond nicely, keep frontend informed
-    res.json(playState);
+    res.json({ error: false });
   });
   app.get(api.version+'/stream/prev', function(req, res) {
     // play the "previous" song in the playlist.
@@ -233,7 +146,7 @@ module.exports = function(app, db, socket) {
     // UPDATE: Too hard!! Leave this for further updates
 
     // respond nicely, keep frontend informed
-    res.json(playState);
+    res.json({ error: false });
   });
 
   // http://docs.boombox.apiary.io/#reference/tracks/list-one-or-all-songs

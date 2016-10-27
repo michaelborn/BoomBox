@@ -1,13 +1,14 @@
 #!/usr/bin/env node
-var Player = require("player"),
-    player = new Player();
 
-function Playlist(sock) {
+function Playlist(sock, player) {
   var self = this;
+
+  // server root. Probably shouldn't be hardcoded, but oh well.
+  this.serverRoot = "/var/www/Server/boombox/www/";
 
   // used for web socket push notifications / maintaining state
   this.sock = sock;
-  this.paused = false;
+  this.paused = true;
   this.list = new Array(0);
 
 
@@ -18,9 +19,8 @@ function Playlist(sock) {
 
   this.add = function(track) {
     console.log("Adding track to playlist:",track.title);
-    var serverRoot = "/var/www/Server/boombox/www/";
-    this.list.push(track);
-    player.add(serverRoot + track.filename);
+    self.list.push(track);
+    player.add(self.serverRoot + track.filename);
   };
   this.remove = function(track) {
     var delNum = function(listTrack) {
@@ -73,7 +73,19 @@ function Playlist(sock) {
       player.pause();
     }
   };
-  this.play = function() {
+  this.play = function(tracks) {
+    /**
+     * this function accepts a track or array of tracks
+     * and adds each to the playlist.
+     * it then starts the player.
+     * @param {Track} tracks[] - the array of songs
+     */
+    tracks.forEach(function(track) {
+      self.add(track);
+    });
+    self.start();
+  };
+  this.start = function() {
   /**
      * this function will start the audio stream.
      * If currently playing, it will first stop the current song,
@@ -81,11 +93,31 @@ function Playlist(sock) {
      * then start the new song.
      */
     var self = this;
-    self.paused = false;
-    player.play(function(err, player) {
-      self.paused = true;
-      console.log("End of playback!",arguments);
-    });
+
+    if (!self.paused) {
+      // they switched to a different track, album, artist, etc.
+      // we should stop the player and clear the list.
+      // We should also consider having a timeout
+      // so we don't play one track over the top of the other
+      player.stop();
+      // self.clear();
+      
+      // start the player on the next song,
+      // which we assume was just added to player.list
+      self.next();
+    } else {
+      player.play(function(err, player) {
+        self.paused = true;
+        console.log("End of playback!",arguments);
+      });
+    }
+  };
+  this.clear = function() {
+    /**
+     * clear the current playlist
+     */
+    self.list = [];
+    return self.list.length === 0;
   };
   this.onPlay = function(item) {
     /**
@@ -94,13 +126,29 @@ function Playlist(sock) {
      * this helps keep the frontend in perfect sync with the server
      * @param {playerItem} the filename and full path/filename
      */
+    self.paused = false;
     self.prevTrack = false;
     self.nextTrack = false;
-    if (self.current < self.list.length ) {
-      self.nextTrack = self.list[self.current+1];
+
+    // find currently playing track by full filename
+    for (var i = 0; i < self.list.length; i++) {
+      var fullFile = self.serverRoot + self.list[i].filename;
+      console.log("checking:", fullFile, item.src);
+      if (fullFile === item.src) {
+        self.current = i;
+        console.log("Found current!",self.current);
+        break
+      } // else keep searching
     }
 
-    console.log("onPlay: ", arguments);
+    // if playlist is longer than the current song position,
+    // then set nextTrack to the current plus 1
+    if (self.current < self.list.length - 1 ) {
+      self.nextTrack = self.list[self.current+1];
+    }
+    if (self.current > 0 && self.list.length > 1) {
+      self.prevTrack = self.list[self.current-1];
+    }
 
     var toSend = {
       type: "playevent",
@@ -108,11 +156,11 @@ function Playlist(sock) {
         playing: true,
         prev: self.prevTrack,
         next: self.nextTrack,
-        track: false
+        track: self.list[self.current]
       }
     };
 
-    console.log(JSON.stringify(toSend));
+    // console.log(JSON.stringify(toSend));
     self.sock.send(JSON.stringify(toSend));
   };
   this.onPlayEnd = function(e) {
@@ -163,7 +211,9 @@ function Playlist(sock) {
 };
 
 module.exports = function(socket) {
-  var playlist = new Playlist(socket);
+  var Player = require("player"),
+      player = new Player(),
+      playlist = new Playlist(socket, player);
 
   // special events from the player audio stream
   player.on("playend", playlist.onPlayEnd);
