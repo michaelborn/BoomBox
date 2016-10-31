@@ -13,3 +13,6 @@ npm_debug.log
 
 # Ignore the audio files - these are probably copyrighted!
 audio
+*.mp3
+*.wav
+*.ogg
