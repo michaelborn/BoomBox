@@ -190,11 +190,18 @@ app.controls = {
   onPlay: function(e) {
     /**
      * this function is called by the "play" button in the app controls
-     * it is called ONLY by pressing the play button
+     * it is called ONLY by pressing the play/pause button
+     * it determines whether to
+     * - pause the current song,
+     * - or resume the current song
      * @param {object} e - the event straight from the on("click") listener
      */
     e.preventDefault();
-    api.stream.track.play(app.state.track._id, app.controls.playResponse);
+    if(!app.state.playing) {
+      api.stream.track.play(app.state.track._id, app.controls.playResponse);
+    } else {
+      api.stream.pause(app.controls.playResponse);
+    }
   },
   playResponse: function(json) {
     if (json.error) {
