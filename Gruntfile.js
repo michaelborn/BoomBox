@@ -41,7 +41,7 @@ module.exports = function(grunt) {
     },
     jsdoc: {
       dist: {
-        src: ["organize/ripdisc.js"],
+        src: ["organize/ripdisc.js", "api/*.js", "app/js/api.js", "app/js/lib.js"],
         options: {
           destination: "docs"
         }
