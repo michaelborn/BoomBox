@@ -37,9 +37,9 @@ module.exports = function(app, db, socket) {
       playState;
 
   console.log("API");
-  console.log("...... version: ", api.version);
+  console.log("...... version: ", api.urlVersion);
 
-  app.get(api.version+"/stream/track/:id", function(req, res) {
+  app.get(api.urlVersion+"/stream/track/:id", function(req, res) {
     if (typeof req.params.id === "undefined") {
       res.status(400).json({error: "You must specify an ID."});
     } else {
@@ -51,7 +51,7 @@ module.exports = function(app, db, socket) {
         id: req.params.id,
         limit: 1,
       };
-      api.tracks.get(opts, function(err,result) {
+      api.getTracks(opts, function(err,result) {
         if (!result || err) {
           res.json({error:true,playing:false,"msg":"Track not found."});
           return;
@@ -68,9 +68,9 @@ module.exports = function(app, db, socket) {
       });
     }
   });
-  app.get(api.version+"/stream/album/:id", function(req, res) {
+  app.get(api.urlVersion+"/stream/album/:id", function(req, res) {
     console.log("okay, we're going to add an entire album to the playlist!");
-    api.albums.get(req.params, function(err, result) {
+    api.getAlbums(req.params, function(err, result) {
       if (!result) {
         res.status(404).json({error:true,playing:false,msg:"Album not found."});
         return;
@@ -80,7 +80,7 @@ module.exports = function(app, db, socket) {
         return;
       }
 
-      api.tracks.getByAlbumId(result[0]._id, function(err, tracks) {
+      api.getTracksByAlbumId(result[0]._id, function(err, tracks) {
         if (err || !tracks) {
           console.warn("No tracks found for album:", req.params.id);
           return;
@@ -94,9 +94,9 @@ module.exports = function(app, db, socket) {
       });
     });
   });
-  app.get(api.version+"/stream/artist/:id", function(req, res) {
+  app.get(api.urlVersion+"/stream/artist/:id", function(req, res) {
     console.log("okay, we're going to add an entire artist to the playlist!");
-    api.artists.get(req.params, function(err, result) {
+    api.getArtists(req.params, function(err, result) {
       if (!result) {
         res.status(404).json({error:true,playing:false,msg:"Artist not found."});
         return;
@@ -107,7 +107,7 @@ module.exports = function(app, db, socket) {
       }
 
       // get all songs by this artist
-      api.tracks.getByArtistId(result[0]._id, function(err, tracks) {
+      api.getTracksByArtistId(result[0]._id, function(err, tracks) {
         if (err || !tracks) {
           console.warn("No tracks found for artist:", req.params.id);
           res.status(404).json({error:true,playing:false,msg:"No tracks found for artist"});
@@ -122,20 +122,20 @@ module.exports = function(app, db, socket) {
       });
     });
   });
-  app.get(api.version+"/stream/pause", function(req, res) {
+  app.get(api.urlVersion+"/stream/pause", function(req, res) {
 
     // pause the playlist / audio stream.
     playlist.pause();
     res.json({ error: false });
   });
-  app.get(api.version+'/stream/next', function(req, res) {
+  app.get(api.urlVersion+'/stream/next', function(req, res) {
     // play the next song in the playlist
     playlist.next();
 
     // respond nicely, keep frontend informed
     res.json({ error: false });
   });
-  app.get(api.version+'/stream/prev', function(req, res) {
+  app.get(api.urlVersion+'/stream/prev', function(req, res) {
     // play the "previous" song in the playlist.
     playlist.prev();
 
@@ -152,7 +152,7 @@ module.exports = function(app, db, socket) {
   // http://docs.boombox.apiary.io/#reference/tracks/list-one-or-all-songs
   // Routes for getting, creating, updating, and deleting song tracks by ID.
   // ID is required for all except GET.
-  app.get(api.version+"/track(/:id)?", function(req, res) {
+  app.get(api.urlVersion+"/track(/:id)?", function(req, res) {
     var filterOpts = {},
         data;
 
@@ -166,33 +166,33 @@ module.exports = function(app, db, socket) {
     };
   
     // actually get the data
-    api.tracks.get(req.query, handleIt);
+    api.getTracks(req.query, handleIt);
   });
-  app.post(api.version+"/track/:id", function(req, res) {
+  app.post(api.urlVersion+"/track/:id", function(req, res) {
     if (typeof req.params.id === "undefined") {
       res.status(400).json({error: "You must specify an ID."});
     } else {
       //insert tracks!
-      api.tracks.insert(req.params, function() {
+      api.insertTracks(req.params, function() {
         res.status(201).json({error: "false"});
       });
     }
   });
-  app.put(api.version+"/track/:id", function(req, res) {
+  app.put(api.urlVersion+"/track/:id", function(req, res) {
     if (typeof req.params.id === "undefined") {
       res.status(400).json({error: "You must specify an ID."});
     } else {
-      api.tracks.update(req.param.id, function() {
+      api.updateTracks(req.param.id, function() {
         res.json({success: "true"});
       });
     }
   });
-  app.delete(api.version+"/track/:id", function(req, res) {
+  app.delete(api.urlVersion+"/track/:id", function(req, res) {
     if (typeof req.params.id === "undefined") {
       res.status(400).json({error: "You must specify an ID."});
     } else {
       //delete tracks!
-      api.tracks.del(req.params.id, function() {
+      api.delTracks(req.params.id, function() {
         res.json({success: "true"});
       });
     }
@@ -200,42 +200,42 @@ module.exports = function(app, db, socket) {
 
   // Routes for getting, creating, updating, and deleting song artists by ID.
   // ID is required for all except GET.
-  app.get(api.version+"/artist(/:id)?", function(req, res) {
+  app.get(api.urlVersion+"/artist(/:id)?", function(req, res) {
     if (typeof req.params.id === "undefined") {
       //then return all artists.
-      api.artists.get(req.params, function(err, results) {
+      api.getArtists(req.params, function(err, results) {
         res.json(results);
       });
     } else {
       //return max 1 artist by id
-      api.artists.get({ id: req.params.id }, function(err, results) {
+      api.getArtists({ id: req.params.id }, function(err, results) {
         res.json(results);
       });
     }
   });
-  app.post(api.version+"/artist/:id", function(req, res) {
+  app.post(api.urlVersion+"/artist/:id", function(req, res) {
     console.log(req.params);
     if (typeof req.params.id === "undefined") {
       res.status(400).json({error: "You must specify an ID."});
     } else {
       //create artists!
-      api.artists.insert(req.params, function() {
+      api.insertArtists(req.params, function() {
         res.json({success: "true"});
       });
     }
   });
-  app.put(api.version+"/artist/:id", function(req, res) {
+  app.put(api.urlVersion+"/artist/:id", function(req, res) {
     console.log(req.params);
     if (typeof req.params.id === "undefined") {
       res.status(400).json({error: "You must specify an ID."});
     } else {
       //update artists!
-      api.artists.update(req.params.id, function() {
+      api.updateArtists(req.params.id, function() {
         res.json({success: "true"});
       });
     }
   });
-  app.delete(api.version+"/artist/:id", function(req, res) {
+  app.delete(api.urlVersion+"/artist/:id", function(req, res) {
     console.log(req.params);
     if (typeof req.params.id === "undefined") {
       res.status(400).json({error: "You must specify an ID."});
@@ -249,7 +249,7 @@ module.exports = function(app, db, socket) {
 
   // Routes for getting, creating, updating, and deleting song albums by ID.
   // ID is required for all except GET.
-  app.get(api.version+"/album(/:id)?", function(req, res) {
+  app.get(api.urlVersion+"/album(/:id)?", function(req, res) {
     if (typeof req.params.id === "undefined") {
       //then return all albums.
 
@@ -272,7 +272,7 @@ module.exports = function(app, db, socket) {
       });
     }
   });
-  app.post(api.version+"/album/:id", function(req, res) {
+  app.post(api.urlVersion+"/album/:id", function(req, res) {
     console.log(req.params);
     if (typeof req.params.id === "undefined") {
       res.status(400).json({error: "You must specify an ID."});
@@ -283,25 +283,25 @@ module.exports = function(app, db, socket) {
       });
     }
   });
-  app.put(api.version+"/album/:id", function(req, res) {
+  app.put(api.urlVersion+"/album/:id", function(req, res) {
     console.log(req.params);
 
     if (typeof req.params.id === "undefined") {
       res.status(400).json({error: "You must specify an ID."});
     } else {
       //update albums!
-      api.albums.update(req.params, function() {
+      api.updateAlbums(req.params, function() {
         res.json({success: "true"});
       });
     }
   });
-  app.delete(api.version+"/album/:id", function(req, res) {
+  app.delete(api.urlVersion+"/album/:id", function(req, res) {
     console.log(req.params);
     if (typeof req.params.id === "undefined") {
       res.status(400).json({error: "You must specify an ID."});
     } else {
       //delete albums!
-      api.albums.del(req.params.id, function() {
+      api.delAlbums(req.params.id, function() {
         res.json({success: "true"});
       });
     }

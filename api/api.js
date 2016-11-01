@@ -25,7 +25,7 @@ function Api(db) {
    * the api version string used in API calls
    * @type {string}
    */
-  this.version =  "/api/v1";
+  this.urlVersion =  "/api/v1";
 
   /**
    * send arg1,arg2 to the database IF debugmode is on
@@ -43,15 +43,12 @@ function Api(db) {
     }
   };
 
-  // all albums stuff
-  this.albums = {};
-
   /**
    * get all albums by a given id
    * @param {searchOpts} params - an object of relevant items from url.params
    * @param {mongoAlbum} callback - return mongo results for albums
    */
-  this.albums.get =  function(params, callback) {
+  this.getAlbums =  function(params, callback) {
     this.log("albums.get():", arguments);
     var searchOpts = {};
     if (typeof id !== "undefined") {
@@ -71,7 +68,7 @@ function Api(db) {
    * @params {Artist} artist - the document to insert
    * @params {albumInsertResponse} callback - calls this function with the result
    */
-  this.albums.insert =  function(params, callback) {
+  this.insertAlbums =  function(params, callback) {
     this.log("albums.insert():", arguments);
     if (typeof params._id !== "string") { throw "ID is required."; }
     if (typeof params.artistid !== "string") { throw "Artistid is required."; }
@@ -94,7 +91,7 @@ function Api(db) {
    * @param {Object} album - all key/value pairs we wish to update
    * @param {albumUpdateResponse} callback - gets called with the response
    */
-  this.albums.update =  function(id, album, callback) {
+  this.updateAlbums =  function(id, album, callback) {
     this.log("albums.update():", arguments);
   };
 
@@ -104,28 +101,23 @@ function Api(db) {
    * @param {string} id - delete THIS album
    * @param {albumDelResponse} callback - gets called with the response
    */
-  this.albums.del =  function(id) {
+  this.delAlbums =  function(id) {
     this.log("albums.del():", arguments);
     if (!id) { throw "albums.del(): id is required"; }
 
     // in order to maintain referential integrity, delete the tracks first.
-    this.tracks.delByAlbum(id);
+    this.delTracksByAlbum(id);
 
     // now, delete the artist by id.
     db.albums.deleteOne({_id: id});
   };
-
-
-
-  // all artist stuff
-  this.artists = {};
 
   /**
    * query mongo for artists with the given parameters
    * @param {searchOpts} params - an object of relevant items from url.params
    * @param {mongoArtists} callback - return mongo results for artists
    */
-  this.artists.get =  function(params, callback) {
+  this.getArtists =  function(params, callback) {
     this.log("artists.get():", arguments);
     var searchOpts = {};
     if (typeof id !== "undefined") {
@@ -145,7 +137,7 @@ function Api(db) {
    * @params {Artist} artist - the document to insert
    * @params {albumInsertResponse} callback - calls this function with the result
    */
-  this.artists.insert =  function(params, callback) {
+  this.insertArtists =  function(params, callback) {
     this.log("artists.insert():", arguments);
     if (typeof params._id !== "string") { throw "ID is required."; }
     if (typeof params.name !== "string") { throw "Name is required."; }
@@ -165,7 +157,7 @@ function Api(db) {
    * @param {Object} album - all key/value pairs we wish to update
    * @param {trackUpdateResponse} callback - gets called with the response
    */
-  this.artists.update = function(id, album, callback) {
+  this.updateArtists = function(id, album, callback) {
     this.log("artists.update():", arguments);
   };
 
@@ -174,27 +166,23 @@ function Api(db) {
    * @param {string} id - delete THIS artist
    * @param {artistDelResponse} callback - gets called with the response
    */
-  this.artists.del = function(id) {
+  this.delArtists = function(id) {
     this.log("artists.del():", arguments);
     if (!id) { throw "artists.del(): id is required"; }
 
     // in order to maintain referential integrity, delete the tracks first.
-    this.tracks.delByArtist(id);
+    this.deltracksByArtist(id);
 
     // now, delete the artist by id.
     db.artists.deleteOne({_id: id});
   };
-
-
-  // all track stuff
-  this.tracks = {};
 
   /**
    * query mongo for all tracks with a given artistid
    * @param {string} artistid - the unique musicbrainz ID of an artist
    * @param {mongoArtist} callback - return mongo results for artists
    */
-  this.tracks.getByArtistId = function(artistid, callback) {
+  this.getTracksByArtistId = function(artistid, callback) {
     this.log("tracks.getByArtistId():", arguments);
     // Return tracks searchable by name, sorted a-z by name, LIMIT 50
     db.tracks.find({ artistid: artistid }).sort({ number: 1 }, callback);
@@ -205,7 +193,7 @@ function Api(db) {
    * @param {string} albumid - the unique musicbrainz ID of an album
    * @param {mongoAlbum} callback - return mongo results for albums
    */
-  this.tracks.getByAlbumId = function(albumid, callback) {
+  this.getTracksByAlbumId = function(albumid, callback) {
     this.log("tracks.getByAlbumId():", arguments);
     // Return tracks searchable by name, sorted a-z by name, LIMIT 50
     db.tracks.find({ albumid: albumid }).sort({ number: 1 }, callback);
@@ -216,7 +204,7 @@ function Api(db) {
    * @param {searchOpts} params - an object of relevant items from url.params
    * @param {mongoTrack} callback - return mongo results for tracks
    */
-  this.tracks.get = function(params, callback) {
+  this.getTracks = function(params, callback) {
     this.log("tracks.get():", arguments);
     var searchOpts = {};
 
@@ -258,7 +246,7 @@ function Api(db) {
    * @params {Track} track - the document to insert into the tracks collection
    * @params {trackInsertResponse} callback - calls this function with the result
    */
-  this.tracks.insert = function(track, callback) {
+  this.insertTracks = function(track, callback) {
     this.log("tracks.insert():", arguments);
     if (typeof track._id !== "string") { throw "ID is required."; }
     if (typeof track.number !== "number") { throw "Number must be an integer."; }
@@ -280,7 +268,7 @@ function Api(db) {
       artistid: track.artistid
     };
 
-    db.artists.insert(doc, callback);
+    db.tracks.insert(doc, callback);
   };
 
   /**
@@ -290,7 +278,7 @@ function Api(db) {
    * @param {Object} track - all key/value pairs we wish to update
    * @param {trackUpdateResponse} callback - gets called with the response
    */
-  this.tracks.update = function(id, track) {
+  this.updateTracks = function(id, track) {
     this.log("tracks.update():", arguments);
   };
 
@@ -300,7 +288,7 @@ function Api(db) {
    * @param {string} id - delete THIS track
    * @param {trackDelResponse} callback - gets called with the response
    */
-  this.tracks.del = function(id, callback) {
+  this.delTracks = function(id, callback) {
     this.log("tracks.del():", arguments);
     if (!id) { throw "tracks.del(): id is required"; }
     db.tracks.deleteOne({ _id: id }, {}, callback);
@@ -311,12 +299,12 @@ function Api(db) {
    * where artistid == the given artistid
    * @todo finish building and testing this implementation
    * @param {string} artistid - delete tracks by this artist
-   * @param {trackDelResponse} - gets called with the response
+   * @param {trackDelResponse} callback - gets called with the response
    */
-  this.tracks.delByArtist = function(artistid) {
+  this.delTracksByArtist = function(artistid, callback) {
     this.log("tracks.delByArtist():", arguments);
     if (!artistid) { throw "delByArtist(): artistid is required"; }
-    db.tracks.remove({artistid: artistid});
+    db.tracks.remove({artistid: artistid}, callback);
   };
 
   /**
@@ -326,9 +314,9 @@ function Api(db) {
    * @param {string} albumid - delete tracks from this album
    * @param {trackDelResponse} - gets called with the response
    */
-  this.tracks.delByAlbum = function(albumid) {
+  this.delTracksByAlbum = function(albumid, callback) {
     if (!albumid) { throw "delByAlbum(): albumid is required"; }
-    db.tracks.remove({ albumid: albumid });
+    db.tracks.remove({ albumid: albumid }, callback);
   };
 
   return this;
