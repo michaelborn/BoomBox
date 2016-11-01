@@ -1,41 +1,99 @@
 #!/usr/bin/env node
 
+/**
+ * creates a new serverside Playlist object
+ * @classdesc does all the work for the playlist,
+ *            including adding and removing songs,
+ *            switching to previous and next songs,
+ *            and playing/pausing/resuming the audio stream.
+ * @constructor
+ */
 function Playlist(sock, player) {
   var self = this;
 
-  // server root. Probably shouldn't be hardcoded, but oh well.
+  /**
+   * root of the server.
+   * @todo make this more intelligent by either making it a config variable
+   *       or always storing the data in a known location
+   *       e.g. /usr/share/boombox
+   * @type {string}
+   */
   this.serverRoot = "/var/www/Server/boombox/www/";
 
   // used for web socket push notifications / maintaining state
   this.sock = sock;
+
+  /**
+   * store the current paused/not paused state of the audio stream
+   * @type {boolean}
+   */
   this.paused = true;
+
+  /**
+   * array of all tracks in the playlist
+   * @type {Track[]}
+   */
   this.list = new Array(0);
 
 
-  // used to know where in the playlist the user is at all times
+  /**
+   * used to know where in the playlist is currently playing
+   * @type {number}
+   */
   this.current = -1;
+
+  /**
+   * whether or not there is currently a "previous" track in the playlist
+   * @type {boolean}
+   */
   this.prevTrack = false;
+
+  /**
+   * whether or not there is currently a "next" track in the playlist
+   * @type {boolean}
+   */
   this.nextTrack = false;
 
   this.add = function(track) {
+    /**
+     * add a track to the playlist.
+     * does not reset the playlist.
+     * @param {Track} track
+     * @returns {boolean} true for now
+     */
     console.log("Adding track to playlist:",track.title);
     self.list.push(track);
     player.add(self.serverRoot + track.filename);
+
+    return true;
   };
   this.remove = function(track) {
+    /**
+     * remove a single track by track._id from playlist
+     * @todo test this function
+     * @param {Track} track
+     * @returns {boolean} isInPlaylist - true if track is in playlist and was removed, else false
+     */
+    var isInPlaylist = false;
     var delNum = function(listTrack) {
       if (listTrack._id === track._id) {
+        isInPlaylist = true;
         console.log("removing track from playlist:",listTrack.filename);
       }
       return listTrack._id === track._id;
     };
     this.list.splice(delNum,1);
+    return isInPlaylist;
   };
   this.prev = function() {
-    // since node-player doesn't support this,
-    // I'll either have to submit a pull request
-    // or write my own implementation right here.
-    // https://github.com/guo-yu/player
+    /**
+     * Switch to the previous track in the playlist.
+     * since node-player doesn't support this,
+     * I'll either have to submit a pull request
+     * or write my own implementation right here.
+     * https://github.com/guo-yu/player
+     * @todo actually write this implementation.
+     */
     
   };
   this.next = function() {
@@ -68,13 +126,23 @@ function Playlist(sock, player) {
     self.sock.send(JSON.stringify(toSend));
   };
   this.resume = function() {
+    /**
+     * if the audio stream is currently in a paused state, UNpause it.
+     * @returns {boolean} wasResumed
+     */
+    var wasResumed = false;
+
     if (this.paused) {
       this.paused = false;
+      wasResumed = true;
       player.pause();
     }
+
+    return wasResumed;
   };
   this.play = function(tracks) {
     /**
+     * Essentially a wrapper for "play these tracks, I don't care how!".
      * this function accepts a track or array of tracks
      * and adds each to the playlist.
      * it then starts the player.
@@ -86,7 +154,7 @@ function Playlist(sock, player) {
     self.start();
   };
   this.start = function() {
-  /**
+    /**
      * this function will start the audio stream.
      * If currently playing, it will first stop the current song,
      * clear the playlist, 
@@ -114,10 +182,16 @@ function Playlist(sock, player) {
   };
   this.clear = function() {
     /**
-     * clear the current playlist
+     * clear  all tracks from the current playlist.
+     * Does not stop the audio stream!
+     * @returns {boolean} wasCleared - true if this.list exists, false otherwise
      */
-    self.list = [];
-    return self.list.length === 0;
+    var wasCleared = false;
+    if (this.list) {
+      this.list = [];
+      wasCleared = true;
+    }
+    return wasCleared;
   };
   this.onPlay = function(item) {
     /**
@@ -166,6 +240,7 @@ function Playlist(sock, player) {
   this.onPlayEnd = function(e) {
     /**
      * this function is called from player.onplayened.
+     * @param {Object} e - the event passed from player.onplayend
      */
     console.log("onPlayEnd: ", arguments);
 
@@ -185,7 +260,7 @@ function Playlist(sock, player) {
   this.onError = function(e) {
     /**
      * this function is called from player.onerror
-     *
+     * @param {Object} e - the event passed from player.onerror
      */
     console.log("onError: ", arguments);
     var toSend = {
