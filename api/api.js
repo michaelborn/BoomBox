@@ -171,7 +171,7 @@ function Api(db) {
     if (!id) { throw "artists.del(): id is required"; }
 
     // in order to maintain referential integrity, delete the tracks first.
-    this.deltracksByArtist(id);
+    this.delTracksByArtist(id);
 
     // now, delete the artist by id.
     db.artists.deleteOne({_id: id});
@@ -280,6 +280,8 @@ function Api(db) {
    */
   this.updateTracks = function(id, track) {
     this.log("tracks.update():", arguments);
+
+    // db.tracks.update({ _id: id }, track);
   };
 
   /**

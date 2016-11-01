@@ -153,9 +153,6 @@ module.exports = function(app, db, socket) {
   // Routes for getting, creating, updating, and deleting song tracks by ID.
   // ID is required for all except GET.
   app.get(api.urlVersion+"/track(/:id)?", function(req, res) {
-    var filterOpts = {},
-        data;
-
     // Return tracks searchable by name, sorted a-z by name, LIMIT 50
     var handleIt = function(err,results) {
       if (!results) {
@@ -241,7 +238,7 @@ module.exports = function(app, db, socket) {
       res.status(400).json({error: "You must specify an ID."});
     } else {
       //delete artists!
-      api.artists.del(req.params.id, function() {
+      api.delArtists(req.params.id, function() {
         res.json({success: "true"});
       });
     }
@@ -254,7 +251,7 @@ module.exports = function(app, db, socket) {
       //then return all albums.
 
       // get the albums by search phrase, etc.
-      api.albums.get(filterOpts, function(err, results) {
+      api.getAlbums(req.params, function(err, results) {
         if (!results) {
           res.status(404).json({ error: "Album(s) not found" });
         } else {
@@ -263,7 +260,7 @@ module.exports = function(app, db, socket) {
       });
     } else {
       //get albums by id
-      api.albums.get(filterOpts, function(err, results) {
+      api.getAlbums(req.params, function(err, results) {
         if (!results) {
           res.status(404).json({ error: "Album(s) not found" });
         } else {
@@ -278,7 +275,7 @@ module.exports = function(app, db, socket) {
       res.status(400).json({error: "You must specify an ID."});
     } else {
       //create albums!
-      api.albums.insert(req.params, function() {
+      api.insertAlbums(req.params, function() {
         res.json({success: "true"});
       });
     }
