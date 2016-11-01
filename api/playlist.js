@@ -20,9 +20,6 @@ function Playlist(sock, player) {
    */
   this.serverRoot = "/var/www/Server/boombox/www/";
 
-  // used for web socket push notifications / maintaining state
-  this.sock = sock;
-
   /**
    * store the current paused/not paused state of the audio stream
    * @type {boolean}
@@ -123,7 +120,7 @@ function Playlist(sock, player) {
     };
 
     console.log(JSON.stringify(toSend));
-    self.sock.send(JSON.stringify(toSend));
+    sock.send(JSON.stringify(toSend));
   };
   this.resume = function() {
     /**
@@ -235,7 +232,7 @@ function Playlist(sock, player) {
     };
 
     // console.log(JSON.stringify(toSend));
-    self.sock.send(JSON.stringify(toSend));
+    sock.send(JSON.stringify(toSend));
   };
   this.onPlayEnd = function(e) {
     /**
@@ -255,7 +252,7 @@ function Playlist(sock, player) {
     };
 
     console.log(JSON.stringify(toSend));
-    //self.sock.send(JSON.stringify(toSend));
+    //sock.send(JSON.stringify(toSend));
   };
   this.onError = function(e) {
     /**
@@ -274,7 +271,7 @@ function Playlist(sock, player) {
     };
 
     console.log(JSON.stringify(toSend));
-    self.sock.send(JSON.stringify(toSend));
+    sock.send(JSON.stringify(toSend));
   };
   this.stop = function() {
     /**
