@@ -15,8 +15,14 @@ Use a raspberry pi or any computer as a media server for audio files.
 * Run grunt to compile frontend scripts, etc - `grunt`
 
 ## Usage
-* First, rip a CD by placing it in the CD drive and running `ripdisc.js`, found in the `organize` folder.
+
+### Copying Audio Files to Boombox
+* Place an audio CD in the CD drive
+* Navigate to boombox/organize. `cd organize`
+* Begin the CD rip process with `node ripdisc.js`
 * Repeat as necessary for each CD.
+
+### Start up the web server
 * Add `boombox.localhost` to your /etc/hosts file
 * Start Boombox: `node index.js`
 * Visit the Boombox homepage: `http://localhost:8080`
