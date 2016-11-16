@@ -1,3 +1,6 @@
 [submodule "api/musicbrainz_discid"]
 	path = organize/musicbrainz_discid
 	url = git@github.com:bmc0/musicbrainz_discid.git
+[submodule "certstuff"]
+	path = certstuff
+	url = git@github.com:Daplie/nodejs-self-signed-certificate-example.git
