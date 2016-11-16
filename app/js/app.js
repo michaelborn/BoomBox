@@ -6,7 +6,7 @@ app = {
     var self = this;
 
     // open web socket connection
-    app.socket = new WebSocket("ws://localhost:8081");
+    app.socket = new WebSocket("wss://" + location.host);
     app.socket.onopen = function(ev) {
       // console.log("Socket is open!", ev);
     };

@@ -1,7 +1,23 @@
+/**
+ * create a new clientside API object
+ * @class
+ * @classdesc this file does all the data interaction with the BoomBox API
+ *            this is purposely designed to match the API endpoints
+ */
 var Api = function() {
   /**
-   * api.js - this file does all the data interaction with the BoomBox API
-   * this is purposely designed to match the API endpoints
+   * @typedef {Object} searchOpts
+   * @property {string} id - the unique musicbrainz id of the single
+   * item you wish to retrieve
+   * @property {number} limit - max number of items to retrieve
+   * @property {number} page - get items starting at number ((page-1)*limit)+1
+   * @property {string} search - search phrase to find in item name or title
+   */
+  /**
+   * returns the result of the AJAX http request.
+   * Entire AJAX request is included in callback.
+   * @callback getCallback
+   * @param {Object} HTTP response
    */
   var self = this;
   self.songs = {};
@@ -12,29 +28,66 @@ var Api = function() {
   self.stream.album = {};
   self.stream.artist = {};
 
+  /**
+   * get songs from server
+   * @param {searchOpts}
+   * @param {getCallback} callback - the AJAX response from the server
+   */
   self.songs.get = function(opts,callback) {
     var data = opts;
     // console.log("getting tracks:", data);
     lib.ajax("/api/v1/track",data,callback);
   };
-  /*
-  self.songs.insert = function(opts) {
-    // we may not need to insert tracks through the frontend.
+
+  /**
+   * Send a new track to the server
+   * @param {Track}
+   * @param {insertResponse} callback - callback receives result of the insert attempt
+   */
+  self.songs.insert = function(track) {
+    // we may eventually need to insert tracks through the frontend.
   };
-  */
+  /**
+   * get songs from server by id,search phrase, etc.
+   * @param {searchOpts}
+   * @param {getCallback} callback - the AJAX response from the server
+   */
+
+  /**
+   * get albums from server by id,search phrase, etc.
+   * @param {searchOpts}
+   * @param {getCallback} callback - the AJAX response from the server
+   */
   self.albums.get = function(opts, callback) {
     var data = opts;
     lib.ajax("/api/v1/album",data,callback);
   };
+
+  /**
+   * get artists from server by id,search phrase, etc.
+   * @param {searchOpts}
+   * @param {getCallback} callback - the AJAX response from the server
+   */
   self.artists.get = function(opts, callback) {
     var data = opts;
     lib.ajax("/api/v1/artist",data,callback);
   };
 
   // streaming endpoints
+  /**
+   * pause the currently playing item
+   * @param {pauseResponse} callback - response given when pausing an item
+   */
   self.stream.pause = function(callback) {
     lib.ajax("/api/v1/stream/pause",{},callback);
   };
+
+  /**
+   * play a track, artist, or album by ID
+   * @param {string} type - one of "track","album","artist"
+   * @param {string} id - unique ID of the item to play
+   * @param {playResponse} callback - result of the play action
+   */
   self.stream.play = function(type, id, callback) {
     var allowedStreamTypes = ["track","album","artist"];
     if (allowedStreamTypes.indexOf(type) == -1) {
@@ -47,35 +100,53 @@ var Api = function() {
     var apiUrl = "/api/v1/stream/" + type + "/" + id;
     lib.ajax(apiUrl,{},callback);
   };
-  self.next = function(callback) {
-    if (typeof callback !== "function") {
-      throw "Callback is required.";
-    }
 
-    lib.ajax("/api/v1/stream/next",{},callback);
-  };
-  self.prev = function(callback) {
-    if (typeof callback !== "function") {
-      throw "Callback is required.";
-    }
-
-    lib.ajax("/api/v1/stream/prev",{},callback);
-  };
-
-  // track streaming endpoints
+  /**
+   * play a certain track, given its id
+   * @param {string} id - the unique id of the track we wish to play
+   * @param {playResponse} callback - result of the play action
+   */
   self.stream.track.play = function(id,callback) {
     self.stream.play("track",id,callback);
   };
+
+  /**
+   * play a certain album, given its id
+   * @param {string} id - the unique id of the album we wish to listen to
+   * @param {playResponse} callback - result of the play action
+   */
   self.stream.album.play = function(id,callback) {
     self.stream.play("album",id,callback);
   };
+
+  /**
+   * play all songs by a certain artist, given its id
+   * @param {string} id - the unique id of the artist we wish to listen to
+   * @param {playResponse} callback - result of the play action
+   */
   self.stream.artist.play = function(id,callback) {
     self.stream.play("artist",id,callback);
   };
+
+  /**
+   * Skip to the next song in the pre-computed playlist.
+   * The playlist is reset when
+   *  - user clicks "play" button on a track,
+   *  - user clicks "play" buton on an artist,
+   *  - user clicks "play" button on an album.
+   *  For any of these, if the item was already playing, but paused, it would not regenerate the playlist.
+   * @param {playResponse}
+   */
   self.stream.next = function(callback) {
     var apiUrl = "/api/v1/stream/next";
     lib.ajax(apiUrl,{},callback);
   };
+
+  /**
+   * play the previous song in the pre-computed playlist.
+   * Unlike most "previous" buttons, does not restart the given song if already playing.
+   * @param {playResponse}
+   */
   self.stream.prev = function(callback) {
     var apiUrl = "/api/v1/stream/prev";
     lib.ajax(apiUrl,{},callback);
@@ -89,18 +160,18 @@ var api = new Api();
 var Lib = function() {
   var self = this;
 
+  /**
+   * selectParent()
+   * similar to jquery's closest() function,
+   * the difference being that we are not chainable.
+   * @param {Node} el - the element which has parents
+   * @param {string} parentSelector - the CSS-style selector which will identify the parents we are searching for
+   * @return {Node|boolean} An HTML node if if matches the parentSelector. Else false.
+   */
   this.selectParent = function(el, parentSelector) {
-    /**
-     * selectParent()
-     * similar to jquery's closest() function,
-     * the difference being that we are not chainable.
-     * @param {Node} el - the element which has parents
-     * @param {string} parentSelector - the CSS-style selector which will identify the parents we are searching for
-     * @return {Node|boolean} An HTML node if if matches the parentSelector. Else false.
-     */
     var matchesSelector = el.matches ||
-													el.webkitMatchesSelector ||
-													el.mozMatchesSelector ||
+                          el.webkitMatchesSelector ||
+                          el.mozMatchesSelector ||
 													el.msMatchesSelector;
 
     while (el) {
@@ -115,16 +186,16 @@ var Lib = function() {
     return el;
   };
 
+  /**
+   * template()
+   * do Mustache-style templating on a string.
+   * Note this is SUPER basic. Does not do nesting, loops, conditionals, etc.
+   * Just simple {name}-value replacement.
+   * @param {string} str - the string to search/replace IN
+   * @param {Object} data - a flat object of key/value pairs to insert into the HTML string.
+   * @returns {string} a full HTML with no more {key} blocks unless the corresponding data[key] did not exist.
+   */
   this.template = function(str, data) {
-    /**
-     * template()
-     * do Mustache-style templating on a string.
-     * Note this is SUPER basic. Does not do nesting, loops, conditionals, etc.
-     * Just simple {name}-value replacement.
-     * @param {string} str - the string to search/replace IN
-     * @param {Object} data - a flat object of key/value pairs to insert into the HTML string.
-     * @returns {string} a full HTML with no more {key} blocks unless the corresponding data[key] did not exist.
-     */
     var retstr = str;
 
     // loop over all data properties
@@ -139,24 +210,24 @@ var Lib = function() {
     return retstr;
   };
 
+  /** toDom()
+   * convert a string into a fully build nodeList
+   * @param {string} str - the string of correctly-formatted HTML
+   * @return {NodeList} the HTML list of nodes
+   */
   this.toDom = function(str) {
-    /** toDom()
-     * convert a string into a fully build nodeList
-     * @param {string} str - the string of correctly-formatted HTML
-     * @return {NodeList} the HTML list of nodes
-     */
     var tmp = document.createElement("div");
     tmp.innerHTML = str;
     return tmp.childNodes;
   };
 
+  /**
+   * serialize()
+   * take an object, output a string fit for the querystring.
+   * @param {object} obj - the data object we wish to serialize.
+   * @cite: http://stackoverflow.com/a/1714899/1525594
+  */
   this.serialize = function(obj) {
-    /**
-     * serialize()
-     * take an object, output a string fit for the querystring.
-     * @param {object} obj - the data object we wish to serialize.
-     * @cite: http://stackoverflow.com/a/1714899/1525594
-    */
     var str = [];
     for(var p in obj)
       if (obj.hasOwnProperty(p)) {
@@ -165,6 +236,14 @@ var Lib = function() {
     return str.join("&");
   };
 
+  /**
+   * a native Javascript ajax function.
+   * Wraps XMLHttpRequest() with a url, data object, and a nice little callback.
+   * @param {string} url - HTTP url to send request to
+   * @param {Object} data - key/value pairs of GET or POST-type values to send
+   * @param {ajaxResponse} callback - gets called with response from request
+   * @param {string} method - one of "GET" or "POST"
+   */
   this.ajax = function(url,data,callback,method) {
     var reqBody = '',
         reqBoundary,
@@ -208,7 +287,7 @@ app = {
     var self = this;
 
     // open web socket connection
-    app.socket = new WebSocket("ws://localhost:8081");
+    app.socket = new WebSocket("wss://" + location.host);
     app.socket.onopen = function(ev) {
       // console.log("Socket is open!", ev);
     };
@@ -399,7 +478,11 @@ app.controls = {
      * @param {object} e - the event straight from the on("click") listener
      */
     e.preventDefault();
-    api.stream.pause(app.controls.playResponse);
+    if(!app.state.playing) {
+      api.stream.track.play(app.state.track._id, app.controls.playResponse);
+    } else {
+      api.stream.pause(app.controls.playResponse);
+    }
   },
   playResponse: function(json) {
     if (json.error) {
