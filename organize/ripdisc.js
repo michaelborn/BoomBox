@@ -211,7 +211,7 @@ var useAudioMeta = function(err,results) {
       var data = JSON.parse(results)[0],
           script = [],
           mongoData = collateResults(data);
-      //console.log("cdparanoia done, exit code ", code);
+      // console.log("cdparanoia done, exit code ", code);
 
       // console.log("Got CD metadata: ",mongoData);
       
@@ -233,7 +233,11 @@ var useAudioMeta = function(err,results) {
       shell.exec(runCmd,{},function(err,stdout,stderr) {
         console.log(stdout);
         console.log(stderr);
+
+        // We're done! exit with error code 1
+        process.exit(1);
       });
+
     });
   }
 };
