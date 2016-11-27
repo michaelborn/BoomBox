@@ -13,19 +13,13 @@ mkdir -p ../$moveToDir
 # note we use xargs to split this into 5 processes so it goes WAY faster
 echo "Converting all .wav files to .mp3"
 ls *.wav | xargs -n1 -t -P5 lame --silent
-#for t in track*.wav
-#do
-#  echo "Converting $t to MP3 format..."
-#  # note the "silent" option - turns out lame is pretty loud!
-#  lame --silent $t
-#done
 
 # move the .mp3 files to the new dir
 echo "moving .mp3 files to ../$moveToDir"
 mv *.mp3 ../$moveToDir
 
 # cleanup: delete the old .wav files
-#rm *.wav
+rm *.wav
 
 # here's the cool part: eject the CD tray!
 echo "Ejecting CD tray"
