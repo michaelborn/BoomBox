@@ -192,7 +192,7 @@ var useAudioMeta = function(err,results) {
      *
      * @cite: http://xiph.org/paranoia/
      */
-    cdripper = spawn("cdparanoia",["10"]);
+    cdripper = spawn("cdparanoia",["-B"]);
     
     // output to standard output -
     // this probably means a song has been successfully saved to disk
