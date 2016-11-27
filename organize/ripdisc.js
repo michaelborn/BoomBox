@@ -192,7 +192,7 @@ var useAudioMeta = function(err,results) {
      *
      * @cite: http://xiph.org/paranoia/
      */
-    cdripper = spawn("cdparanoia",["-B"]);
+    cdripper = spawn("cdparanoia",["10"]);
     
     // output to standard output -
     // this probably means a song has been successfully saved to disk
@@ -208,9 +208,15 @@ var useAudioMeta = function(err,results) {
     // cdparanoia is done!
     cdripper.on("close",function(code) {
       // properly organize the data before sending to Mongo
-      var data = JSON.parse(results)[0],
-          script = [],
-          mongoData = collateResults(data);
+      var data = JSON.parse(results),
+          script = [];
+
+      // get the stuff we're interested in
+      data = data["disc"]["release-list"][0];
+      console.log(data["medium-list"]);
+
+      // put it all into nice, Mongo-ready stuff
+      mongoData = collateResults(data);
       // console.log("cdparanoia done, exit code ", code);
 
       // console.log("Got CD metadata: ",mongoData);
