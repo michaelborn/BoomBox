@@ -12,6 +12,7 @@ Use a raspberry pi or any computer as a media server for audio files.
 * Install Mongo - `sudo apt-get install mongodb`
 * Install sound library, specifically for `alsa.h` - `sudo apt-get install libasound2-dev`
 * Install package dependencies - `npm install`
+* Install TLS certificates for security - `cd certstuff;bash make-root-ca-and-certificates.sh "boombox.localhost"`
 
 ## For Development
 * Install grunt - `sudo npm install -g grunt-cli`
