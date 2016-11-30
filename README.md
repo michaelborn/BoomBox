@@ -7,11 +7,13 @@ Use a raspberry pi or any computer as a media server for audio files.
 * cdparanoia, a CD ripper binary
 
 ## Installation
-* Clone Boombox - `git clone https://github.com/mborn319/BoomBox.git`
-* Install node and npm - `sudo apt-get install nodejs nodejs-legacy npm`
+* Clone Boombox, making sure to include submodules - `git clone --recursive https://github.com/mborn319/BoomBox.git`
+* Install node and npm - `sudo apt-get install nodejs npm`
 * Install Mongo - `sudo apt-get install mongodb`
 * Install sound library, specifically for `alsa.h` - `sudo apt-get install libasound2-dev`
 * Install package dependencies - `npm install`
+
+## For Development
 * Install grunt - `sudo npm install -g grunt-cli`
 * Run grunt to compile frontend scripts, etc - `grunt`
 

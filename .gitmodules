@@ -1,6 +1,6 @@
 [submodule "certstuff"]
 	path = certstuff
-	url = git@github.com:Daplie/nodejs-self-signed-certificate-example.git
+	url = https://github.com/Daplie/nodejs-self-signed-certificate-example.git
 [submodule "organize/musicbrainz_discid"]
 	path = organize/musicbrainz_discid
-	url = git@github.com:bmc0/musicbrainz_discid.git
+	url = https://github.com/bmc0/musicbrainz_discid.git
