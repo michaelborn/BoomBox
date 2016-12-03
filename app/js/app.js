@@ -266,7 +266,6 @@ App = function() {
    * - app.state.prev !== false and
    * - app.state.next !== false
    */
-
   this.foot.update = function() {
     var playIcon = app.controls.play.querySelector(".fa");
 
