@@ -1,5 +1,8 @@
-// lib.js - this is a short library of useful functions, primarily Ajax.
-
+/**
+ * create a new clientside Lib object
+ * @class
+ * @classdesc this is a short library of useful functions, primarily Ajax.
+ */
 var Lib = function() {
   var self = this;
 
@@ -120,4 +123,6 @@ var Lib = function() {
 
   return this;
 };
+
+// instantiate it, put in a global var
 lib = new Lib();

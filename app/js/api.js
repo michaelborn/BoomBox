@@ -153,4 +153,6 @@ var Api = function() {
   };
 
 };
+
+// instantiate it, put in a global var
 var api = new Api();
