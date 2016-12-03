@@ -32,6 +32,7 @@ var Api = function() {
    * get songs from server
    * @param {searchOpts}
    * @param {getCallback} callback - the AJAX response from the server
+   * @see Api#getTracks
    */
   self.songs.get = function(opts,callback) {
     var data = opts;
@@ -43,20 +44,17 @@ var Api = function() {
    * Send a new track to the server
    * @param {Track}
    * @param {insertResponse} callback - callback receives result of the insert attempt
+   * @see Api#insertTracks
    */
   self.songs.insert = function(track) {
     // we may eventually need to insert tracks through the frontend.
   };
-  /**
-   * get songs from server by id,search phrase, etc.
-   * @param {searchOpts}
-   * @param {getCallback} callback - the AJAX response from the server
-   */
 
   /**
    * get albums from server by id,search phrase, etc.
    * @param {searchOpts}
    * @param {getCallback} callback - the AJAX response from the server
+   * @see Api#getAlbums
    */
   self.albums.get = function(opts, callback) {
     var data = opts;
@@ -67,6 +65,7 @@ var Api = function() {
    * get artists from server by id,search phrase, etc.
    * @param {searchOpts}
    * @param {getCallback} callback - the AJAX response from the server
+   * @see API#getArtists
    */
   self.artists.get = function(opts, callback) {
     var data = opts;
@@ -77,6 +76,7 @@ var Api = function() {
   /**
    * pause the currently playing item
    * @param {pauseResponse} callback - response given when pausing an item
+   * @see Playlist#pause
    */
   self.stream.pause = function(callback) {
     lib.ajax("/api/v1/stream/pause",{},callback);
@@ -87,6 +87,7 @@ var Api = function() {
    * @param {string} type - one of "track","album","artist"
    * @param {string} id - unique ID of the item to play
    * @param {playResponse} callback - result of the play action
+   * @see Playlist#play
    */
   self.stream.play = function(type, id, callback) {
     var allowedStreamTypes = ["track","album","artist"];
@@ -105,6 +106,7 @@ var Api = function() {
    * play a certain track, given its id
    * @param {string} id - the unique id of the track we wish to play
    * @param {playResponse} callback - result of the play action
+   * @see Playlist#play
    */
   self.stream.track.play = function(id,callback) {
     self.stream.play("track",id,callback);
@@ -114,6 +116,7 @@ var Api = function() {
    * play a certain album, given its id
    * @param {string} id - the unique id of the album we wish to listen to
    * @param {playResponse} callback - result of the play action
+   * @see Playlist#play
    */
   self.stream.album.play = function(id,callback) {
     self.stream.play("album",id,callback);
@@ -123,6 +126,7 @@ var Api = function() {
    * play all songs by a certain artist, given its id
    * @param {string} id - the unique id of the artist we wish to listen to
    * @param {playResponse} callback - result of the play action
+   * @see Playlist#play
    */
   self.stream.artist.play = function(id,callback) {
     self.stream.play("artist",id,callback);
@@ -136,6 +140,7 @@ var Api = function() {
    *  - user clicks "play" button on an album.
    *  For any of these, if the item was already playing, but paused, it would not regenerate the playlist.
    * @param {playResponse}
+   * @see Playlist#next
    */
   self.stream.next = function(callback) {
     var apiUrl = "/api/v1/stream/next";
@@ -146,6 +151,7 @@ var Api = function() {
    * play the previous song in the pre-computed playlist.
    * Unlike most "previous" buttons, does not restart the given song if already playing.
    * @param {playResponse}
+   * @see Playlist#prev
    */
   self.stream.prev = function(callback) {
     var apiUrl = "/api/v1/stream/prev";
