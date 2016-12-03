@@ -212,7 +212,7 @@ var useAudioMeta = function(err,results) {
           script = [];
 
       // get the stuff we're interested in
-      data = data["disc"]["release-list"][0];
+      data = data.disc["release-list"][0];
       console.log(data["medium-list"]);
 
       // put it all into nice, Mongo-ready stuff
