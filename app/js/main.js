@@ -20,7 +20,7 @@ var songTabClick = function(e) {
 
   if (!app.tracks) {
     // get all songs
-    api.songs.get({},loadSongs);
+    api.getTracks({},loadSongs);
   } else {
     loadSongs(app.tracks);
   }
@@ -45,7 +45,7 @@ var albumTabClick = function(e) {
 
   if (!app.albums) {
     // get all songs
-    api.albums.get({},loadAlbums);
+    api.getAlbums({},loadAlbums);
   } else {
     loadAlbums(app.albums);
   }
@@ -70,7 +70,7 @@ var artistTabClick = function(e) {
 
   if (!app.artists) {
     // get all songs
-    api.artists.get({},loadArtists);
+    api.getArtists({},loadArtists);
   } else {
     loadArtists(app.artists);
   }
@@ -189,15 +189,15 @@ var mediaItem = function(item) {
     switch(item.dataset.type) {
       case "album":
         // play all the songs in the album
-        api.stream.album.play(item.id, app.controls.playResponse);
+        api.playAlbum(item.id, app.controls.playResponse);
         break;
       case "artist":
         // play all the songs for the particular artist
-        api.stream.artist.play(item.id, app.controls.playResponse);
+        api.playArtist(item.id, app.controls.playResponse);
         break;
       case "track":
         // play this particular song
-        api.stream.track.play(item.id, app.controls.playResponse);
+        api.playTrack(item.id, app.controls.playResponse);
         break;
     }
   };
@@ -207,7 +207,7 @@ var mediaItem = function(item) {
     item.classList.remove("active");
     playbutton.classList.add("fa-play");
     playbutton.classList.remove("fa-pause");
-    api.pause(item.id, function() {
+    api.pauseStream(item.id, function() {
       console.log("Whoa... it's paused!?",arguments);
     });
   };
@@ -257,7 +257,7 @@ loadSongsByAlbum = function(albumid) {
   opts = {
     albumid: albumid
   };
-  api.songs.get(opts, loadSongs);
+  api.getTracks(opts, loadSongs);
 };
 loadSongsByArtist = function(artistid) {
   var thisArtist = app.getArtistById(artistid);
@@ -270,7 +270,7 @@ loadSongsByArtist = function(artistid) {
   opts = {
     artistid: artistid
   };
-  api.songs.get(opts, loadSongs);
+  api.getTracks(opts, loadSongs);
 };
 
 // on initial page load, show all the songs

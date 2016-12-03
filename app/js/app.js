@@ -23,11 +23,11 @@ App = function() {
     var self = this;
 
     // open web socket connection
-    app.socket = new WebSocket("wss://" + location.host);
-    app.socket.onopen = function(ev) {
+    self.socket = new WebSocket("wss://" + location.host);
+    self.socket.onopen = function(ev) {
       // console.log("Socket is open!", ev);
     };
-    app.socket.onmessage = function(dat) {
+    self.socket.onmessage = function(dat) {
       var json = JSON.parse(dat.data);
       console.log("received message from websocket connection!", json);
 
@@ -36,10 +36,10 @@ App = function() {
         case "playevent":
 
           // update the state
-          app.setState(json.playstate);
+          self.setState(json.playstate);
 
           // update the footer "now playing" info
-          app.foot.update();
+          self.foot.update();
 
           break;
         default:
@@ -65,7 +65,7 @@ App = function() {
    * @return {Object|undefined} undefined if not found, else Album object
    */
   this.getAlbumById = function(id) {
-    return app.albums.find(function(item) {
+    return self.albums.find(function(item) {
       // find album with this id.
       return item._id === id;
     });
@@ -79,7 +79,7 @@ App = function() {
    * @return {Object|undefined} undefined if not found, else Artist object
    */
   this.getArtistById = function(id) {
-    return app.artists.find(function(item) {
+    return self.artists.find(function(item) {
       // find album with this id.
       return item._id === id;
     });
@@ -93,7 +93,7 @@ App = function() {
    * @return {Object|undefined} undefined if not found, else Track object
    */
   this.getTrackById = function(id) {
-    return app.tracks.find(function(item) {
+    return self.tracks.find(function(item) {
       // find album with this id.
       return item._id === id;
     });
@@ -109,13 +109,13 @@ App = function() {
       console.warn("Browser does not support local storage.");
     } else {
       if (localStorage.getItem("tracks")) {
-        app.tracks = JSON.parse(localStorage.getItem("tracks"));
+        self.tracks = JSON.parse(localStorage.getItem("tracks"));
       }
       if (localStorage.getItem("artists")) {
-        app.artists = JSON.parse(localStorage.getItem("artists"));
+        self.artists = JSON.parse(localStorage.getItem("artists"));
       }
       if (localStorage.getItem("albums")) {
-        app.albums = JSON.parse(localStorage.getItem("albums"));
+        self.albums = JSON.parse(localStorage.getItem("albums"));
       }
     }
   };
@@ -138,32 +138,32 @@ App = function() {
   /**
    * knowing the current track in the state,
    * get the album info and artist info
-   * and insert them into the app.state object.
+   * and insert them into the self.state object.
    * @param {State} state - the currently playing song
    * @return {State} state - the UPDATED playing state, with full album info and artist info
    */
   this.setState = function(state) {
-    app.state = state;
-    app.state.artist = false;
-    app.state.album = false;
+    self.state = state;
+    self.state.artist = false;
+    self.state.album = false;
 
-    if (app.state.track.artistid && app.artists) {
+    if (self.state.track.artistid && self.artists) {
       // get the album by id
       // note, all these albums / artists come from local storage
-      app.state.artist = app.artists.find(function(x) {
-        return x._id === app.state.track.artistid;
+      self.state.artist = self.artists.find(function(x) {
+        return x._id === self.state.track.artistid;
       });
     }
 
-    if (app.state.track.albumid && app.albums) {
+    if (self.state.track.albumid && self.albums) {
       // get the album by id
       // note, all these albums / artists come from local storage
-      app.state.album = app.albums.find(function(x) {
-        return x._id === app.state.track.albumid;
+      self.state.album = self.albums.find(function(x) {
+        return x._id === self.state.track.albumid;
       });
     }
 
-    return app.state;
+    return self.state;
   };
 
   /**
@@ -195,10 +195,10 @@ App = function() {
    */
   this.controls.onPlay = function(e) {
     e.preventDefault();
-    if(!app.state.playing) {
-      api.stream.track.play(app.state.track._id, app.controls.playResponse);
+    if(!self.state.playing) {
+      api.playTrack(self.state.track._id, self.controls.playResponse);
     } else {
-      api.stream.pause(app.controls.playResponse);
+      api.pauseStream(self.controls.playResponse);
     }
   };
 
@@ -214,7 +214,7 @@ App = function() {
 
 
       // open the footer "now playing" thing
-      app.foot.open();
+      self.foot.open();
     }
   };
 
@@ -225,9 +225,9 @@ App = function() {
    */
   this.controls.onPrev = function(e) {
     e.preventDefault();
-    if (app.state.prev) {
+    if (self.state.prev) {
       // if the API says there is a "previous" song that we can play
-      api.stream.prev(app.controls.playResponse);
+      api.playPrev(self.controls.playResponse);
     } else {
       // else error?
     }
@@ -240,9 +240,9 @@ App = function() {
    */
   this.controls.onNext = function(e) {
     e.preventDefault();
-    if (app.state.next) {
+    if (self.state.next) {
       // if the API says there is a "next" song that we can play
-      api.stream.next(app.controls.playResponse);
+      api.playNext(self.controls.playResponse);
     } else {
       // else error?
     }
@@ -267,28 +267,28 @@ App = function() {
    * - app.state.next !== false
    */
   this.foot.update = function() {
-    var playIcon = app.controls.play.querySelector(".fa");
+    var playIcon = self.controls.play.querySelector(".fa");
 
     // update "now playing" info
-    app.foot.trackEl.innerHTML = app.state.track.title;
-    app.foot.artistEl.innerHTML = app.state.artist.name;
-    app.foot.albumEl.innerHTML = app.state.album.title;
+    self.foot.trackEl.innerHTML = self.state.track.title;
+    self.foot.artistEl.innerHTML = self.state.artist.name;
+    self.foot.albumEl.innerHTML = self.state.album.title;
 
     // if there is no "next" song, disable the button
-    if (!app.state.next) {
-      app.controls.next.classList.add("disabled");
+    if (!self.state.next) {
+      self.controls.next.classList.add("disabled");
     } else {
-      app.controls.next.classList.remove("disabled");
+      self.controls.next.classList.remove("disabled");
     }
 
     // if there is no "previous" song, disable the button
-    if (!app.state.prev) {
-      app.controls.prev.classList.add("disabled");
+    if (!self.state.prev) {
+      self.controls.prev.classList.add("disabled");
     } else {
-      app.controls.prev.classList.remove("disabled");
+      self.controls.prev.classList.remove("disabled");
     }
 
-    if (!app.state.playing) {
+    if (!self.state.playing) {
       // if paused, show the "play" icon
       playIcon.classList.add("fa-play");
       playIcon.classList.remove("fa-pause");
@@ -309,7 +309,7 @@ App = function() {
   };
 
   // call init to set up the footer
-  this.foot.init();
+  this.init();
 };
 
 var app = new App();

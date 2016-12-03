@@ -4,7 +4,7 @@
  * @classdesc this file does all the data interaction with the BoomBox API
  *            this is purposely designed to match the API endpoints
  */
-var Api = function() {
+var ApiInterface = function() {
   /**
    * @typedef {Object} searchOpts
    * @property {string} id - the unique musicbrainz id of the single
@@ -13,20 +13,22 @@ var Api = function() {
    * @property {number} page - get items starting at number ((page-1)*limit)+1
    * @property {string} search - search phrase to find in item name or title
    */
+
   /**
    * returns the result of the AJAX http request.
    * Entire AJAX request is included in callback.
    * @callback getCallback
    * @param {Object} HTTP response
    */
+
   var self = this;
-  self.songs = {};
-  self.albums = {};
-  self.artists = {};
-  self.stream = {};
-  self.stream.track = {};
-  self.stream.album = {};
-  self.stream.artist = {};
+  this.songs = {};
+  this.albums = {};
+  this.artists = {};
+  this.stream = {};
+  this.stream.track = {};
+  this.stream.album = {};
+  this.stream.artist = {};
 
   /**
    * get songs from server
@@ -34,7 +36,7 @@ var Api = function() {
    * @param {getCallback} callback - the AJAX response from the server
    * @see Api#getTracks
    */
-  self.songs.get = function(opts,callback) {
+  this.getTracks = function(opts,callback) {
     var data = opts;
     // console.log("getting tracks:", data);
     lib.ajax("/api/v1/track",data,callback);
@@ -46,7 +48,7 @@ var Api = function() {
    * @param {insertResponse} callback - callback receives result of the insert attempt
    * @see Api#insertTracks
    */
-  self.songs.insert = function(track) {
+  this.insertTracks = function(track) {
     // we may eventually need to insert tracks through the frontend.
   };
 
@@ -56,7 +58,7 @@ var Api = function() {
    * @param {getCallback} callback - the AJAX response from the server
    * @see Api#getAlbums
    */
-  self.albums.get = function(opts, callback) {
+  this.getAlbums = function(opts, callback) {
     var data = opts;
     lib.ajax("/api/v1/album",data,callback);
   };
@@ -67,7 +69,7 @@ var Api = function() {
    * @param {getCallback} callback - the AJAX response from the server
    * @see API#getArtists
    */
-  self.artists.get = function(opts, callback) {
+  this.getArtists = function(opts, callback) {
     var data = opts;
     lib.ajax("/api/v1/artist",data,callback);
   };
@@ -78,7 +80,7 @@ var Api = function() {
    * @param {pauseResponse} callback - response given when pausing an item
    * @see Playlist#pause
    */
-  self.stream.pause = function(callback) {
+  this.pauseStream = function(callback) {
     lib.ajax("/api/v1/stream/pause",{},callback);
   };
 
@@ -89,7 +91,7 @@ var Api = function() {
    * @param {playResponse} callback - result of the play action
    * @see Playlist#play
    */
-  self.stream.play = function(type, id, callback) {
+  this.playStream = function(type, id, callback) {
     var allowedStreamTypes = ["track","album","artist"];
     if (allowedStreamTypes.indexOf(type) == -1) {
       throw "Stream play type must be one of: " + allowedStreamTypes;
@@ -108,7 +110,7 @@ var Api = function() {
    * @param {playResponse} callback - result of the play action
    * @see Playlist#play
    */
-  self.stream.track.play = function(id,callback) {
+  this.playTrack = function(id,callback) {
     self.stream.play("track",id,callback);
   };
 
@@ -118,7 +120,7 @@ var Api = function() {
    * @param {playResponse} callback - result of the play action
    * @see Playlist#play
    */
-  self.stream.album.play = function(id,callback) {
+  this.playAlbum = function(id,callback) {
     self.stream.play("album",id,callback);
   };
 
@@ -128,7 +130,7 @@ var Api = function() {
    * @param {playResponse} callback - result of the play action
    * @see Playlist#play
    */
-  self.stream.artist.play = function(id,callback) {
+  this.playArtist = function(id,callback) {
     self.stream.play("artist",id,callback);
   };
 
@@ -142,7 +144,7 @@ var Api = function() {
    * @param {playResponse}
    * @see Playlist#next
    */
-  self.stream.next = function(callback) {
+  this.playNext = function(callback) {
     var apiUrl = "/api/v1/stream/next";
     lib.ajax(apiUrl,{},callback);
   };
@@ -153,7 +155,7 @@ var Api = function() {
    * @param {playResponse}
    * @see Playlist#prev
    */
-  self.stream.prev = function(callback) {
+  this.playPrev = function(callback) {
     var apiUrl = "/api/v1/stream/prev";
     lib.ajax(apiUrl,{},callback);
   };
@@ -161,4 +163,4 @@ var Api = function() {
 };
 
 // instantiate it, put in a global var
-var api = new Api();
+var api = new ApiInterface();

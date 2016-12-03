@@ -4,7 +4,7 @@
  * @classdesc this file does all the data interaction with the BoomBox API
  *            this is purposely designed to match the API endpoints
  */
-var Api = function() {
+var ApiInterface = function() {
   /**
    * @typedef {Object} searchOpts
    * @property {string} id - the unique musicbrainz id of the single
@@ -13,20 +13,22 @@ var Api = function() {
    * @property {number} page - get items starting at number ((page-1)*limit)+1
    * @property {string} search - search phrase to find in item name or title
    */
+
   /**
    * returns the result of the AJAX http request.
    * Entire AJAX request is included in callback.
    * @callback getCallback
    * @param {Object} HTTP response
    */
+
   var self = this;
-  self.songs = {};
-  self.albums = {};
-  self.artists = {};
-  self.stream = {};
-  self.stream.track = {};
-  self.stream.album = {};
-  self.stream.artist = {};
+  this.songs = {};
+  this.albums = {};
+  this.artists = {};
+  this.stream = {};
+  this.stream.track = {};
+  this.stream.album = {};
+  this.stream.artist = {};
 
   /**
    * get songs from server
@@ -34,7 +36,7 @@ var Api = function() {
    * @param {getCallback} callback - the AJAX response from the server
    * @see Api#getTracks
    */
-  self.songs.get = function(opts,callback) {
+  this.getTracks = function(opts,callback) {
     var data = opts;
     // console.log("getting tracks:", data);
     lib.ajax("/api/v1/track",data,callback);
@@ -46,7 +48,7 @@ var Api = function() {
    * @param {insertResponse} callback - callback receives result of the insert attempt
    * @see Api#insertTracks
    */
-  self.songs.insert = function(track) {
+  this.insertTracks = function(track) {
     // we may eventually need to insert tracks through the frontend.
   };
 
@@ -56,7 +58,7 @@ var Api = function() {
    * @param {getCallback} callback - the AJAX response from the server
    * @see Api#getAlbums
    */
-  self.albums.get = function(opts, callback) {
+  this.getAlbums = function(opts, callback) {
     var data = opts;
     lib.ajax("/api/v1/album",data,callback);
   };
@@ -67,7 +69,7 @@ var Api = function() {
    * @param {getCallback} callback - the AJAX response from the server
    * @see API#getArtists
    */
-  self.artists.get = function(opts, callback) {
+  this.getArtists = function(opts, callback) {
     var data = opts;
     lib.ajax("/api/v1/artist",data,callback);
   };
@@ -78,7 +80,7 @@ var Api = function() {
    * @param {pauseResponse} callback - response given when pausing an item
    * @see Playlist#pause
    */
-  self.stream.pause = function(callback) {
+  this.pauseStream = function(callback) {
     lib.ajax("/api/v1/stream/pause",{},callback);
   };
 
@@ -89,7 +91,7 @@ var Api = function() {
    * @param {playResponse} callback - result of the play action
    * @see Playlist#play
    */
-  self.stream.play = function(type, id, callback) {
+  this.playStream = function(type, id, callback) {
     var allowedStreamTypes = ["track","album","artist"];
     if (allowedStreamTypes.indexOf(type) == -1) {
       throw "Stream play type must be one of: " + allowedStreamTypes;
@@ -108,7 +110,7 @@ var Api = function() {
    * @param {playResponse} callback - result of the play action
    * @see Playlist#play
    */
-  self.stream.track.play = function(id,callback) {
+  this.playTrack = function(id,callback) {
     self.stream.play("track",id,callback);
   };
 
@@ -118,7 +120,7 @@ var Api = function() {
    * @param {playResponse} callback - result of the play action
    * @see Playlist#play
    */
-  self.stream.album.play = function(id,callback) {
+  this.playAlbum = function(id,callback) {
     self.stream.play("album",id,callback);
   };
 
@@ -128,7 +130,7 @@ var Api = function() {
    * @param {playResponse} callback - result of the play action
    * @see Playlist#play
    */
-  self.stream.artist.play = function(id,callback) {
+  this.playArtist = function(id,callback) {
     self.stream.play("artist",id,callback);
   };
 
@@ -142,7 +144,7 @@ var Api = function() {
    * @param {playResponse}
    * @see Playlist#next
    */
-  self.stream.next = function(callback) {
+  this.playNext = function(callback) {
     var apiUrl = "/api/v1/stream/next";
     lib.ajax(apiUrl,{},callback);
   };
@@ -153,7 +155,7 @@ var Api = function() {
    * @param {playResponse}
    * @see Playlist#prev
    */
-  self.stream.prev = function(callback) {
+  this.playPrev = function(callback) {
     var apiUrl = "/api/v1/stream/prev";
     lib.ajax(apiUrl,{},callback);
   };
@@ -161,7 +163,7 @@ var Api = function() {
 };
 
 // instantiate it, put in a global var
-var api = new Api();
+var api = new ApiInterface();
 
 /**
  * create a new clientside Lib object
@@ -317,11 +319,11 @@ App = function() {
     var self = this;
 
     // open web socket connection
-    app.socket = new WebSocket("wss://" + location.host);
-    app.socket.onopen = function(ev) {
+    self.socket = new WebSocket("wss://" + location.host);
+    self.socket.onopen = function(ev) {
       // console.log("Socket is open!", ev);
     };
-    app.socket.onmessage = function(dat) {
+    self.socket.onmessage = function(dat) {
       var json = JSON.parse(dat.data);
       console.log("received message from websocket connection!", json);
 
@@ -330,10 +332,10 @@ App = function() {
         case "playevent":
 
           // update the state
-          app.setState(json.playstate);
+          self.setState(json.playstate);
 
           // update the footer "now playing" info
-          app.foot.update();
+          self.foot.update();
 
           break;
         default:
@@ -359,7 +361,7 @@ App = function() {
    * @return {Object|undefined} undefined if not found, else Album object
    */
   this.getAlbumById = function(id) {
-    return app.albums.find(function(item) {
+    return self.albums.find(function(item) {
       // find album with this id.
       return item._id === id;
     });
@@ -373,7 +375,7 @@ App = function() {
    * @return {Object|undefined} undefined if not found, else Artist object
    */
   this.getArtistById = function(id) {
-    return app.artists.find(function(item) {
+    return self.artists.find(function(item) {
       // find album with this id.
       return item._id === id;
     });
@@ -387,7 +389,7 @@ App = function() {
    * @return {Object|undefined} undefined if not found, else Track object
    */
   this.getTrackById = function(id) {
-    return app.tracks.find(function(item) {
+    return self.tracks.find(function(item) {
       // find album with this id.
       return item._id === id;
     });
@@ -403,13 +405,13 @@ App = function() {
       console.warn("Browser does not support local storage.");
     } else {
       if (localStorage.getItem("tracks")) {
-        app.tracks = JSON.parse(localStorage.getItem("tracks"));
+        self.tracks = JSON.parse(localStorage.getItem("tracks"));
       }
       if (localStorage.getItem("artists")) {
-        app.artists = JSON.parse(localStorage.getItem("artists"));
+        self.artists = JSON.parse(localStorage.getItem("artists"));
       }
       if (localStorage.getItem("albums")) {
-        app.albums = JSON.parse(localStorage.getItem("albums"));
+        self.albums = JSON.parse(localStorage.getItem("albums"));
       }
     }
   };
@@ -432,32 +434,32 @@ App = function() {
   /**
    * knowing the current track in the state,
    * get the album info and artist info
-   * and insert them into the app.state object.
+   * and insert them into the self.state object.
    * @param {State} state - the currently playing song
    * @return {State} state - the UPDATED playing state, with full album info and artist info
    */
   this.setState = function(state) {
-    app.state = state;
-    app.state.artist = false;
-    app.state.album = false;
+    self.state = state;
+    self.state.artist = false;
+    self.state.album = false;
 
-    if (app.state.track.artistid && app.artists) {
+    if (self.state.track.artistid && self.artists) {
       // get the album by id
       // note, all these albums / artists come from local storage
-      app.state.artist = app.artists.find(function(x) {
-        return x._id === app.state.track.artistid;
+      self.state.artist = self.artists.find(function(x) {
+        return x._id === self.state.track.artistid;
       });
     }
 
-    if (app.state.track.albumid && app.albums) {
+    if (self.state.track.albumid && self.albums) {
       // get the album by id
       // note, all these albums / artists come from local storage
-      app.state.album = app.albums.find(function(x) {
-        return x._id === app.state.track.albumid;
+      self.state.album = self.albums.find(function(x) {
+        return x._id === self.state.track.albumid;
       });
     }
 
-    return app.state;
+    return self.state;
   };
 
   /**
@@ -489,10 +491,10 @@ App = function() {
    */
   this.controls.onPlay = function(e) {
     e.preventDefault();
-    if(!app.state.playing) {
-      api.stream.track.play(app.state.track._id, app.controls.playResponse);
+    if(!self.state.playing) {
+      api.playTrack(self.state.track._id, self.controls.playResponse);
     } else {
-      api.stream.pause(app.controls.playResponse);
+      api.pauseStream(self.controls.playResponse);
     }
   };
 
@@ -508,7 +510,7 @@ App = function() {
 
 
       // open the footer "now playing" thing
-      app.foot.open();
+      self.foot.open();
     }
   };
 
@@ -519,9 +521,9 @@ App = function() {
    */
   this.controls.onPrev = function(e) {
     e.preventDefault();
-    if (app.state.prev) {
+    if (self.state.prev) {
       // if the API says there is a "previous" song that we can play
-      api.stream.prev(app.controls.playResponse);
+      api.playPrev(self.controls.playResponse);
     } else {
       // else error?
     }
@@ -534,9 +536,9 @@ App = function() {
    */
   this.controls.onNext = function(e) {
     e.preventDefault();
-    if (app.state.next) {
+    if (self.state.next) {
       // if the API says there is a "next" song that we can play
-      api.stream.next(app.controls.playResponse);
+      api.playNext(self.controls.playResponse);
     } else {
       // else error?
     }
@@ -561,28 +563,28 @@ App = function() {
    * - app.state.next !== false
    */
   this.foot.update = function() {
-    var playIcon = app.controls.play.querySelector(".fa");
+    var playIcon = self.controls.play.querySelector(".fa");
 
     // update "now playing" info
-    app.foot.trackEl.innerHTML = app.state.track.title;
-    app.foot.artistEl.innerHTML = app.state.artist.name;
-    app.foot.albumEl.innerHTML = app.state.album.title;
+    self.foot.trackEl.innerHTML = self.state.track.title;
+    self.foot.artistEl.innerHTML = self.state.artist.name;
+    self.foot.albumEl.innerHTML = self.state.album.title;
 
     // if there is no "next" song, disable the button
-    if (!app.state.next) {
-      app.controls.next.classList.add("disabled");
+    if (!self.state.next) {
+      self.controls.next.classList.add("disabled");
     } else {
-      app.controls.next.classList.remove("disabled");
+      self.controls.next.classList.remove("disabled");
     }
 
     // if there is no "previous" song, disable the button
-    if (!app.state.prev) {
-      app.controls.prev.classList.add("disabled");
+    if (!self.state.prev) {
+      self.controls.prev.classList.add("disabled");
     } else {
-      app.controls.prev.classList.remove("disabled");
+      self.controls.prev.classList.remove("disabled");
     }
 
-    if (!app.state.playing) {
+    if (!self.state.playing) {
       // if paused, show the "play" icon
       playIcon.classList.add("fa-play");
       playIcon.classList.remove("fa-pause");
@@ -603,7 +605,7 @@ App = function() {
   };
 
   // call init to set up the footer
-  this.foot.init();
+  this.init();
 };
 
 var app = new App();
@@ -630,7 +632,7 @@ var songTabClick = function(e) {
 
   if (!app.tracks) {
     // get all songs
-    api.songs.get({},loadSongs);
+    api.getTracks({},loadSongs);
   } else {
     loadSongs(app.tracks);
   }
@@ -655,7 +657,7 @@ var albumTabClick = function(e) {
 
   if (!app.albums) {
     // get all songs
-    api.albums.get({},loadAlbums);
+    api.getAlbums({},loadAlbums);
   } else {
     loadAlbums(app.albums);
   }
@@ -680,7 +682,7 @@ var artistTabClick = function(e) {
 
   if (!app.artists) {
     // get all songs
-    api.artists.get({},loadArtists);
+    api.getArtists({},loadArtists);
   } else {
     loadArtists(app.artists);
   }
@@ -799,15 +801,15 @@ var mediaItem = function(item) {
     switch(item.dataset.type) {
       case "album":
         // play all the songs in the album
-        api.stream.album.play(item.id, app.controls.playResponse);
+        api.playAlbum(item.id, app.controls.playResponse);
         break;
       case "artist":
         // play all the songs for the particular artist
-        api.stream.artist.play(item.id, app.controls.playResponse);
+        api.playArtist(item.id, app.controls.playResponse);
         break;
       case "track":
         // play this particular song
-        api.stream.track.play(item.id, app.controls.playResponse);
+        api.playTrack(item.id, app.controls.playResponse);
         break;
     }
   };
@@ -817,7 +819,7 @@ var mediaItem = function(item) {
     item.classList.remove("active");
     playbutton.classList.add("fa-play");
     playbutton.classList.remove("fa-pause");
-    api.pause(item.id, function() {
+    api.pauseStream(item.id, function() {
       console.log("Whoa... it's paused!?",arguments);
     });
   };
@@ -867,7 +869,7 @@ loadSongsByAlbum = function(albumid) {
   opts = {
     albumid: albumid
   };
-  api.songs.get(opts, loadSongs);
+  api.getTracks(opts, loadSongs);
 };
 loadSongsByArtist = function(artistid) {
   var thisArtist = app.getArtistById(artistid);
@@ -880,7 +882,7 @@ loadSongsByArtist = function(artistid) {
   opts = {
     artistid: artistid
   };
-  api.songs.get(opts, loadSongs);
+  api.getTracks(opts, loadSongs);
 };
 
 // on initial page load, show all the songs
