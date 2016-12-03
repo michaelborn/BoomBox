@@ -51,26 +51,27 @@ function Playlist(sock, player) {
    */
   this.nextTrack = false;
 
+  /**
+   * add a track to the playlist.
+   * does not reset the playlist.
+   * @param {Track} track
+   * @returns {boolean} true for now
+   */
   this.add = function(track) {
-    /**
-     * add a track to the playlist.
-     * does not reset the playlist.
-     * @param {Track} track
-     * @returns {boolean} true for now
-     */
     console.log("Adding track to playlist:",track.title);
     self.list.push(track);
     player.add(self.serverRoot + track.filename);
 
     return true;
   };
+
+  /**
+   * remove a single track by track._id from playlist
+   * @todo test this function
+   * @param {Track} track
+   * @returns {boolean} isInPlaylist - true if track is in playlist and was removed, else false
+   */
   this.remove = function(track) {
-    /**
-     * remove a single track by track._id from playlist
-     * @todo test this function
-     * @param {Track} track
-     * @returns {boolean} isInPlaylist - true if track is in playlist and was removed, else false
-     */
     var isInPlaylist = false;
     var delNum = function(listTrack) {
       if (listTrack._id === track._id) {
@@ -82,29 +83,32 @@ function Playlist(sock, player) {
     this.list.splice(delNum,1);
     return isInPlaylist;
   };
+
+  /**
+   * Switch to the previous track in the playlist.
+   * since node-player doesn't support this,
+   * I'll either have to submit a pull request
+   * or write my own implementation right here.
+   * https://github.com/guo-yu/player
+   * @todo actually write this implementation.
+   */
   this.prev = function() {
-    /**
-     * Switch to the previous track in the playlist.
-     * since node-player doesn't support this,
-     * I'll either have to submit a pull request
-     * or write my own implementation right here.
-     * https://github.com/guo-yu/player
-     * @todo actually write this implementation.
-     */
     
   };
+
+  /**
+   * this function will advance the audio stream to the next song
+   * unless no next song exists in the .list[] array.
+   */
   this.next = function() {
-    /**
-     * this function will advance the audio stream to the next song
-     * unless no next song exists in the .list[] array.
-     */
     player.next();
   };
+
+  /**
+   * this function will pause the audio stream if current playing
+   * If the audio stream is currently paused, this function does nothing.
+   */
   this.pause = function() {
-    /**
-     * this function will pause the audio stream if current playing
-     * If the audio stream is currently paused, this function does nothing.
-     */
     if (!this.paused) {
       this.paused = true;
       player.pause();
@@ -122,11 +126,12 @@ function Playlist(sock, player) {
     console.log(JSON.stringify(toSend));
     sock.send(JSON.stringify(toSend));
   };
+
+  /**
+   * if the audio stream is currently in a paused state, UNpause it.
+   * @returns {boolean} wasResumed
+   */
   this.resume = function() {
-    /**
-     * if the audio stream is currently in a paused state, UNpause it.
-     * @returns {boolean} wasResumed
-     */
     var wasResumed = false;
 
     if (this.paused) {
@@ -137,26 +142,28 @@ function Playlist(sock, player) {
 
     return wasResumed;
   };
+
+  /**
+   * Essentially a wrapper for "play these tracks, I don't care how!".
+   * this function accepts a track or array of tracks
+   * and adds each to the playlist.
+   * it then starts the player.
+   * @param {Track} tracks[] - the array of songs
+   */
   this.play = function(tracks) {
-    /**
-     * Essentially a wrapper for "play these tracks, I don't care how!".
-     * this function accepts a track or array of tracks
-     * and adds each to the playlist.
-     * it then starts the player.
-     * @param {Track} tracks[] - the array of songs
-     */
     tracks.forEach(function(track) {
       self.add(track);
     });
     self.start();
   };
+
+  /**
+   * this function will start the audio stream.
+   * If currently playing, it will first stop the current song,
+   * clear the playlist, 
+   * then start the new song.
+   */
   this.start = function() {
-    /**
-     * this function will start the audio stream.
-     * If currently playing, it will first stop the current song,
-     * clear the playlist, 
-     * then start the new song.
-     */
     var self = this;
 
     if (!self.paused) {
@@ -177,12 +184,13 @@ function Playlist(sock, player) {
       });
     }
   };
+
+  /**
+   * clear  all tracks from the current playlist.
+   * Does not stop the audio stream!
+   * @returns {boolean} wasCleared - true if this.list exists, false otherwise
+   */
   this.clear = function() {
-    /**
-     * clear  all tracks from the current playlist.
-     * Does not stop the audio stream!
-     * @returns {boolean} wasCleared - true if this.list exists, false otherwise
-     */
     var wasCleared = false;
     if (this.list) {
       this.list = [];
@@ -190,13 +198,13 @@ function Playlist(sock, player) {
     }
     return wasCleared;
   };
+  /**
+   * this function is called from player.onplay
+   * we should push a notification saying that we are playing X song.
+   * this helps keep the frontend in perfect sync with the server
+   * @param {playerItem} the filename and full path/filename
+   */
   this.onPlay = function(item) {
-    /**
-     * this function is called from player.onplay
-     * we should push a notification saying that we are playing X song.
-     * this helps keep the frontend in perfect sync with the server
-     * @param {playerItem} the filename and full path/filename
-     */
     self.paused = false;
     self.prevTrack = false;
     self.nextTrack = false;
@@ -234,11 +242,12 @@ function Playlist(sock, player) {
     // console.log(JSON.stringify(toSend));
     sock.send(JSON.stringify(toSend));
   };
+
+  /**
+   * this function is called from player.onplayened.
+   * @param {Object} e - the event passed from player.onplayend
+   */
   this.onPlayEnd = function(e) {
-    /**
-     * this function is called from player.onplayened.
-     * @param {Object} e - the event passed from player.onplayend
-     */
     console.log("onPlayEnd: ", arguments);
 
     var toSend = {
@@ -254,11 +263,12 @@ function Playlist(sock, player) {
     console.log(JSON.stringify(toSend));
     //sock.send(JSON.stringify(toSend));
   };
+
+  /**
+   * this function is called from player.onerror
+   * @param {Object} e - the event passed from player.onerror
+   */
   this.onError = function(e) {
-    /**
-     * this function is called from player.onerror
-     * @param {Object} e - the event passed from player.onerror
-     */
     console.log("onError: ", arguments);
     var toSend = {
       type: "playevent",
@@ -273,10 +283,10 @@ function Playlist(sock, player) {
     console.log(JSON.stringify(toSend));
     sock.send(JSON.stringify(toSend));
   };
+  /**
+   * this function stops the currently playing stream
+   */
   this.stop = function() {
-    /**
-     * this function stops the currently playing stream
-     */
     this.paused = true;
     player.stop();
   };

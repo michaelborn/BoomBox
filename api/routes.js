@@ -1,34 +1,7 @@
 /*************************************************
  * ####             API docs          ###
+ * See http://docs.boombox.apiary.io/
  *
- * ### Manage tracks ###
- * GET          /track
- * POST         /track/:id
- * PUT          /track/:id
- * DELETE       /track/:id
- *
- * ### Manage albums ###
- * GET          /album
- * POST         /album/:id
- * PUT          /album/:id
- * DELETE       /album/:id
- *
- * ### Manage artists ###
- * GET          /artist
- * POST         /artist/:id
- * PUT          /artist/:id
- * DELETE       /artist/:id
- *
- * ### Play songs/artists/albums ###
- * Each endpoint (except for /stream/recent) accepts these parameters:
- *  { 
- *    id: integer //REQUIRED
- *    random: boolean //optional
- *  } 
- * GET          /stream/track/:id
- * GET          /stream/album/:id
- * GET          /stream/artist/:id
- * GET          /stream/recent
 *************************************************/
 
 module.exports = function(app, db, socket) {
@@ -39,6 +12,13 @@ module.exports = function(app, db, socket) {
   console.log("API");
   console.log("...... version: ", api.urlVersion);
 
+  /*
+   * ### Play songs/artists/albums ###
+   * GET          /stream/track/:id
+   * GET          /stream/album/:id
+   * GET          /stream/artist/:id
+   * GET          /stream/pause
+   */
   app.get(api.urlVersion+"/stream/track/:id", function(req, res) {
     if (typeof req.params.id === "undefined") {
       res.status(400).json({error: "You must specify an ID."});
@@ -149,9 +129,31 @@ module.exports = function(app, db, socket) {
     res.json({ error: false });
   });
 
-  // http://docs.boombox.apiary.io/#reference/tracks/list-one-or-all-songs
-  // Routes for getting, creating, updating, and deleting song tracks by ID.
-  // ID is required for all except GET.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  /*
+   * ### Manage tracks ###
+   * GET          /track
+   * POST         /track/:id
+   * PUT          /track/:id
+   * DELETE       /track/:id
+   *
+   * http://docs.boombox.apiary.io/#reference/tracks/list-one-or-all-songs
+   * Routes for getting, creating, updating, and deleting song tracks by ID.
+   * ID is required for all except GET.
+   */
   app.get(api.urlVersion+"/track(/:id)?", function(req, res) {
     // Return tracks searchable by name, sorted a-z by name, LIMIT 50
     var handleIt = function(err,results) {
@@ -195,8 +197,23 @@ module.exports = function(app, db, socket) {
     }
   });
 
-  // Routes for getting, creating, updating, and deleting song artists by ID.
-  // ID is required for all except GET.
+
+
+
+
+
+
+
+  /**
+   * ### Manage artists ###
+   * GET          /artist
+   * POST         /artist/:id
+   * PUT          /artist/:id
+   * DELETE       /artist/:id
+   *
+   * Routes for getting, creating, updating, and deleting song artists by ID.
+   * ID is required for all except GET.
+   */
   app.get(api.urlVersion+"/artist(/:id)?", function(req, res) {
     if (typeof req.params.id === "undefined") {
       //then return all artists.
@@ -244,8 +261,21 @@ module.exports = function(app, db, socket) {
     }
   });
 
-  // Routes for getting, creating, updating, and deleting song albums by ID.
-  // ID is required for all except GET.
+
+
+
+
+
+  /*
+   * ### Manage albums ###
+   * GET          /album
+   * POST         /album/:id
+   * PUT          /album/:id
+   * DELETE       /album/:id
+   *
+   * Routes for getting, creating, updating, and deleting song albums by ID.
+   * ID is required for all except GET.
+   */
   app.get(api.urlVersion+"/album(/:id)?", function(req, res) {
     if (typeof req.params.id === "undefined") {
       //then return all albums.
