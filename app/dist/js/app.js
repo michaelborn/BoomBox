@@ -32,6 +32,7 @@ var Api = function() {
    * get songs from server
    * @param {searchOpts}
    * @param {getCallback} callback - the AJAX response from the server
+   * @see Api#getTracks
    */
   self.songs.get = function(opts,callback) {
     var data = opts;
@@ -43,20 +44,17 @@ var Api = function() {
    * Send a new track to the server
    * @param {Track}
    * @param {insertResponse} callback - callback receives result of the insert attempt
+   * @see Api#insertTracks
    */
   self.songs.insert = function(track) {
     // we may eventually need to insert tracks through the frontend.
   };
-  /**
-   * get songs from server by id,search phrase, etc.
-   * @param {searchOpts}
-   * @param {getCallback} callback - the AJAX response from the server
-   */
 
   /**
    * get albums from server by id,search phrase, etc.
    * @param {searchOpts}
    * @param {getCallback} callback - the AJAX response from the server
+   * @see Api#getAlbums
    */
   self.albums.get = function(opts, callback) {
     var data = opts;
@@ -67,6 +65,7 @@ var Api = function() {
    * get artists from server by id,search phrase, etc.
    * @param {searchOpts}
    * @param {getCallback} callback - the AJAX response from the server
+   * @see API#getArtists
    */
   self.artists.get = function(opts, callback) {
     var data = opts;
@@ -77,6 +76,7 @@ var Api = function() {
   /**
    * pause the currently playing item
    * @param {pauseResponse} callback - response given when pausing an item
+   * @see Playlist#pause
    */
   self.stream.pause = function(callback) {
     lib.ajax("/api/v1/stream/pause",{},callback);
@@ -87,6 +87,7 @@ var Api = function() {
    * @param {string} type - one of "track","album","artist"
    * @param {string} id - unique ID of the item to play
    * @param {playResponse} callback - result of the play action
+   * @see Playlist#play
    */
   self.stream.play = function(type, id, callback) {
     var allowedStreamTypes = ["track","album","artist"];
@@ -105,6 +106,7 @@ var Api = function() {
    * play a certain track, given its id
    * @param {string} id - the unique id of the track we wish to play
    * @param {playResponse} callback - result of the play action
+   * @see Playlist#play
    */
   self.stream.track.play = function(id,callback) {
     self.stream.play("track",id,callback);
@@ -114,6 +116,7 @@ var Api = function() {
    * play a certain album, given its id
    * @param {string} id - the unique id of the album we wish to listen to
    * @param {playResponse} callback - result of the play action
+   * @see Playlist#play
    */
   self.stream.album.play = function(id,callback) {
     self.stream.play("album",id,callback);
@@ -123,6 +126,7 @@ var Api = function() {
    * play all songs by a certain artist, given its id
    * @param {string} id - the unique id of the artist we wish to listen to
    * @param {playResponse} callback - result of the play action
+   * @see Playlist#play
    */
   self.stream.artist.play = function(id,callback) {
     self.stream.play("artist",id,callback);
@@ -136,6 +140,7 @@ var Api = function() {
    *  - user clicks "play" button on an album.
    *  For any of these, if the item was already playing, but paused, it would not regenerate the playlist.
    * @param {playResponse}
+   * @see Playlist#next
    */
   self.stream.next = function(callback) {
     var apiUrl = "/api/v1/stream/next";
@@ -146,6 +151,7 @@ var Api = function() {
    * play the previous song in the pre-computed playlist.
    * Unlike most "previous" buttons, does not restart the given song if already playing.
    * @param {playResponse}
+   * @see Playlist#prev
    */
   self.stream.prev = function(callback) {
     var apiUrl = "/api/v1/stream/prev";
@@ -153,10 +159,15 @@ var Api = function() {
   };
 
 };
+
+// instantiate it, put in a global var
 var api = new Api();
 
-// lib.js - this is a short library of useful functions, primarily Ajax.
-
+/**
+ * create a new clientside Lib object
+ * @class
+ * @classdesc this is a short library of useful functions, primarily Ajax.
+ */
 var Lib = function() {
   var self = this;
 
@@ -277,13 +288,32 @@ var Lib = function() {
 
   return this;
 };
+
+// instantiate it, put in a global var
 lib = new Lib();
 
-app = {
-  artists: false,
-  albums: false,
-  tracks: false,
-  init: function() {
+/**
+ * create a new clientside App object.
+ * @class
+ * @classdesc The remote control web app for Boombox.
+ *            basically all the app-ish type stuff.
+ *            buttons, footer controls, etc.
+ */
+App = function() {
+  var self = this;
+
+  this.artists = false;
+  this.albums = false;
+  this.tracks = false;
+  this.controls = {};
+  this.foot = {};
+
+  /**
+   * More or less a "setup" function.
+   * Starts the web socket, sets up a few event listeners.
+   * @return {Api}
+   */
+  this.init = function() {
     var self = this;
 
     // open web socket connection
@@ -306,7 +336,7 @@ app = {
           app.foot.update();
 
           break;
-        default: 
+        default:
           // who knows
           break;
       }
@@ -319,49 +349,56 @@ app = {
     self.controls.prev.addEventListener("click", self.controls.onPrev);
     self.controls.next.addEventListener("click", self.controls.onNext);
     self.controls.play.addEventListener("click", self.controls.onPlay);
-    
-    return this;
-  },
-  getAlbumById: function(id) {
-    /**
-     * Searches through locally stored app.albums array
-     * to find the album with this id.
-     * BUG: if app.albums is empty, this function triggers an error.
-     * @param {string} id - musicbrainz id of the album/release
-     * @return {Object|undefined} undefined if not found, else Album object
-     */
+  };
+
+  /**
+   * Searches through locally stored app.albums array
+   * to find the album with this id.
+   * BUG: if app.albums is empty, this function triggers an error.
+   * @param {string} id - musicbrainz id of the album/release
+   * @return {Object|undefined} undefined if not found, else Album object
+   */
+  this.getAlbumById = function(id) {
     return app.albums.find(function(item) {
       // find album with this id.
       return item._id === id;
     });
-  },
-  getArtistById: function(id) {
-    /**
-     * Searches through locally stored app.artists array
-     * to find the artists with this id.
-     * BUG: if app.artists is empty, this function triggers an error.
-     * @param {string} id - musicbrainz id of the artist
-     * @return {Object|undefined} undefined if not found, else Artist object
-     */
+  };
+
+  /**
+   * Searches through locally stored app.artists array
+   * to find the artists with this id.
+   * BUG: if app.artists is empty, this function triggers an error.
+   * @param {string} id - musicbrainz id of the artist
+   * @return {Object|undefined} undefined if not found, else Artist object
+   */
+  this.getArtistById = function(id) {
     return app.artists.find(function(item) {
       // find album with this id.
       return item._id === id;
     });
-  },
-  getTrackById: function(id) {
-    /**
-     * Searches through locally stored app.tracks array
-     * to find the song track with this id.
-     * BUG: if app.tracks is empty, this function triggers an error.
-     * @param {string} id - musicbrainz id of the track
-     * @return {Object|undefined} undefined if not found, else Track object
-     */
+  };
+
+  /**
+   * Searches through locally stored app.tracks array
+   * to find the song track with this id.
+   * BUG: if app.tracks is empty, this function triggers an error.
+   * @param {string} id - musicbrainz id of the track
+   * @return {Object|undefined} undefined if not found, else Track object
+   */
+  this.getTrackById = function(id) {
     return app.tracks.find(function(item) {
       // find album with this id.
       return item._id === id;
     });
-  },
-  loadFromLS: function() {
+  };
+
+  /**
+   * load app data from local storage.
+   * This is WAY faster than a network request!
+   * Works offline too.
+   */
+  this.loadFromLS = function() {
     if (typeof window.localStorage !== "object") {
       console.warn("Browser does not support local storage.");
     } else {
@@ -375,29 +412,31 @@ app = {
         app.albums = JSON.parse(localStorage.getItem("albums"));
       }
     }
-  },
-  state: {
-    /**
-     * this object helps keep track of the currently playing song,
-     * albumid, artistid, nextid, previd, play/pause, etc.
-     * @typedef {Object} state
-     * @property {boolean} state.playing - is there a track playing this very second?
-     * @property {(boolean|string)} state.prev - if there is a "previous" song in the playlist, its id is stored here. Else false.
-     * @property {(boolean|string)} state.next - if there is a "next" song in the playlist, its id is stored here. Else false.
-     *
-     */
+  };
+
+  /**
+   * this object helps keep track of the currently playing song,
+   * albumid, artistid, nextid, previd, play/pause, etc.
+   * @typedef {Object} state
+   * @property {boolean} state.playing - is there a track playing this very second?
+   * @property {(boolean|string)} state.prev - if there is a "previous" song in the playlist, its id is stored here. Else false.
+   * @property {(boolean|string)} state.next - if there is a "next" song in the playlist, its id is stored here. Else false.
+   *
+   */
+  this.state = {
     playing: false,
     prev: false,
     next: false
-  },
-  setState: function(state) {
-    /**
-     * knowing the current track in the state,
-     * get the album info and artist info
-     * and insert them into the app.state object.
-     * @param {State} state - the currently playing song
-     * @return {State} state - the UPDATED playing state, with full album info and artist info
-     */
+  };
+
+  /**
+   * knowing the current track in the state,
+   * get the album info and artist info
+   * and insert them into the app.state object.
+   * @param {State} state - the currently playing song
+   * @return {State} state - the UPDATED playing state, with full album info and artist info
+   */
+  this.setState = function(state) {
     app.state = state;
     app.state.artist = false;
     app.state.album = false;
@@ -419,9 +458,8 @@ app = {
     }
 
     return app.state;
-  }
-};
-app.controls = {
+  };
+
   /**
    * app controls
    * This file manages the "Now Playing" bar and app controls
@@ -437,54 +475,31 @@ app.controls = {
    *    album title,
    *    artist title
   */
-  prev: document.getElementById("control__playprev"),
-  next: document.getElementById("control__playnext"),
-  play: document.getElementById("control__playbtn"),
-  onPrev: function(e) {
-    /**
-     * this function is called by the "next" button in the app controls
-     * it is called ONLY by pressing the "previous" button
-     * @param {object} e - the event straight from the on("click") listener
-     */
-    e.preventDefault();
-    if (app.state.prev) {
-      // if the API says there is a "previous" song that we can play
-      api.stream.prev(app.controls.playResponse);
-    } else {
-      // else error?
-    }
-  },
-  onNext: function(e) {
-    /**
-     * this function is called by the "next" button in the app controls
-     * it is called ONLY by pressing the "next" button
-     * @param {object} e - the event straight from the on("click") listener
-     */
-    e.preventDefault();
-    if (app.state.next) {
-      // if the API says there is a "next" song that we can play
-      api.stream.next(app.controls.playResponse);
-    } else {
-      // else error?
-    }
-  },
-  onPlay: function(e) {
-    /**
-     * this function is called by the "play" button in the app controls
-     * it is called ONLY by pressing the play/pause button
-     * it determines whether to
-     * - pause the current song,
-     * - or resume the current song
-     * @param {object} e - the event straight from the on("click") listener
-     */
+  this.controls.prev = document.getElementById("control__playprev");
+  this.controls.next = document.getElementById("control__playnext");
+  this.controls.play = document.getElementById("control__playbtn");
+
+  /**
+   * this function is called by the "play" button in the app controls
+   * it is called ONLY by pressing the play/pause button
+   * it determines whether to
+   * - pause the current song,
+   * - or resume the current song
+   * @param {object} e - the event straight from the on("click") listener
+   */
+  this.controls.onPlay = function(e) {
     e.preventDefault();
     if(!app.state.playing) {
       api.stream.track.play(app.state.track._id, app.controls.playResponse);
     } else {
       api.stream.pause(app.controls.playResponse);
     }
-  },
-  playResponse: function(json) {
+  };
+
+  /**
+   * @todo write documentation
+   */
+  this.controls.playResponse = function(json) {
     if (json.error) {
       console.warn("Error, couldn't find item!",json);
       alert("Error! Could not find item");
@@ -495,25 +510,57 @@ app.controls = {
       // open the footer "now playing" thing
       app.foot.open();
     }
-  }
-};
-app.foot = {
-  trackEl: document.querySelector(".playing__track__title"),
-  artistEl: document.querySelector(".playing__track__artist"),
-  albumEl: document.querySelector(".playing__track__album"),
-  update: function() {
-    /**
-     * fill the footer's "now playing" info
-     * using
-     * - app.state.track.title,
-     * - app.state.artist.name, and
-     * - app.state.album.title
-     *
-     * Also, disabled or enables the previous and next buttons
-     * as appropriate, depending on
-     * - app.state.prev !== false and
-     * - app.state.next !== false
-     */
+  };
+
+  /**
+   * this function is called by the "next" button in the app controls
+   * it is called ONLY by pressing the "previous" button
+   * @param {object} e - the event straight from the on("click") listener
+   */
+  this.controls.onPrev = function(e) {
+    e.preventDefault();
+    if (app.state.prev) {
+      // if the API says there is a "previous" song that we can play
+      api.stream.prev(app.controls.playResponse);
+    } else {
+      // else error?
+    }
+  };
+
+  /**
+   * this function is called by the "next" button in the app controls
+   * it is called ONLY by pressing the "next" button
+   * @param {object} e - the event straight from the on("click") listener
+   */
+  this.controls.onNext = function(e) {
+    e.preventDefault();
+    if (app.state.next) {
+      // if the API says there is a "next" song that we can play
+      api.stream.next(app.controls.playResponse);
+    } else {
+      // else error?
+    }
+  };
+
+
+  // App footer
+  this.foot.trackEl = document.querySelector(".playing__track__title");
+  this.foot.artistEl = document.querySelector(".playing__track__artist");
+  this.foot.albumEl = document.querySelector(".playing__track__album");
+
+  /**
+   * fill the footer's "now playing" info
+   * using
+   * - app.state.track.title,
+   * - app.state.artist.name, and
+   * - app.state.album.title
+   *
+   * Also, disabled or enables the previous and next buttons
+   * as appropriate, depending on
+   * - app.state.prev !== false and
+   * - app.state.next !== false
+   */
+  this.foot.update = function() {
     var playIcon = app.controls.play.querySelector(".fa");
 
     // update "now playing" info
@@ -544,18 +591,22 @@ app.foot = {
       playIcon.classList.remove("fa-play");
       playIcon.classList.add("fa-pause");
     }
-  },
-  open: function() {
-    /**
-     * open the controls / now playing footer
-     * by adding the class .open-footer to the body element.
-     * It's up to the CSS to do something with that class.
-     */
+  };
+
+  /**
+   * open the controls / now playing footer
+   * by adding the class .open-footer to the body element.
+   * It's up to the CSS to do something with that class.
+   */
+  this.foot.open = function() {
     document.body.classList.add("open-footer");
-  }
+  };
+
+  // call init to set up the footer
+  this.foot.init();
 };
 
-app.init();
+var app = new App();
 
 //main.js - This file does all the app-ish stuff. Includes buttons, animations, and possibly offline functionality.
 
