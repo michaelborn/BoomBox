@@ -8,7 +8,7 @@
  *            and playing/pausing/resuming the audio stream.
  * @constructor
  */
-function Playlist(sock, player) {
+function Playlist(devices, player) {
   var self = this;
 
   /**
@@ -124,7 +124,6 @@ function Playlist(sock, player) {
     };
 
     console.log(JSON.stringify(toSend));
-    sock.send(JSON.stringify(toSend));
   };
 
   /**
@@ -240,7 +239,7 @@ function Playlist(sock, player) {
     };
 
     // console.log(JSON.stringify(toSend));
-    sock.send(JSON.stringify(toSend));
+    self.sendToClients(toSend);
   };
 
   /**
@@ -261,7 +260,7 @@ function Playlist(sock, player) {
     };
 
     console.log(JSON.stringify(toSend));
-    //sock.send(JSON.stringify(toSend));
+    //self.sendToClients(toSend);
   };
 
   /**
@@ -281,8 +280,9 @@ function Playlist(sock, player) {
     };
 
     console.log(JSON.stringify(toSend));
-    sock.send(JSON.stringify(toSend));
+    self.sendToClients(toSend);
   };
+
   /**
    * this function stops the currently playing stream
    */
@@ -290,12 +290,38 @@ function Playlist(sock, player) {
     this.paused = true;
     player.stop();
   };
+
+  /**
+   * this function sends a message
+   * to all websocket-connected clients
+   * @param {object} dat - the message to send
+   */
+  this.sendToClients = function(dat) {
+    var jsonDat;
+
+    if (typeof dat !== "string") {
+      // if not string, convert to string before sending
+      jsonDat = JSON.stringify(dat);
+    }
+
+    // send it
+    devices.forEach(function(socket) {
+      console.log("sending message to socket:",socket.readyState);
+      if (socket.readyState === 1) {
+        // if the socket is open
+        socket.send(jsonDat);
+      } else {
+        console.log("socket is closed!");
+        // consider removing the socket from devices[] ?
+      }
+    });
+  };
 };
 
-module.exports = function(socket) {
+module.exports = function(devices) {
   var Player = require("player"),
       player = new Player(),
-      playlist = new Playlist(socket, player);
+      playlist = new Playlist(devices, player);
 
   // special events from the player audio stream
   player.on("playend", playlist.onPlayEnd);

@@ -9,6 +9,8 @@ var express = require("express"),
     fs = require("fs"),
     db = require("./init-mongo.js");
 
+var devices = Array();
+
 var sOpts = {
   port: 8080,
   ip: "0.0.0.0",
@@ -50,8 +52,12 @@ console.info("...... listening on port ", sOpts.port);
 wss.on("connection", function(ws) {
   console.info("WebSocket connected!");
 
+  // add the current web socket to the list of devices.
+  // now we can send song info back to all devices
+  devices.push(ws);
+
   //include all the routes for the API
-  var api = require("./api/routes.js")(app, db, ws);
+  var api = require("./api/routes.js")(app, db, devices);
 
   // push and receive should go here
   // ws.send("bla");

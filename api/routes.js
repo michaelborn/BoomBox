@@ -4,9 +4,9 @@
  *
 *************************************************/
 
-module.exports = function(app, db, socket) {
+module.exports = function(app, db, devices) {
   var api = require("./api")(db),
-      playlist = require("./playlist")(socket),
+      playlist = require("./playlist")(devices),
       playState;
 
   console.log("API");
