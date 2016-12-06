@@ -57,6 +57,11 @@ App = function() {
           // update the footer "now playing" info
           self.foot.update();
 
+          // if currently playing, open footer
+          if (json.playstate.playing) {
+            self.foot.open();
+          }
+
           break;
         default:
           // who knows
@@ -352,6 +357,15 @@ App = function() {
    */
   this.foot.open = function() {
     document.body.classList.add("open-footer");
+  };
+
+  /**
+   * close the now playing footer, typically when the music pauses
+   * by adding the class .open-footer to the body element.
+   * It's up to the CSS to do something with that class.
+   */
+  this.foot.close = function() {
+    document.body.classList.remove("open-footer");
   };
 
   // call init to set up the footer
