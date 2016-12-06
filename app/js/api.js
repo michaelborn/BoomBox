@@ -22,13 +22,6 @@ var ApiInterface = function() {
    */
 
   var self = this;
-  this.songs = {};
-  this.albums = {};
-  this.artists = {};
-  this.stream = {};
-  this.stream.track = {};
-  this.stream.album = {};
-  this.stream.artist = {};
 
   /**
    * get songs from server
@@ -111,7 +104,7 @@ var ApiInterface = function() {
    * @see Playlist#play
    */
   this.playTrack = function(id,callback) {
-    self.stream.play("track",id,callback);
+    self.playStream("track",id,callback);
   };
 
   /**
@@ -121,7 +114,7 @@ var ApiInterface = function() {
    * @see Playlist#play
    */
   this.playAlbum = function(id,callback) {
-    self.stream.play("album",id,callback);
+    self.playStream("album",id,callback);
   };
 
   /**
@@ -131,7 +124,7 @@ var ApiInterface = function() {
    * @see Playlist#play
    */
   this.playArtist = function(id,callback) {
-    self.stream.play("artist",id,callback);
+    self.playStream("artist",id,callback);
   };
 
   /**

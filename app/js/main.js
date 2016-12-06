@@ -182,8 +182,10 @@ var mediaItem = function(item) {
   this.play = function(e) {
     self.clearBtns();
     item.classList.add("active");
-    playbutton.classList.remove("fa-play");
-    playbutton.classList.add("fa-pause");
+    // commented these out because it's better to do this retroactively from the server - 
+    // more accurate that way.
+    // playbutton.classList.remove("fa-play");
+    // playbutton.classList.add("fa-pause");
 
     // play the particular type of media
     switch(item.dataset.type) {
@@ -205,8 +207,8 @@ var mediaItem = function(item) {
 
   this.pause = function(e) {
     item.classList.remove("active");
-    playbutton.classList.add("fa-play");
-    playbutton.classList.remove("fa-pause");
+    // playbutton.classList.add("fa-play");
+    // playbutton.classList.remove("fa-pause");
     api.pauseStream(item.id, function() {
       console.log("Whoa... it's paused!?",arguments);
     });

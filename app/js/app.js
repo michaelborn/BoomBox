@@ -25,7 +25,7 @@ App = function() {
     // open web socket connection
     self.socket = new WebSocket("wss://" + location.host);
     self.socket.onopen = function(ev) {
-      // console.log("Socket is open!", ev);
+      console.log("Socket is open!", ev);
     };
     self.socket.onmessage = function(dat) {
       var json = JSON.parse(dat.data);
@@ -34,6 +34,22 @@ App = function() {
       // handle app state changes
       switch(json.type) {
         case "playevent":
+
+          if (typeof json.playstate.track !== "undefined") {
+            // show the track icon as "playing" or paused
+            // depending on the playstate.playing==true or false, respectively
+            self.toggleIcon(json.playstate.track._id, json.playstate.playing);
+          }
+
+          if (typeof json.playstate.album !== "undefined") {
+            // show the album icon as "playing" or paused
+            self.toggleIcon(json.playstate.album._id, json.playstate.playing);
+          }
+
+          if (typeof json.playstate.artist !== "undefined") {
+            // show the artist icon as "playing" or paused
+            self.toggleIcon(json.playstate.artist._id, json.playstate.playing);
+          }
 
           // update the state
           self.setState(json.playstate);
@@ -212,11 +228,41 @@ App = function() {
     } else {
       console.log("playing:",json);
 
-
       // open the footer "now playing" thing
       self.foot.open();
     }
   };
+
+  /*
+   * toggleIcon()
+   * find the "play" button for the now playing item
+   * (whether track, artist or album)
+   * and switch the icon to "pause"
+   * @param {string} itemId - track, artist or album id
+   * @param {boolean} showPause - if true, shows "pause" icon, else shows "play" icon.
+   * @returns {boolean} itemExists - true if div[itemId] exists, else false
+   */
+  this.toggleIcon = function(itemId, showPause) {
+    var icon,
+        item = document.getElementById(itemId);
+
+    if (item) {
+      icon = item.querySelector(".fa");
+      if (icon) {
+        if (showPause) {
+          icon.classList.remove("fa-play");
+          icon.classList.add("fa-pause");
+        } else {
+          icon.classList.remove("fa-pause");
+          icon.classList.add("fa-play");
+        }
+      }
+    }
+
+    //return boolean item, NOT truthy item!
+    return !!item && !!icon;
+  };
+
 
   /**
    * this function is called by the "next" button in the app controls
