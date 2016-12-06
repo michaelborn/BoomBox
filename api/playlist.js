@@ -124,6 +124,7 @@ function Playlist(devices, player) {
     };
 
     console.log(JSON.stringify(toSend));
+    self.sendToClients(toSend);
   };
 
   /**
@@ -297,11 +298,9 @@ function Playlist(devices, player) {
    * @param {object} dat - the message to send
    */
   this.sendToClients = function(dat) {
-    var jsonDat;
-
     if (typeof dat !== "string") {
       // if not string, convert to string before sending
-      jsonDat = JSON.stringify(dat);
+      dat = JSON.stringify(dat);
     }
 
     // send it
@@ -309,7 +308,7 @@ function Playlist(devices, player) {
       console.log("sending message to socket:",socket.readyState);
       if (socket.readyState === 1) {
         // if the socket is open
-        socket.send(jsonDat);
+        socket.send(dat);
       } else {
         console.log("socket is closed!");
         // consider removing the socket from devices[] ?
