@@ -40,7 +40,7 @@ module.exports = function(app, db, devices) {
         // if it's a new song, stop the old song from playing
         // and start the new song
 
-        console.log("Now playing: ", result.title);
+        // console.log("Now playing: ", result.title);
         playlist.play(result);
 
         // send it to the frontend
