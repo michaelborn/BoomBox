@@ -242,9 +242,14 @@ function Playlist(devices) {
       this.stop();
     }
 
-    var args = [track.filename];
+    var args = [track.filename],
+        opts = { detached: false };
 
-    self.proc = spawn("mplayer", args);
+    self.proc = spawn("mpg321", args, opts);
+    // console.log(self.proc);
+    self.proc.stderr.on("data", function(data) {
+      console.log("error!", data);
+    });
     self.proc.on("close", function(stdout,stderr) {
       self.log("play complete?", 2);
       self.log(stdout, 3);
