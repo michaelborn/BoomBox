@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+const spawn = require("child_process").spawn;
 
 /**
  * creates a new serverside Playlist object
@@ -8,8 +9,23 @@
  *            and playing/pausing/resuming the audio stream.
  * @constructor
  */
-function Playlist(devices, player) {
+function Playlist(devices) {
   var self = this;
+  
+  /**
+   * stores the currently executing process, if any.
+   * if not, false.
+   */
+  this.proc = false;
+
+  /**
+   * logging verbosity
+   * 0 == none
+   * 1 == high-level only
+   * 2 == medium level
+   * 3 == nitty gritty details
+   */
+  this.verbosity = 3;
 
   /**
    * root of the server.
@@ -31,7 +47,6 @@ function Playlist(devices, player) {
    * @type {Track[]}
    */
   this.list = new Array(0);
-
 
   /**
    * used to know where in the playlist is currently playing
@@ -58,9 +73,8 @@ function Playlist(devices, player) {
    * @returns {boolean} true for now
    */
   this.add = function(track) {
-    console.log("Adding track to playlist:",track.title);
+    self.log("Adding track to playlist:" + track.title);
     self.list.push(track);
-    player.add(self.serverRoot + track.filename);
 
     return true;
   };
@@ -76,7 +90,7 @@ function Playlist(devices, player) {
     var delNum = function(listTrack) {
       if (listTrack._id === track._id) {
         isInPlaylist = true;
-        console.log("removing track from playlist:",listTrack.filename);
+        self.log("removing track from playlist:" + listTrack.filename);
       }
       return listTrack._id === track._id;
     };
@@ -93,7 +107,8 @@ function Playlist(devices, player) {
    * @todo actually write this implementation.
    */
   this.prev = function() {
-    
+    self.playSong(self.prevTrack);
+    self.current--;
   };
 
   /**
@@ -101,7 +116,8 @@ function Playlist(devices, player) {
    * unless no next song exists in the .list[] array.
    */
   this.next = function() {
-    player.next();
+    self.playSong(self.nextTrack);
+    self.current++;
   };
 
   /**
@@ -109,9 +125,13 @@ function Playlist(devices, player) {
    * If the audio stream is currently paused, this function does nothing.
    */
   this.pause = function() {
+    self.log("pause the current song");
     if (!this.paused) {
       this.paused = true;
-      player.pause();
+      if (self.proc) {
+        // pause process
+        self.proc.kill('SIGSTOP')
+      }
     }
     var toSend = {
       type: "playevent",
@@ -123,7 +143,7 @@ function Playlist(devices, player) {
       }
     };
 
-    console.log(JSON.stringify(toSend));
+    self.log(toSend, 2);
     self.sendToClients(toSend);
   };
 
@@ -137,8 +157,24 @@ function Playlist(devices, player) {
     if (this.paused) {
       this.paused = false;
       wasResumed = true;
-      player.pause();
+      if (self.proc) {
+        // resume process?
+        self.proc.kill('SIGCONT')
+      }
     }
+
+    var toSend = {
+      type: "playevent",
+      playstate: {
+        playing: true,
+        prev: self.prevTrack,
+        next: self.nextTrack,
+        track: self.list[self.current]
+      }
+    };
+
+    self.log(toSend, 2);
+    self.sendToClients(toSend);
 
     return wasResumed;
   };
@@ -151,17 +187,33 @@ function Playlist(devices, player) {
    * @param {Track} tracks[] - the array of songs
    */
   this.play = function(tracks) {
+    // clear the list!
+    self.reset();
+
     tracks.forEach(function(track) {
       self.add(track);
     });
-    self.start();
+
+    // start at zero
+    self.current = 0;
+    self.playSong(tracks[self.current]);
   };
 
+  /**
+   * used to clear the current playlist and prev/next/current songs
+   */
+  this.reset = function() {
+    self.list = [];
+    self.current = -1;
+    self.prevTrack = false;
+    self.nextTrack = false;
+  };
   /**
    * this function will start the audio stream.
    * If currently playing, it will first stop the current song,
    * clear the playlist, 
    * then start the new song.
+   * @bug bug when audio stream should not start at song #0
    */
   this.start = function() {
     var self = this;
@@ -171,19 +223,38 @@ function Playlist(devices, player) {
       // we should stop the player and clear the list.
       // We should also consider having a timeout
       // so we don't play one track over the top of the other
-      player.stop();
-      // self.clear();
+      self.stop();
+      self.reset();
       
       // start the player on the next song,
       // which we assume was just added to player.list
       self.next();
     } else {
-      player.play(function(err, player) {
-        self.paused = true;
-        console.log("End of playback!",arguments);
-      });
+      // probably a bug in assuming we should start at index self.current...
+      self.playSong(list[self.current]);
+      self.paused = false;
     }
   };
+
+  this.playSong = function(track) {
+    // quit the current song first
+    if (self.proc) {
+      this.stop();
+    }
+
+    var args = [track.filename];
+
+    self.proc = spawn("mplayer", args);
+    self.proc.on("close", function(stdout,stderr) {
+      self.log("play complete?", 2);
+      self.log(stdout, 3);
+      self.log(stderr, 3);
+      self.paused = true;
+    });
+
+    self.onPlay(track);
+  };
+
 
   /**
    * clear  all tracks from the current playlist.
@@ -198,6 +269,7 @@ function Playlist(devices, player) {
     }
     return wasCleared;
   };
+
   /**
    * this function is called from player.onplay
    * we should push a notification saying that we are playing X song.
@@ -211,11 +283,9 @@ function Playlist(devices, player) {
 
     // find currently playing track by full filename
     for (var i = 0; i < self.list.length; i++) {
-      var fullFile = self.serverRoot + self.list[i].filename;
-      console.log("checking:", fullFile, item.src);
-      if (fullFile === item.src) {
+      if (self.list[i]._id === item._id) {
+        // set current integer
         self.current = i;
-        console.log("Found current!",self.current);
         break
       } // else keep searching
     }
@@ -239,7 +309,7 @@ function Playlist(devices, player) {
       }
     };
 
-    // console.log(JSON.stringify(toSend));
+    self.log(toSend);
     self.sendToClients(toSend);
   };
 
@@ -248,7 +318,7 @@ function Playlist(devices, player) {
    * @param {Object} e - the event passed from player.onplayend
    */
   this.onPlayEnd = function(e) {
-    console.log("onPlayEnd: ", arguments);
+    self.log("onPlayEnd: ");
 
     var toSend = {
       type: "playevent",
@@ -260,8 +330,8 @@ function Playlist(devices, player) {
       }
     };
 
-    console.log(JSON.stringify(toSend));
-    //self.sendToClients(toSend);
+    self.log(toSend);
+    self.sendToClients(toSend);
   };
 
   /**
@@ -269,7 +339,7 @@ function Playlist(devices, player) {
    * @param {Object} e - the event passed from player.onerror
    */
   this.onError = function(e) {
-    console.log("onError: ", arguments);
+    self.log("onError: ");
     var toSend = {
       type: "playevent",
       playstate: {
@@ -280,7 +350,7 @@ function Playlist(devices, player) {
       }
     };
 
-    console.log(JSON.stringify(toSend));
+    self.log(toSend);
     self.sendToClients(toSend);
   };
 
@@ -288,8 +358,12 @@ function Playlist(devices, player) {
    * this function stops the currently playing stream
    */
   this.stop = function() {
-    this.paused = true;
-    player.stop();
+    self.log("halting the song!!");
+    if (self.proc) {
+      // pause process?
+      self.proc.kill('SIGINT');
+      this.paused = true;
+    }
   };
 
   /**
@@ -305,27 +379,53 @@ function Playlist(devices, player) {
 
     // send it
     devices.forEach(function(socket) {
-      console.log("sending message to socket:",socket.readyState);
+      self.log("sending message to socket: readyState=" + socket.readyState, 3);
       if (socket.readyState === 1) {
         // if the socket is open
         socket.send(dat);
       } else {
-        console.log("socket is closed!");
+        self.log("socket is closed: readyState=" + socket.readyState, 3);
         // consider removing the socket from devices[] ?
       }
     });
   };
+
+  /**
+   * send debugging output to console
+   * IF this.debug is true.
+   * @param {string|object} data - stuff to log
+   * @param {number} level - 1,2 or 3 in order from least-detailed to most-detailed
+   */
+  this.log = function(data,level) {
+    switch(self.verbosity) {
+        // notice this is out of order,
+        // but we do that to make level1 the default.
+      case 0:
+        // no logging whatsoever
+        break;
+      case 3:
+        // level 3 verbosity says log it, period.
+        console.log(data);
+        break;
+      case 2:
+        // but that is in order to make level2 the default
+        // log any level2 or level3 stuff
+        if (level < 3) {
+          console.log(data);
+        }
+        break;
+      default:
+        // log only level 1 stuff
+        if (level < 2) {
+          console.log(data);
+        }
+        break;
+    }
+  };
 };
 
 module.exports = function(devices) {
-  var Player = require("player"),
-      player = new Player(),
-      playlist = new Playlist(devices, player);
-
-  // special events from the player audio stream
-  player.on("playend", playlist.onPlayEnd);
-  player.on("playing", playlist.onPlay);
-  player.on("error", playlist.onError);
+  var playlist = new Playlist(devices);
 
   return playlist;
 };
