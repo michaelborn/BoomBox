@@ -51,7 +51,7 @@ function Api(db) {
   this.getAlbums =  function(params, callback) {
     this.log("albums.get():", arguments);
     var searchOpts = {};
-    if (typeof id !== "undefined") {
+    if (typeof params.id !== "undefined") {
       searchOpts._id = params.id
     }
     if (typeof params.limit !== "number") {
@@ -120,12 +120,15 @@ function Api(db) {
   this.getArtists =  function(params, callback) {
     this.log("artists.get():", arguments);
     var searchOpts = {};
-    if (typeof id !== "undefined") {
+    if (typeof params.id !== "undefined") {
       searchOpts._id = params.id
     }
     if (typeof params.limit !== "number") {
       params.limit = 50; // notice default is 50
     }
+    // debugging
+    console.log("searching for artists by",params);
+
     // Return tracks searchable by name, sorted a-z by name, LIMIT 50
     db.artists.find(searchOpts).sort({ name: 1 }).limit(params.limit, callback);
   };
@@ -183,7 +186,7 @@ function Api(db) {
    * @param {mongoArtist} callback - return mongo results for artists
    */
   this.getTracksByArtistId = function(artistid, callback) {
-    this.log("tracks.getByArtistId():", arguments);
+    this.log("getTracksByArtistId():", arguments);
     // Return tracks searchable by name, sorted a-z by name, LIMIT 50
     db.tracks.find({ artistid: artistid }).sort({ number: 1 }, callback);
   };
@@ -219,22 +222,22 @@ function Api(db) {
       // get all tracks from album
       searchOpts.albumid = params.albumid;
       // Then sort by track number
-      var sortBy = { number: 1 };
+      // params.sortBy = { number: 1 };
     }
     if (typeof params.limit !== "number") {
       // notice default is 50
       params.limit = 50;
     }
-    if (typeof sortBy === "undefined") {
+    if (typeof params.sortBy === "undefined") {
       // default sort order is the track title
-      var sortBy = { title: 1 };
+      params.sortBy = { number: 1 };
     }
 
     this.log("Search parameters:", searchOpts);
-    this.log("Sorting by:", sortBy);
+    this.log("Sorting by:", params.sortBy);
 
     // Return tracks searchable by name, sorted a-z by name, LIMIT 50
-    db.tracks.find(searchOpts).sort(sortBy).limit(params.limit, function(err, result) {
+    db.tracks.find(searchOpts).sort(params.sortBy).limit(params.limit, function(err, result) {
       callback(err, result);
     });
   };
