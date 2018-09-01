@@ -927,7 +927,7 @@ Does not stop the audio stream!
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="api_playlist.js.html">api/playlist.js</a>, <a href="api_playlist.js.html#line269">line 269</a>
+        <a href="api_playlist.js.html">api/playlist.js</a>, <a href="api_playlist.js.html#line279">line 279</a>
     </li></ul></dd>
     
 
@@ -1107,7 +1107,7 @@ IF this.debug is true.
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="api_playlist.js.html">api/playlist.js</a>, <a href="api_playlist.js.html#line404">line 404</a>
+        <a href="api_playlist.js.html">api/playlist.js</a>, <a href="api_playlist.js.html#line415">line 415</a>
     </li></ul></dd>
     
 
@@ -1321,7 +1321,7 @@ unless no next song exists in the .list[] array.
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="api_playlist.js.html">api/playlist.js</a>, <a href="api_playlist.js.html#line346">line 346</a>
+        <a href="api_playlist.js.html">api/playlist.js</a>, <a href="api_playlist.js.html#line356">line 356</a>
     </li></ul></dd>
     
 
@@ -1454,7 +1454,7 @@ this helps keep the frontend in perfect sync with the server
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="api_playlist.js.html">api/playlist.js</a>, <a href="api_playlist.js.html#line284">line 284</a>
+        <a href="api_playlist.js.html">api/playlist.js</a>, <a href="api_playlist.js.html#line294">line 294</a>
     </li></ul></dd>
     
 
@@ -1585,7 +1585,7 @@ this helps keep the frontend in perfect sync with the server
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="api_playlist.js.html">api/playlist.js</a>, <a href="api_playlist.js.html#line325">line 325</a>
+        <a href="api_playlist.js.html">api/playlist.js</a>, <a href="api_playlist.js.html#line335">line 335</a>
     </li></ul></dd>
     
 
@@ -1808,6 +1808,148 @@ it then starts the player.
 
     
 
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        
+            
+
+    
+
+    <h4 class="name" id="playSong"><span class="type-signature"></span>playSong<span class="signature">(track)</span><span class="type-signature"></span></h4>
+
+    
+
+
+
+<div class="description">
+    starts the audio playback.
+All audio playback is performed via the mpg321 binary.
+We use a subprocesses to run the binary, and
+when the process completes we set this.paused to true.
+We call onPlay when the audio starts.
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>track</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type"><a href="global.html#Track">Track</a></span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="api_playlist.js.html">api/playlist.js</a>, <a href="api_playlist.js.html#line249">line 249</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+    <dt class="tag-see">See:</dt>
+    <dd class="tag-see">
+        <ul>
+            <li><a href="Playlist.html#onPlay">Playlist#onPlay</a></li>
+        </ul>
+    </dd>
     
 
     
@@ -2373,7 +2515,7 @@ to all websocket-connected clients
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="api_playlist.js.html">api/playlist.js</a>, <a href="api_playlist.js.html#line379">line 379</a>
+        <a href="api_playlist.js.html">api/playlist.js</a>, <a href="api_playlist.js.html#line390">line 390</a>
     </li></ul></dd>
     
 
@@ -2458,7 +2600,7 @@ then start the new song.
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="api_playlist.js.html">api/playlist.js</a>, <a href="api_playlist.js.html#line218">line 218</a>
+        <a href="api_playlist.js.html">api/playlist.js</a>, <a href="api_playlist.js.html#line219">line 219</a>
     </li></ul></dd>
     
 
@@ -2496,7 +2638,8 @@ then start the new song.
 
 
 <div class="description">
-    this function stops the currently playing stream
+    this function stops the currently playing stream.
+it sets #Playlist.paused to true after killing the mpg321 process.
 </div>
 
 
@@ -2540,7 +2683,7 @@ then start the new song.
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="api_playlist.js.html">api/playlist.js</a>, <a href="api_playlist.js.html#line365">line 365</a>
+        <a href="api_playlist.js.html">api/playlist.js</a>, <a href="api_playlist.js.html#line376">line 376</a>
     </li></ul></dd>
     
 
@@ -2588,7 +2731,7 @@ then start the new song.
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.4.2</a> on Wed Dec 07 2016 22:42:24 GMT-0500 (EST)
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.4.2</a> on Fri Dec 09 2016 10:32:13 GMT-0500 (EST)
 </footer>
 
 <script> prettyPrint(); </script>

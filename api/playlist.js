@@ -208,6 +208,7 @@ function Playlist(devices) {
     self.prevTrack = false;
     self.nextTrack = false;
   };
+
   /**
    * this function will start the audio stream.
    * If currently playing, it will first stop the current song,
@@ -236,6 +237,15 @@ function Playlist(devices) {
     }
   };
 
+  /**
+   * starts the audio playback.
+   * All audio playback is performed via the mpg321 binary.
+   * We use a subprocesses to run the binary, and
+   * when the process completes we set this.paused to true.
+   * We call onPlay when the audio starts.
+   * @param {Track}
+   * @see Playlist#onPlay
+   */
   this.playSong = function(track) {
     // quit the current song first
     if (self.proc) {
@@ -360,7 +370,8 @@ function Playlist(devices) {
   };
 
   /**
-   * this function stops the currently playing stream
+   * this function stops the currently playing stream.
+   * it sets #Playlist.paused to true after killing the mpg321 process.
    */
   this.stop = function() {
     self.log("halting the song!!");
