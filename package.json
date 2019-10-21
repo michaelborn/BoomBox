@@ -5,8 +5,8 @@
   "private": true,
   "dependencies": {
     "express": "4.15.2",
-    "mongodb": "~2.1.7",
-    "mongojs": "^2.4.0",
+    "mongodb": "~3.1.13",
+    "mongojs": "^3.0.0",
     "mu2express": "0.0.1",
     "python-shell": "^0.4.0",
     "socket.io": "^2.0.0",
